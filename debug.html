@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>H5页面诊断工具</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .pass { color: green; }
+        .fail { color: red; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>H5页面诊断工具</h1>
+    
+    <div class="test">
+        <h3>测试1: 页面加载</h3>
+        <div id="test1">正在测试...</div>
+    </div>
+    
+    <div class="test">
+        <h3>测试2: CSS文件加载</h3>
+        <div id="test2">正在测试...</div>
+    </div>
+    
+    <div class="test">
+        <h3>测试3: JavaScript文件加载</h3>
+        <div id="test3">正在测试...</div>
+    </div>
+    
+    <div class="test">
+        <h3>测试4: Font Awesome CDN</h3>
+        <div id="test4">正在测试...</div>
+    </div>
+    
+    <div class="test">
+        <h3>测试5: 控制台错误</h3>
+        <div id="test5">检查浏览器控制台...</div>
+    </div>
+    
+    <div class="test">
+        <h3>解决方案</h3>
+        <p>如果页面显示不正常，请尝试：</p>
+        <button onclick="location.href='https://facecheck2024.loca.lt'">访问新URL</button>
+        <button onclick="location.href='index-standalone.html'">访问简化版</button>
+        <button onclick="clearCache()">清除浏览器缓存</button>
+    </div>
+    
+    <script>
+        // 测试1: 页面加载
+        document.getElementById('test1').innerHTML = '<span class="pass">✓ 页面加载成功</span>';
+        
+        // 测试2: CSS文件
+        fetch('style.css')
+            .then(response => {
+                if(response.ok) {
+                    document.getElementById('test2').innerHTML = '<span class="pass">✓ CSS文件可访问</span>';
+                } else {
+                    document.getElementById('test2').innerHTML = '<span class="fail">✗ CSS文件不可访问</span>';
+                }
+            })
+            .catch(() => {
+                document.getElementById('test2').innerHTML = '<span class="fail">✗ CSS文件加载失败</span>';
+            });
+        
+        // 测试3: JS文件
+        fetch('app.js')
+            .then(response => {
+                if(response.ok) {
+                    document.getElementById('test3').innerHTML = '<span class="pass">✓ JS文件可访问</span>';
+                } else {
+                    document.getElementById('test3').innerHTML = '<span class="fail">✗ JS文件不可访问</span>';
+                }
+            })
+            .catch(() => {
+                document.getElementById('test3').innerHTML = '<span class="fail">✗ JS文件加载失败</span>';
+            });
+        
+        // 测试4: Font Awesome
+        fetch('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
+            .then(response => {
+                if(response.ok) {
+                    document.getElementById('test4').innerHTML = '<span class="pass">✓ Font Awesome CDN可访问</span>';
+                } else {
+                    document.getElementById('test4').innerHTML = '<span class="fail">✗ Font Awesome CDN不可访问（可能被墙）</span>';
+                }
+            })
+            .catch(() => {
+                document.getElementById('test4').innerHTML = '<span class="fail">✗ Font Awesome CDN加载失败</span>';
+            });
+        
+        // 测试5: 控制台错误
+        window.onerror = function(msg, url, line) {
+            document.getElementById('test5').innerHTML = 
+                '<span class="fail">✗ JavaScript错误: ' + msg + ' (行: ' + line + ')</span>';
+            return false;
+        };
+        
+        // 清除缓存函数
+        function clearCache() {
+            if('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) caches.delete(name);
+                });
+            }
+            localStorage.clear();
+            sessionStorage.clear();
+            alert('缓存已清除，请刷新页面');
+            location.reload(true);
+        }
+        
+        // 5秒后检查是否有错误
+        setTimeout(() => {
+            if(document.getElementById('test5').innerHTML.includes('正在测试')) {
+                document.getElementById('test5').innerHTML = '<span class="pass">✓ 未检测到JavaScript错误</span>';
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
