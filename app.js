@@ -1,0 +1,295 @@
+// 主应用逻辑
+
+// 全局状态
+let currentQuestionIndex = 0;
+let userAnswers = new Array(questions.length).fill(null);
+let currentScores = null;
+let currentResults = null;
+
+// DOM元素
+const homePage = document.getElementById('home-page');
+const questionPage = document.getElementById('question-page');
+const resultPage = document.getElementById('result-page');
+const startBtn = document.getElementById('start-btn');
+const prevBtn = document.getElementById('prev-btn');
+const nextBtn = document.getElementById('next-btn');
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+const questionTitle = document.getElementById('question-title');
+const observation = document.getElementById('observation');
+const optionsContainer = document.getElementById('options-container');
+const retestBtn = document.getElementById('retest-btn');
+const detailBtn = document.getElementById('detail-btn');
+
+// 结果页元素
+const resultTendency = document.getElementById('result-tendency');
+const resultTendencyDesc = document.getElementById('result-tendency-desc');
+const resultDirection = document.getElementById('result-direction');
+const resultDirectionDesc = document.getElementById('result-direction-desc');
+const resultSide = document.getElementById('result-side');
+const resultSideDesc = document.getElementById('result-side-desc');
+const resultComplexity = document.getElementById('result-complexity');
+const resultComplexityDesc = document.getElementById('result-complexity-desc');
+const resultSummary = document.getElementById('result-summary');
+
+// 初始化应用
+function initApp() {
+    // 绑定事件监听器
+    startBtn.addEventListener('click', startTest);
+    prevBtn.addEventListener('click', showPreviousQuestion);
+    nextBtn.addEventListener('click', showNextQuestion);
+    retestBtn.addEventListener('click', restartTest);
+    detailBtn.addEventListener('click', showDetailPage);
+    
+    // 显示首页
+    showPage('home');
+}
+
+// 显示指定页面
+function showPage(pageName) {
+    // 隐藏所有页面
+    homePage.classList.remove('active');
+    questionPage.classList.remove('active');
+    resultPage.classList.remove('active');
+    
+    // 显示目标页面
+    switch(pageName) {
+        case 'home':
+            homePage.classList.add('active');
+            break;
+        case 'question':
+            questionPage.classList.add('active');
+            break;
+        case 'result':
+            resultPage.classList.add('active');
+            break;
+    }
+}
+
+// 开始测试
+function startTest() {
+    // 重置状态
+    currentQuestionIndex = 0;
+    userAnswers.fill(null);
+    currentScores = null;
+    currentResults = null;
+    
+    // 显示第一题
+    showQuestion(0);
+    showPage('question');
+}
+
+// 显示指定题目
+function showQuestion(index) {
+    if (index < 0 || index >= questions.length) return;
+    
+    currentQuestionIndex = index;
+    const question = questions[index];
+    
+    // 更新进度
+    const progressPercent = ((index + 1) / questions.length) * 100;
+    progressFill.style.width = `${progressPercent}%`;
+    progressText.textContent = `${index + 1}/${questions.length}`;
+    
+    // 更新题目内容
+    questionTitle.textContent = question.title;
+    observation.textContent = question.observation;
+    
+    // 清空选项容器
+    optionsContainer.innerHTML = '';
+    
+    // 创建选项
+    question.options.forEach((option, optionIndex) => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'option';
+        if (userAnswers[index] === option.value) {
+            optionElement.classList.add('selected');
+        }
+        optionElement.textContent = option.text;
+        optionElement.dataset.value = option.value;
+        
+        optionElement.addEventListener('click', () => {
+            selectOption(index, option.value);
+        });
+        
+        optionsContainer.appendChild(optionElement);
+    });
+    
+    // 更新导航按钮状态
+    updateNavigationButtons();
+}
+
+// 选择选项
+function selectOption(questionIndex, value) {
+    userAnswers[questionIndex] = value;
+    
+    // 更新UI
+    const options = optionsContainer.querySelectorAll('.option');
+    options.forEach(option => {
+        if (option.dataset.value === value) {
+            option.classList.add('selected');
+        } else {
+            option.classList.remove('selected');
+        }
+    });
+    
+    // 启用下一题按钮
+    nextBtn.disabled = false;
+}
+
+// 更新导航按钮状态
+function updateNavigationButtons() {
+    // 上一题按钮
+    prevBtn.disabled = currentQuestionIndex === 0;
+    
+    // 下一题按钮
+    const hasAnswer = userAnswers[currentQuestionIndex] !== null;
+    const isLastQuestion = currentQuestionIndex === questions.length - 1;
+    
+    if (isLastQuestion) {
+        nextBtn.textContent = hasAnswer ? '查看结果' : '请先选择答案';
+        nextBtn.disabled = !hasAnswer;
+    } else {
+        nextBtn.textContent = '下一题';
+        nextBtn.disabled = !hasAnswer;
+    }
+}
+
+// 显示上一题
+function showPreviousQuestion() {
+    if (currentQuestionIndex > 0) {
+        showQuestion(currentQuestionIndex - 1);
+    }
+}
+
+// 显示下一题或查看结果
+function showNextQuestion() {
+    if (!userAnswers[currentQuestionIndex]) {
+        alert('请先选择一个答案');
+        return;
+    }
+    
+    if (currentQuestionIndex < questions.length - 1) {
+        showQuestion(currentQuestionIndex + 1);
+    } else {
+        calculateAndShowResults();
+    }
+}
+
+// 计算并显示结果
+function calculateAndShowResults() {
+    // 计算分数
+    currentScores = calculateScores(userAnswers);
+    
+    // 计算结果
+    currentResults = calculateResults(currentScores);
+    
+    // 更新结果页
+    updateResultPage();
+    
+    // 显示结果页
+    showPage('result');
+}
+
+// 更新结果页
+function updateResultPage() {
+    // 获取详细描述
+    const descriptions = getDetailedDescriptions(currentResults, currentScores);
+    
+    // 更新真假倾向
+    resultTendency.textContent = currentResults.tendency;
+    resultTendencyDesc.textContent = descriptions.tendency;
+    
+    // 更新主问题方向
+    resultDirection.textContent = currentResults.direction;
+    resultDirectionDesc.textContent = descriptions.direction;
+    
+    // 更新左右侧提示
+    resultSide.textContent = currentResults.side;
+    resultSideDesc.textContent = descriptions.side;
+    
+    // 更新复杂度提示
+    resultComplexity.textContent = currentResults.complexity;
+    resultComplexityDesc.textContent = descriptions.complexity;
+    
+    // 更新结果摘要
+    const summary = generateResultSummary(currentResults, currentScores);
+    resultSummary.textContent = summary;
+}
+
+// 重新测试
+function restartTest() {
+    // 重置状态
+    currentQuestionIndex = 0;
+    userAnswers.fill(null);
+    currentScores = null;
+    currentResults = null;
+    
+    // 返回首页
+    showPage('home');
+}
+
+// 显示详细分析页面（占位功能）
+function showDetailPage() {
+    alert('详细分析与训练建议功能正在开发中，敬请期待！\n\n这是免费初筛版本的占位按钮，完整版本将包含：\n• 详细的问题分析报告\n• 个性化的训练建议\n• 专业的改善方案');
+}
+
+// 页面加载完成后初始化应用
+document.addEventListener('DOMContentLoaded', initApp);
+
+// 添加键盘支持
+document.addEventListener('keydown', (e) => {
+    if (questionPage.classList.contains('active')) {
+        switch(e.key) {
+            case 'ArrowLeft':
+                if (!prevBtn.disabled) showPreviousQuestion();
+                break;
+            case 'ArrowRight':
+            case 'Enter':
+                if (!nextBtn.disabled) showNextQuestion();
+                break;
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+                const optionIndex = parseInt(e.key) - 1;
+                const options = optionsContainer.querySelectorAll('.option');
+                if (optionIndex < options.length) {
+                    options[optionIndex].click();
+                }
+                break;
+        }
+    }
+});
+
+// 添加触摸滑动支持
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+});
+
+document.addEventListener('touchend', (e) => {
+    if (!questionPage.classList.contains('active')) return;
+    
+    touchEndX = e.changedTouches[0].screenX;
+    const swipeThreshold = 50;
+    
+    if (touchStartX - touchEndX > swipeThreshold) {
+        // 向左滑动 - 下一题
+        if (!nextBtn.disabled) showNextQuestion();
+    } else if (touchEndX - touchStartX > swipeThreshold) {
+        // 向右滑动 - 上一题
+        if (!prevBtn.disabled) showPreviousQuestion();
+    }
+});
+
+// 调试功能：在控制台显示当前状态
+window.debugState = function() {
+    console.log('当前状态:');
+    console.log('当前题目:', currentQuestionIndex + 1);
+    console.log('用户答案:', userAnswers);
+    console.log('当前分数:', currentScores);
+    console.log('当前结果:', currentResults);
+};
