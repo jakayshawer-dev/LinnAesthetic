@@ -405,6 +405,68 @@ body {
     color: #5d4203;
 }
 
+.upgrade-module {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 16px;
+    padding: 25px;
+    margin: 25px 0;
+    border: 2px solid #dee2e6;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.upgrade-module h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(44, 62, 80, 0.1);
+}
+
+.upgrade-module h3 i {
+    color: #4a6fa5;
+}
+
+.upgrade-content {
+    margin-bottom: 20px;
+}
+
+.upgrade-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-left: 5px;
+}
+
+.upgrade-item i {
+    color: #4a6fa5;
+    font-size: 14px;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.upgrade-item span {
+    font-size: 15px;
+    color: #495057;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.upgrade-note {
+    font-size: 13px;
+    color: #6c757d;
+    line-height: 1.5;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    border-left: 3px solid #adb5bd;
+    margin-top: 15px;
+}
+
 .reminder {
     background: #e8f4fd;
     border-radius: 12px;
