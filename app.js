@@ -39,7 +39,7 @@ function initApp() {
     prevBtn.addEventListener('click', showPreviousQuestion);
     nextBtn.addEventListener('click', showNextQuestion);
     retestBtn.addEventListener('click', restartTest);
-    detailBtn.addEventListener('click', showDetailPage);
+    detailBtn.addEventListener('click', showAdvancedAssessment);
     
     // 显示首页
     showPage('home');
@@ -233,9 +233,10 @@ function restartTest() {
     showPage('home');
 }
 
-// 显示详细分析页面（占位功能）
-function showDetailPage() {
-    alert('详细分析与训练建议功能正在开发中，敬请期待！\n\n这是免费初筛版本的占位按钮，完整版本将包含：\n• 详细的问题分析报告\n• 个性化的训练建议\n• 专业的改善方案');
+// 进入第二层进阶评估
+function showAdvancedAssessment() {
+    // 跳转到第二层说明页
+    window.location.href = 'advanced-intro.html';
 }
 
 // 页面加载完成后初始化应用

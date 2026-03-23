@@ -593,3 +593,140 @@ button:disabled {
         display: none;
     }
 }
+
+/* ============================================
+   第二层说明页样式
+============================================ */
+
+.info-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 16px;
+    padding: 25px;
+    margin: 25px 0;
+    border: 2px solid #bae6fd;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+}
+
+.info-icon {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.info-icon i {
+    font-size: 32px;
+    color: #0ea5e9;
+}
+
+.info-content {
+    text-align: center;
+}
+
+.info-content p {
+    font-size: 16px;
+    color: #0369a1;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.info-content p:last-child {
+    margin-bottom: 0;
+}
+
+.info-highlight {
+    font-weight: 600;
+    color: #0c4a6e;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border-left: 3px solid #0ea5e9;
+    margin-top: 15px !important;
+}
+
+.process-steps {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 25px;
+    margin: 25px 0;
+    border: 2px solid #e2e8f0;
+}
+
+.process-steps h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.process-steps h3 i {
+    color: #4f46e5;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.step:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.step-number {
+    background: #4f46e5;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content strong {
+    display: block;
+    font-size: 16px;
+    color: #1e293b;
+    margin-bottom: 5px;
+}
+
+.step-content p {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+/* 移动端调整 */
+@media (max-width: 480px) {
+    .info-card {
+        padding: 20px;
+    }
+    
+    .process-steps {
+        padding: 20px;
+    }
+    
+    .step {
+        gap: 12px;
+    }
+    
+    .step-number {
+        width: 26px;
+        height: 26px;
+        font-size: 13px;
+    }
+}

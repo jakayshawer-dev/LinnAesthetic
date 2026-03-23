@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA 进阶评估</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 第二层说明页 -->
+        <div id="advanced-intro-page" class="page active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                
+                <h1 class="main-title">LAA 进阶评估</h1>
+                <p class="subtitle">进一步看清问题主次、叠加因素与处理顺序</p>
+                
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="info-content">
+                        <p>接下来你将补充 4 个问题，并上传 1 张自然正面照。</p>
+                        <p>这些信息将用于进一步拆解你的问题主次、形成逻辑与处理顺序。</p>
+                        <p class="info-highlight">完成后可进入结果解锁页，查看你的 LAA 进阶评估结果。</p>
+                    </div>
+                </div>
+                
+                <div class="process-steps">
+                    <h3><i class="fas fa-list-ol"></i> 评估流程</h3>
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>补充 4 个问题</strong>
+                            <p>进一步了解你的具体情况和感受</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>上传正面照</strong>
+                            <p>1 张自然正面照，用于辅助观察</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>解锁进阶结果</strong>
+                            <p>查看详细的主次关系分析和处理建议</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reminder">
+                    <p><i class="fas fa-lightbulb"></i> <strong>重要提示：</strong>进阶评估不是"更多内容"，而是"补充信息后，进一步拆解主次关系、形成逻辑和处理顺序"。</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="start-advanced-btn" class="btn-primary">
+                        <i class="fas fa-play-circle"></i> 开始补充评估信息
+                    </button>
+                    <button id="back-to-results-btn" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> 返回上一页
+                    </button>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA · 进阶评估
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面元素
+        const startAdvancedBtn = document.getElementById('start-advanced-btn');
+        const backToResultsBtn = document.getElementById('back-to-results-btn');
+        
+        // 开始进阶评估
+        startAdvancedBtn.addEventListener('click', function() {
+            // 跳转到补充问题页面
+            window.location.href = 'advanced-questions.html';
+        });
+        
+        // 返回上一页
+        backToResultsBtn.addEventListener('click', function() {
+            // 返回第一层结果页
+            window.history.back();
+        });
+        
+        // 添加键盘支持
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                startAdvancedBtn.click();
+            } else if (e.key === 'Escape') {
+                backToResultsBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
