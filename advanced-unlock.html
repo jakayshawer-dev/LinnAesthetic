@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA 进阶评估 - 解锁结果</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 结果解锁/付款页 -->
+        <div id="advanced-unlock-page" class="page active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-lock-open"></i>
+                </div>
+                
+                <h1 class="main-title">解锁 LAA 进阶评估结果</h1>
+                <p class="subtitle">你已完成补充评估信息，接下来可查看更进一步的结果分析</p>
+                
+                <!-- 已完成提示 -->
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="info-content">
+                        <p>你已完成补充问题与正面照提交。</p>
+                        <p class="info-highlight">升级后可查看你的 LAA 进阶评估结果。</p>
+                    </div>
+                </div>
+                
+                <!-- 解锁内容 -->
+                <div class="unlock-content">
+                    <h3><i class="fas fa-eye"></i> 解锁后你将看到</h3>
+                    
+                    <div class="content-list">
+                        <div class="content-item">
+                            <i class="fas fa-circle"></i>
+                            <span>主因与次因拆解</span>
+                        </div>
+                        <div class="content-item">
+                            <i class="fas fa-circle"></i>
+                            <span>表现侧与驱动侧分析</span>
+                        </div>
+                        <div class="content-item">
+                            <i class="fas fa-circle"></i>
+                            <span>复合因素判断</span>
+                        </div>
+                        <div class="content-item">
+                            <i class="fas fa-circle"></i>
+                            <span>形成逻辑说明</span>
+                        </div>
+                        <div class="content-item">
+                            <i class="fas fa-circle"></i>
+                            <span>处理顺序建议</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 价格区 -->
+                <div class="price-section">
+                    <h3><i class="fas fa-tag"></i> 进阶评估费用</h3>
+                    <div class="price-amount">
+                        ￥XXX
+                    </div>
+                    <p class="price-note">付款成功后即可查看第二层结果</p>
+                </div>
+                
+                <!-- 支付方式选择 -->
+                <div class="payment-methods">
+                    <h3><i class="fas fa-credit-card"></i> 选择支付方式</h3>
+                    
+                    <div class="method-tabs">
+                        <button class="method-tab active" data-method="alipay">
+                            <i class="fab fa-alipay"></i> 支付宝支付
+                        </button>
+                        <button class="method-tab" data-method="wechat">
+                            <i class="fab fa-weixin"></i> 微信支付
+                        </button>
+                    </div>
+                    
+                    <!-- 收款码展示区 -->
+                    <div class="qrcode-section">
+                        <div class="qrcode-container active" id="alipay-qrcode">
+                            <div class="qrcode-placeholder">
+                                <i class="fab fa-alipay"></i>
+                                <p>支付宝收款码</p>
+                                <small>（收款码将由管理员提供）</small>
+                            </div>
+                            <p class="qrcode-note">使用支付宝扫一扫完成支付</p>
+                        </div>
+                        
+                        <div class="qrcode-container" id="wechat-qrcode">
+                            <div class="qrcode-placeholder">
+                                <i class="fab fa-weixin"></i>
+                                <p>微信收款码</p>
+                                <small>（收款码将由管理员提供）</small>
+                            </div>
+                            <p class="qrcode-note">使用微信扫一扫完成支付</p>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-instruction">
+                        <p><i class="fas fa-info-circle"></i> <strong>支付说明：</strong>请完成付款后，再点击下方"我已付款"。</p>
+                        <p class="instruction-note">当前版本为确认后开通，完成确认后可查看进阶评估结果。</p>
+                    </div>
+                </div>
+                
+                <!-- 付款后流程说明 -->
+                <div class="process-explanation">
+                    <h3><i class="fas fa-question-circle"></i> 付款后会发生什么？</h3>
+                    <div class="explanation-content">
+                        <p>付款成功后，你将直接进入 LAA 进阶评估结果页，查看：</p>
+                        <ul>
+                            <li>主要问题与次要代偿</li>
+                            <li>左右表现侧与驱动侧分析</li>
+                            <li>问题形成逻辑</li>
+                            <li>处理顺序建议</li>
+                        </ul>
+                        <p class="explanation-note">当前版本需要确认后开通，不是自动识别付款系统。</p>
+                    </div>
+                </div>
+                
+                <!-- 底部按钮区 -->
+                <div class="action-buttons">
+                    <button id="paid-btn" class="btn-primary">
+                        <i class="fas fa-check-circle"></i> 我已付款
+                    </button>
+                    <button id="keep-info-btn" class="btn-secondary">
+                        <i class="fas fa-save"></i> 暂时先保留当前信息
+                    </button>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA · 进阶评估
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const methodTabs = document.querySelectorAll('.method-tab');
+        const qrcodeContainers = document.querySelectorAll('.qrcode-container');
+        const paidBtn = document.getElementById('paid-btn');
+        const keepInfoBtn = document.getElementById('keep-info-btn');
+
+        // 初始化应用
+        function initUnlockApp() {
+            // 绑定支付方式切换
+            methodTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // 移除所有激活状态
+                    methodTabs.forEach(t => t.classList.remove('active'));
+                    qrcodeContainers.forEach(c => c.classList.remove('active'));
+                    
+                    // 激活当前标签
+                    tab.classList.add('active');
+                    const method = tab.dataset.method;
+                    
+                    // 显示对应的收款码
+                    const qrcodeId = `${method}-qrcode`;
+                    const qrcodeElement = document.getElementById(qrcodeId);
+                    if (qrcodeElement) {
+                        qrcodeElement.classList.add('active');
+                    }
+                });
+            });
+            
+            // 我已付款按钮
+            paidBtn.addEventListener('click', () => {
+                // 跳转到付款确认页
+                window.location.href = 'advanced-confirm.html';
+            });
+            
+            // 保留信息按钮
+            keepInfoBtn.addEventListener('click', () => {
+                // 返回上一页或首页
+                if (confirm('确定要暂时保留当前信息吗？你可以稍后再回来完成支付。')) {
+                    window.location.href = 'index.html';
+                }
+            });
+            
+            // 添加键盘支持
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    paidBtn.click();
+                } else if (e.key === 'Escape') {
+                    keepInfoBtn.click();
+                }
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initUnlockApp);
+    </script>
+</body>
+</html>

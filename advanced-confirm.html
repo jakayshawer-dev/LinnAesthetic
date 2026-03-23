@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA 进阶评估 - 付款确认</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 付款确认页 -->
+        <div id="advanced-confirm-page" class="page active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-clock"></i>
+                </div>
+                
+                <h1 class="main-title">付款确认中</h1>
+                <p class="subtitle">请按页面提示完成后续确认</p>
+                
+                <!-- 确认说明 -->
+                <div class="confirm-card">
+                    <div class="confirm-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="confirm-content">
+                        <p>如果你已完成付款，请按页面提示完成后续确认。</p>
+                        <p class="confirm-highlight">确认后即可查看你的 LAA 进阶评估结果。</p>
+                    </div>
+                </div>
+                
+                <!-- 当前版本说明 -->
+                <div class="version-info">
+                    <h3><i class="fas fa-info-circle"></i> 当前版本说明</h3>
+                    <div class="info-content">
+                        <p>当前版本为确认后开通，不是自动识别付款系统。</p>
+                        <p>请保留当前页面信息，后续将按既定方式为你开通 LAA 进阶评估结果。</p>
+                    </div>
+                </div>
+                
+                <!-- 预留表单区域（后续可扩展） -->
+                <div class="form-reserved">
+                    <h3><i class="fas fa-edit"></i> 确认信息（可选）</h3>
+                    <p class="form-note">以下信息可帮助更快确认你的付款：</p>
+                    
+                    <div class="form-fields">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> 付款时间</label>
+                            <input type="text" placeholder="例如：2026-03-23 15:30" disabled>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-credit-card"></i> 支付方式</label>
+                            <select disabled>
+                                <option value="">请选择支付方式</option>
+                                <option value="alipay">支付宝</option>
+                                <option value="wechat">微信支付</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-image"></i> 付款截图（可选）</label>
+                            <div class="upload-area-small">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>点击上传截图</p>
+                                <small>支持 JPG、PNG 格式</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-comment"></i> 备注信息（可选）</label>
+                            <textarea placeholder="可填写付款备注或其他信息" rows="3" disabled></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-note-final">
+                        <p><i class="fas fa-lightbulb"></i> <strong>提示：</strong>当前版本这些信息为可选填写，后续版本可能会优化确认流程。</p>
+                    </div>
+                </div>
+                
+                <!-- 后续流程说明 -->
+                <div class="next-steps">
+                    <h3><i class="fas fa-forward"></i> 后续流程</h3>
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <strong>付款确认</strong>
+                                <p>管理员确认你的付款信息</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <strong>结果开通</strong>
+                                <p>为你开通 LAA 进阶评估结果</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <strong>查看结果</strong>
+                                <p>查看详细的主次关系分析和处理建议</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 底部按钮区 -->
+                <div class="action-buttons">
+                    <button id="read-btn" class="btn-primary">
+                        <i class="fas fa-check"></i> 我已阅读
+                    </button>
+                    <button id="back-to-payment-btn" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> 返回支付页
+                    </button>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA · 进阶评估
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const readBtn = document.getElementById('read-btn');
+        const backToPaymentBtn = document.getElementById('back-to-payment-btn');
+
+        // 初始化应用
+        function initConfirmApp() {
+            // 我已阅读按钮
+            readBtn.addEventListener('click', () => {
+                if (confirm('确认已阅读并理解当前付款确认流程吗？')) {
+                    // 返回首页或保留在当前页面
+                    window.location.href = 'index.html';
+                }
+            });
+            
+            // 返回支付页按钮
+            backToPaymentBtn.addEventListener('click', () => {
+                window.history.back();
+            });
+            
+            // 添加键盘支持
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    readBtn.click();
+                } else if (e.key === 'Escape') {
+                    backToPaymentBtn.click();
+                }
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initConfirmApp);
+    </script>
+</body>
+</html>
