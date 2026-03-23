@@ -406,65 +406,73 @@ body {
 }
 
 .upgrade-module {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, #f8f0ff 0%, #e6ccff 100%);
     border-radius: 16px;
     padding: 25px;
-    margin: 25px 0;
-    border: 2px solid #dee2e6;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin: 25px 0 0 0;
+    border: 2px solid #d8b4fe;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.1);
 }
 
 .upgrade-module h3 {
-    font-size: 18px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 20px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #6b21a8;
+    margin-bottom: 18px;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid rgba(44, 62, 80, 0.1);
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(107, 33, 168, 0.2);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+    letter-spacing: 0.3px;
 }
 
 .upgrade-module h3 i {
-    color: #4a6fa5;
+    color: #8b5cf6;
 }
 
 .upgrade-content {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 .upgrade-item {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 12px;
-    padding-left: 5px;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-left: 2px;
 }
 
 .upgrade-item i {
-    color: #4a6fa5;
-    font-size: 14px;
-    margin-top: 3px;
+    color: #7c3aed;
+    font-size: 12px;
+    margin-top: 4px;
     flex-shrink: 0;
 }
 
 .upgrade-item span {
-    font-size: 15px;
-    color: #495057;
+    font-size: 14px;
+    color: #5b21b6;
     line-height: 1.5;
     flex: 1;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.2px;
 }
 
 .upgrade-note {
-    font-size: 13px;
-    color: #6c757d;
+    font-size: 12px;
+    color: #7c3aed;
     line-height: 1.5;
-    padding: 12px 15px;
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 8px;
-    border-left: 3px solid #adb5bd;
-    margin-top: 15px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    border-left: 3px solid #a78bfa;
+    margin-top: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+    font-weight: 400;
+    font-style: italic;
 }
 
 .reminder {
