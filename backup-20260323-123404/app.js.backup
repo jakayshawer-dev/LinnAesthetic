@@ -208,17 +208,13 @@ function updateResultPage() {
     resultSide.textContent = currentResults.side;
     resultSideDesc.textContent = descriptions.side;
     
-    // 更新复杂度提示 - 移除"建议进一步评估"作为标题
-    let complexityTitle = currentResults.complexity;
-    if (complexityTitle === "建议进一步评估") {
-        complexityTitle = "复杂度提示";
-    }
-    resultComplexity.textContent = complexityTitle;
+    // 更新复杂度提示
+    resultComplexity.textContent = currentResults.complexity;
     resultComplexityDesc.textContent = descriptions.complexity;
     
     // 更新结果摘要
     const summary = generateResultSummary(currentResults, currentScores);
-    resultSummary.innerHTML = summary.replace(/\n\n/g, '</p><p>');
+    resultSummary.textContent = summary;
 }
 
 // 重新测试

@@ -63,21 +63,11 @@ body {
     font-size: 28px;
     font-weight: 700;
     color: #2c3e50;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     line-height: 1.3;
 }
 
 .subtitle {
-    text-align: center;
-    font-size: 15px;
-    color: #6c757d;
-    margin-bottom: 10px;
-    padding: 0 10px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-}
-
-.test-info {
     text-align: center;
     font-size: 16px;
     color: #7f8c8d;
@@ -202,26 +192,6 @@ body {
     font-size: 14px;
     color: #7f8c8d;
     font-weight: 500;
-}
-
-.system-identifier {
-    text-align: center;
-    font-size: 14px;
-    color: #6c757d;
-    font-weight: 500;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    letter-spacing: 1px;
-}
-
-.system-identifier-bottom {
-    text-align: center;
-    font-size: 13px;
-    color: #adb5bd;
-    font-weight: 500;
-    margin-top: 25px;
-    letter-spacing: 1px;
-    opacity: 0.8;
 }
 
 .question-container {
@@ -387,15 +357,7 @@ body {
 .summary-text {
     font-size: 16px;
     color: #856404;
-    line-height: 1.7;
-}
-
-.summary-text p {
-    margin-bottom: 15px;
-}
-
-.summary-text p:last-child {
-    margin-bottom: 0;
+    line-height: 1.6;
 }
 
 .reminder {
