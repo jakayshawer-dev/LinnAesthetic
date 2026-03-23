@@ -1349,6 +1349,309 @@ button:disabled {
    付款确认页样式
 ============================================ */
 
+.payment-confirm-form {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 25px;
+    margin: 25px 0;
+    border: 2px solid #e2e8f0;
+}
+
+.payment-confirm-form h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.payment-confirm-form h3 i {
+    color: #4f46e5;
+}
+
+.form-note {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.form-fields {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group label i {
+    color: #4f46e5;
+}
+
+.required {
+    color: #ef4444;
+    margin-left: 2px;
+}
+
+.order-id-display {
+    background: #f1f5f9;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: #334155;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.form-help {
+    display: block;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 5px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #334155;
+    background: white;
+    transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.screenshot-upload-area {
+    background: #f1f5f9;
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.screenshot-upload-area:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+}
+
+.screenshot-upload-area i {
+    font-size: 32px;
+    color: #94a3b8;
+    margin-bottom: 15px;
+}
+
+.screenshot-upload-area p {
+    font-size: 15px;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.screenshot-upload-area small {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.screenshot-preview {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.screenshot-preview .preview-container {
+    position: relative;
+    display: inline-block;
+    max-width: 300px;
+    margin-bottom: 10px;
+}
+
+.screenshot-preview .preview-container img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+}
+
+.remove-screenshot {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.remove-screenshot:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.preview-text {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.form-note-final {
+    background: #e8f4fd;
+    border-radius: 8px;
+    padding: 12px 15px;
+    border-left: 3px solid #2196f3;
+}
+
+.form-note-final p {
+    font-size: 13px;
+    color: #0c5460;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+}
+
+.form-note-final i {
+    color: #2196f3;
+    margin-top: 2px;
+}
+
+/* 成功消息样式 */
+.success-message {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.success-icon {
+    font-size: 60px;
+    color: #10b981;
+    margin-bottom: 20px;
+}
+
+.success-message h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 15px;
+}
+
+.success-message p {
+    font-size: 16px;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.success-details {
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+    border: 2px solid #e2e8f0;
+}
+
+.success-details p {
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: #475569;
+}
+
+.success-details p:last-child {
+    margin-bottom: 0;
+}
+
+.success-details strong {
+    color: #334155;
+    min-width: 80px;
+    display: inline-block;
+}
+
+.success-note {
+    font-weight: 500;
+    color: #0c4a6e;
+    background: #f0f9ff;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border-left: 3px solid #0ea5e9;
+}
+
+.success-contact {
+    font-size: 14px;
+    color: #64748b;
+    font-style: italic;
+}
+
+/* 移动端调整 */
+@media (max-width: 480px) {
+    .payment-confirm-form {
+        padding: 20px;
+    }
+    
+    .screenshot-upload-area {
+        padding: 20px 15px;
+    }
+    
+    .screenshot-upload-area i {
+        font-size: 28px;
+    }
+    
+    .screenshot-preview .preview-container {
+        max-width: 250px;
+    }
+    
+    .success-message {
+        padding: 30px 15px;
+    }
+    
+    .success-icon {
+        font-size: 50px;
+    }
+    
+    .success-message h3 {
+        font-size: 20px;
+    }
+}
+
 .confirm-card {
     background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
     border-radius: 16px;
