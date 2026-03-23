@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA 进阶评估 - 补充问题</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 第二层补充问题页 -->
+        <div id="advanced-questions-page" class="page active">
+            <div class="container">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="advanced-progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="advanced-progress-text">1/4</div>
+                </div>
+                
+                <div class="system-identifier">
+                    LAA · 进阶评估
+                </div>
+                
+                <div class="question-container">
+                    <h2 class="question-title" id="advanced-question-title"></h2>
+                    <div class="question-hint" id="advanced-question-hint"></div>
+                    
+                    <div class="options-container" id="advanced-options-container">
+                        <!-- 选项会动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="navigation-buttons">
+                    <button id="advanced-prev-btn" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> 上一题
+                    </button>
+                    <button id="advanced-next-btn" class="btn-primary">
+                        下一题 <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA · 进阶评估
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 第二层补充问题数据
+        const advancedQuestions = [
+            {
+                id: 1,
+                title: "你最明显感觉左右不对称，是在什么情况下更容易看到？",
+                hint: "",
+                options: [
+                    { id: "A", text: "静态拍照时更明显" },
+                    { id: "B", text: "微笑或说话时更明显" },
+                    { id: "C", text: "咀嚼或用力时更明显" },
+                    { id: "D", text: "每天看起来不太一样，不太稳定" }
+                ]
+            },
+            {
+                id: 2,
+                title: "你平时最明显、持续时间最长的一种偏侧使用习惯是？",
+                hint: "如果你觉得不止一种，请选择最长期、最明显的一项。",
+                options: [
+                    { id: "A", text: "单侧咀嚼比较明显" },
+                    { id: "B", text: "单侧托脸、侧睡或偏向一侧支撑比较明显" },
+                    { id: "C", text: "某一侧表情或发力更常用" },
+                    { id: "D", text: "没有明显感觉，或不确定" }
+                ]
+            },
+            {
+                id: 3,
+                title: "你的不对称感受，更接近下面哪一种？",
+                hint: "",
+                options: [
+                    { id: "A", text: "长期都比较稳定，位置和感觉差不多" },
+                    { id: "B", text: "最近越来越明显" },
+                    { id: "C", text: "有时觉得左边明显，有时又觉得右边明显" },
+                    { id: "D", text: "静态还好，但一动起来就更明显" }
+                ]
+            },
+            {
+                id: 4,
+                title: "你现在最想优先弄清楚的是哪一类问题？",
+                hint: "",
+                options: [
+                    { id: "A", text: "为什么一边脸看起来更大" },
+                    { id: "B", text: "为什么笑起来或说话时更不对称" },
+                    { id: "C", text: "为什么我总分不清到底是哪边有问题" },
+                    { id: "D", text: "我更想先知道问题主次和处理顺序" },
+                    { id: "E", text: "以上都有，但我更想先理清整体逻辑" }
+                ]
+            }
+        ];
+
+        // 全局状态
+        let currentAdvancedQuestionIndex = 0;
+        let advancedUserAnswers = new Array(advancedQuestions.length).fill(null);
+
+        // DOM元素
+        const advancedProgressFill = document.getElementById('advanced-progress-fill');
+        const advancedProgressText = document.getElementById('advanced-progress-text');
+        const advancedQuestionTitle = document.getElementById('advanced-question-title');
+        const advancedQuestionHint = document.getElementById('advanced-question-hint');
+        const advancedOptionsContainer = document.getElementById('advanced-options-container');
+        const advancedPrevBtn = document.getElementById('advanced-prev-btn');
+        const advancedNextBtn = document.getElementById('advanced-next-btn');
+
+        // 初始化应用
+        function initAdvancedApp() {
+            // 显示第一题
+            showAdvancedQuestion(currentAdvancedQuestionIndex);
+            
+            // 更新进度
+            updateAdvancedProgress();
+            
+            // 绑定事件
+            advancedPrevBtn.addEventListener('click', showPreviousAdvancedQuestion);
+            advancedNextBtn.addEventListener('click', showNextAdvancedQuestion);
+            
+            // 初始按钮状态
+            updateAdvancedButtonStates();
+        }
+
+        // 显示问题
+        function showAdvancedQuestion(index) {
+            const question = advancedQuestions[index];
+            
+            // 更新标题和提示
+            advancedQuestionTitle.textContent = question.title;
+            
+            if (question.hint) {
+                advancedQuestionHint.textContent = question.hint;
+                advancedQuestionHint.style.display = 'block';
+            } else {
+                advancedQuestionHint.style.display = 'none';
+            }
+            
+            // 清空选项容器
+            advancedOptionsContainer.innerHTML = '';
+            
+            // 生成选项
+            question.options.forEach((option, optionIndex) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (advancedUserAnswers[index] === optionIndex) {
+                    optionElement.classList.add('selected');
+                }
+                
+                optionElement.innerHTML = `
+                    <div class="option-content">
+                        <div class="option-label">${option.id}</div>
+                        <div class="option-text">${option.text}</div>
+                    </div>
+                    <div class="option-check">
+                        <i class="fas fa-check"></i>
+                    </div>
+                `;
+                
+                optionElement.addEventListener('click', () => {
+                    selectAdvancedOption(index, optionIndex);
+                });
+                
+                advancedOptionsContainer.appendChild(optionElement);
+            });
+            
+            // 更新进度
+            updateAdvancedProgress();
+            updateAdvancedButtonStates();
+        }
+
+        // 选择选项
+        function selectAdvancedOption(questionIndex, optionIndex) {
+            // 移除之前的选择
+            const previousSelected = advancedOptionsContainer.querySelector('.option.selected');
+            if (previousSelected) {
+                previousSelected.classList.remove('selected');
+            }
+            
+            // 标记当前选择
+            const currentOption = advancedOptionsContainer.children[optionIndex];
+            currentOption.classList.add('selected');
+            
+            // 保存答案
+            advancedUserAnswers[questionIndex] = optionIndex;
+            
+            // 启用下一题按钮
+            advancedNextBtn.disabled = false;
+        }
+
+        // 显示上一题
+        function showPreviousAdvancedQuestion() {
+            if (currentAdvancedQuestionIndex > 0) {
+                currentAdvancedQuestionIndex--;
+                showAdvancedQuestion(currentAdvancedQuestionIndex);
+            }
+        }
+
+        // 显示下一题
+        function showNextAdvancedQuestion() {
+            if (currentAdvancedQuestionIndex < advancedQuestions.length - 1) {
+                currentAdvancedQuestionIndex++;
+                showAdvancedQuestion(currentAdvancedQuestionIndex);
+            } else {
+                // 所有问题已回答，跳转到照片上传页
+                if (advancedUserAnswers.every(answer => answer !== null)) {
+                    window.location.href = 'advanced-photo.html';
+                } else {
+                    alert('请先完成所有问题');
+                }
+            }
+        }
+
+        // 更新进度
+        function updateAdvancedProgress() {
+            const progress = ((currentAdvancedQuestionIndex + 1) / advancedQuestions.length) * 100;
+            advancedProgressFill.style.width = `${progress}%`;
+            advancedProgressText.textContent = `${currentAdvancedQuestionIndex + 1}/${advancedQuestions.length}`;
+        }
+
+        // 更新按钮状态
+        function updateAdvancedButtonStates() {
+            // 上一题按钮
+            advancedPrevBtn.disabled = currentAdvancedQuestionIndex === 0;
+            
+            // 下一题按钮
+            const hasAnswer = advancedUserAnswers[currentAdvancedQuestionIndex] !== null;
+            const isLastQuestion = currentAdvancedQuestionIndex === advancedQuestions.length - 1;
+            
+            if (isLastQuestion) {
+                advancedNextBtn.innerHTML = '完成并继续 <i class="fas fa-arrow-right"></i>';
+                advancedNextBtn.disabled = !hasAnswer;
+            } else {
+                advancedNextBtn.innerHTML = '下一题 <i class="fas fa-arrow-right"></i>';
+                advancedNextBtn.disabled = !hasAnswer;
+            }
+        }
+
+        // 添加键盘支持
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    if (!advancedPrevBtn.disabled) showPreviousAdvancedQuestion();
+                    break;
+                case 'ArrowRight':
+                case 'Enter':
+                    if (!advancedNextBtn.disabled) showNextAdvancedQuestion();
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                    const optionIndex = parseInt(e.key) - 1;
+                    if (optionIndex < advancedQuestions[currentAdvancedQuestionIndex].options.length) {
+                        selectAdvancedOption(currentAdvancedQuestionIndex, optionIndex);
+                    }
+                    break;
+            }
+        });
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initAdvancedApp);
+    </script>
+</body>
+</html>
