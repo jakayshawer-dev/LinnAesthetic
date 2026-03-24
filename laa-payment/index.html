@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA · 大小脸免费评估</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 首页 -->
+        <div id="home-page" class="page active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h1 class="main-title">大小脸免费评估</h1>
+                <p class="subtitle">LAA · Linn Asymmetry Assessment</p>
+                <p class="test-info">12题，约1分钟，帮你先看真假倾向和主要方向</p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>专业评估逻辑</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-clock"></i>
+                        <span>快速完成测试</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>隐私保护</span>
+                    </div>
+                </div>
+                
+                <button id="start-btn" class="btn-primary">
+                    开始测试
+                </button>
+                
+                <div class="disclaimer">
+                    <p><i class="fas fa-info-circle"></i> 本测试为免费初筛，结果仅供参考，不等同于正式评估</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 题目页 -->
+        <div id="question-page" class="page">
+            <div class="container">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">1/12</div>
+                </div>
+                
+                <div class="system-identifier">
+                    LAA
+                </div>
+                
+                <div class="question-container">
+                    <h2 class="question-title" id="question-title"></h2>
+                    <div class="observation" id="observation"></div>
+                    
+                    <div class="options-container" id="options-container">
+                        <!-- 选项会动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="navigation-buttons">
+                    <button id="prev-btn" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> 上一题
+                    </button>
+                    <button id="next-btn" class="btn-primary">
+                        下一题 <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA
+                </div>
+            </div>
+        </div>
+        
+        <!-- 结果页 -->
+        <div id="result-page" class="page">
+            <div class="container">
+                <div class="result-header">
+                    <h1 class="result-main-title">LAA 评估结果</h1>
+                    <p class="result-subtitle">以下是您的评估结果</p>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-section">
+                        <h3><i class="fas fa-balance-scale"></i> 真假倾向</h3>
+                        <div class="result-value" id="result-tendency"></div>
+                        <p class="result-desc" id="result-tendency-desc"></p>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3><i class="fas fa-compass"></i> 主问题方向</h3>
+                        <div class="result-value" id="result-direction"></div>
+                        <p class="result-desc" id="result-direction-desc"></p>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3><i class="fas fa-exchange-alt"></i> 左右侧提示</h3>
+                        <div class="result-value" id="result-side"></div>
+                        <p class="result-desc" id="result-side-desc"></p>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3><i class="fas fa-chart-line"></i> 复杂度提示</h3>
+                        <div class="result-value" id="result-complexity"></div>
+                        <p class="result-desc" id="result-complexity-desc"></p>
+                    </div>
+                </div>
+                
+                <div class="result-summary">
+                    <h3><i class="fas fa-file-alt"></i> 结果说明</h3>
+                    <div class="summary-text" id="result-summary"></div>
+                </div>
+                
+                <div class="reminder">
+                    <p><i class="fas fa-exclamation-triangle"></i> 结果仅代表当前自测倾向，不等同于正式评估结果</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="detail-btn" class="btn-primary">
+                        <i class="fas fa-search"></i> 查看问题主次与训练建议
+                    </button>
+                    <button id="retest-btn" class="btn-secondary">
+                        <i class="fas fa-redo"></i> 重新测试
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="questions.js"></script>
+    <script src="scoring.js"></script>
+    <script src="results.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
