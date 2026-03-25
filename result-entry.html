@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA 进阶评估结果查看</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 结果入口样式 */
+        .result-entry-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .entry-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .entry-logo i {
+            font-size: 48px;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+        
+        .entry-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .entry-subtitle {
+            font-size: 16px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+        
+        /* 输入表单 */
+        .entry-form {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus {
+            border-color: #4f46e5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: #a0aec0;
+        }
+        
+        .form-hint {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        
+        /* 查看结果按钮 */
+        .view-result-btn {
+            background: #4f46e5;
+            color: white;
+            padding: 18px 30px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .view-result-btn:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .view-result-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* 结果展示区 */
+        .result-display {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .result-display.active {
+            display: block;
+        }
+        
+        .result-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .result-subtitle {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .result-content {
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .result-section {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .result-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .result-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-section p {
+            margin: 0 0 10px 0;
+            color: #555;
+        }
+        
+        .result-section ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .result-section li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        /* 未开通提示 */
+        .not-activated-alert {
+            background: #fff8e1;
+            border-left: 4px solid #ffb300;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin-top: 25px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .not-activated-alert h3 {
+            color: #ff8f00;
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .not-activated-alert p {
+            margin: 0;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        /* 加载状态 */
+        .loading-state {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+        
+        .loading-state.active {
+            display: block;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        .loading-text {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            .result-entry-container {
+                padding: 20px 15px;
+            }
+            
+            .entry-form {
+                padding: 20px;
+            }
+            
+            .entry-title {
+                font-size: 24px;
+            }
+            
+            .form-input {
+                padding: 12px;
+                font-size: 15px;
+            }
+            
+            .view-result-btn {
+                padding: 16px 20px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 统一结果入口 -->
+        <div id="result-entry-page" class="page active">
+            <div class="container">
+                <div class="result-entry-container">
+                    <div class="entry-logo">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    
+                    <h1 class="entry-title">LAA 进阶评估结果查看</h1>
+                    <p class="entry-subtitle">请输入你的测试编号，查看已开通的进阶评估结果</p>
+                    
+                    <!-- 输入表单 -->
+                    <div class="entry-form">
+                        <div class="form-group">
+                            <label class="form-label" for="test-id-input">
+                                <i class="fas fa-hashtag"></i> 请输入测试编号
+                            </label>
+                            <input type="text" 
+                                   id="test-id-input" 
+                                   class="form-input" 
+                                   placeholder="例如：LAA24001"
+                                   maxlength="8">
+                            <div class="form-hint">
+                                请输入你在进阶评估流程中获得的测试编号
+                            </div>
+                        </div>
+                        
+                        <button id="view-result-btn" class="view-result-btn">
+                            <i class="fas fa-search"></i> 查看结果
+                        </button>
+                    </div>
+                    
+                    <!-- 加载状态 -->
+                    <div id="loading-state" class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">正在查询结果...</div>
+                    </div>
+                    
+                    <!-- 未开通提示 -->
+                    <div id="not-activated-alert" class="not-activated-alert" style="display: none;">
+                        <h3><i class="fas fa-clock"></i> 结果暂未开通</h3>
+                        <p>该编号对应的进阶结果暂未开通。</p>
+                        <p>如你已完成下单，请在确认后再次进入查看。</p>
+                    </div>
+                    
+                    <!-- 结果展示区 -->
+                    <div id="result-display" class="result-display">
+                        <div class="result-header">
+                            <h2 class="result-title">LAA 进阶评估结果</h2>
+                            <p class="result-subtitle">测试编号：<span id="display-test-id">LAA24001</span></p>
+                        </div>
+                        
+                        <div class="result-content">
+                            <div class="result-section">
+                                <h3><i class="fas fa-balance-scale"></i> 主因与次因拆解</h3>
+                                <p>根据你的评估信息，当前问题主要表现为...</p>
+                                <ul>
+                                    <li>主要因素：面部肌肉使用不均</li>
+                                    <li>次要因素：日常姿势习惯影响</li>
+                                    <li>辅助因素：筋膜张力分布不均衡</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="result-section">
+                                <h3><i class="fas fa-exchange-alt"></i> 表现侧与驱动侧分析</h3>
+                                <p>左右两侧的功能差异分析：</p>
+                                <ul>
+                                    <li>表现侧：右侧（更明显的外观差异）</li>
+                                    <li>驱动侧：左侧（更活跃的肌肉使用）</li>
+                                    <li>代偿关系：右侧表现受左侧驱动影响</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="result-section">
+                                <h3><i class="fas fa-layer-group"></i> 复合因素判断</h3>
+                                <p>当前问题属于复合型不对称，包含：</p>
+                                <ul>
+                                    <li>肌肉软组织厚度差异（40%）</li>
+                                    <li>筋膜位置牵拉偏移（35%）</li>
+                                    <li>动态控制不平衡（25%）</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="result-section">
+                                <h3><i class="fas fa-project-diagram"></i> 形成逻辑说明</h3>
+                                <p>问题形成的主要逻辑路径：</p>
+                                <ul>
+                                    <li>起始点：长期单侧咀嚼习惯</li>
+                                    <li>发展：肌肉募集不均导致软组织差异</li>
+                                    <li>固化：筋膜张力链适应性调整</li>
+                                    <li>表现：静态外观差异与动态控制变化</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="result-section">
+                                <h3><i class="fas fa-list-ol"></i> 处理顺序建议</h3>
+                                <p>建议的处理优先级：</p>
+                                <ol>
+                                    <li>调整日常使用习惯（咀嚼、姿势）</li>
+                                    <li>平衡肌肉募集模式</li>
+                                    <li>改善筋膜张力分布</li>
+                                    <li>优化动态控制协调性</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 底部提示 -->
+                    <div class="instruction-box" style="margin-top: 30px;">
+                        <p><i class="fas fa-info-circle"></i> <strong>提示：</strong>如遇到问题或需要进一步咨询，请联系客服提供测试编号。</p>
+                    </div>
+                    
+                    <div class="system-identifier-bottom">
+                        LAA · 结果查看
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data-manager.js"></script>
+    <script>
+        // DOM元素
+        const testIdInput = document.getElementById('test-id-input');
+        const viewResultBtn = document.getElementById('view-result-btn');
+        const loadingState = document.getElementById('loading-state');
+        const notActivatedAlert = document.getElementById('not-activated-alert');
+        const resultDisplay = document.getElementById('result-display');
+        const displayTestId = document.getElementById('display-test-id');
+        
+        // 页面加载初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initResultEntry();
+        });
+        
+        // 初始化结果入口
+        function initResultEntry() {
+            // 绑定查看结果按钮
+            viewResultBtn.addEventListener('click', checkAndShowResult);
+            
+            // 绑定输入框回车键
+            testIdInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkAndShowResult();
+                }
+            });
+            
+            // 检查URL参数中是否有测试编号
+            const urlParams = new URLSearchParams(window.location.search);
+            const testIdParam = urlParams.get('testId');
+            if (testIdParam) {
+                testIdInput.value = testIdParam;
+            }
+            
+            // 输入框变化时启用/禁用按钮
+            testIdInput.addEventListener('input', function() {
+                viewResultBtn.disabled = !isValidTestId(this.value.trim());
+            });
+            
+            // 初始禁用按钮
+            viewResultBtn.disabled = true;
+        }
+        
+        // 检查并显示结果
+        async function checkAndShowResult() {
+            const testId = testIdInput.value.trim().toUpperCase();
+            
+            if (!isValidTestId(testId)) {
+                alert('请输入有效的测试编号（格式：LAA+5位数字，如LAA24001）');
+                testIdInput.focus();
+                return;
+            }
+            
+            // 显示加载状态
+            showLoading(true);
+            hideAllResults();
+            
+            // 模拟网络请求延迟
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // 检查测试编号是否已开通
+            const isActivated = await checkTestIdActivation(testId);
+            
+            // 隐藏加载状态
+            showLoading(false);
+            
+            if (isActivated) {
+                // 显示结果
+                displayTestId.textContent = testId;
+                showResultDisplay();
+            } else {
+                // 显示未开通提示
+                showNotActivatedAlert();
+            }
+        }
+        
+        // 检查测试编号格式
+        function isValidTestId(testId) {
+            const pattern = /^LAA\d{5}$/;
+            return pattern.test(testId);
+        }
+        
+        // 检查测试编号是否已开通（模拟）
+        async function checkTestIdActivation(testId) {
+            // 从localStorage获取开通状态
+            const activationData = localStorage.getItem('laa_activation_data');
+            
+            if (activationData) {
+                try {
+                    const data = JSON.parse(activationData);
+                    const record = data[testId];
+                    
+                    if (record && record.activated === true) {
+                        return true;
+                    }
+                } catch (error) {
+                    console.error('解析开通数据失败:', error);
+                }
+            }
+            
+            // 默认返回未开通
+            return false;
+        }
+        
+        // 显示加载状态
+        function showLoading(show) {
+            if (show) {
+                loadingState.classList.add('active');
+                viewResultBtn.disabled = true;
+            } else {
+                loadingState.classList.remove('active');
+                viewResultBtn.disabled = !isValidTestId(testIdInput.value.trim());
+            }
+        }
+        
+        // 隐藏所有结果区域
+        function hideAllResults() {
+            notActivatedAlert.style.display = 'none';
+            resultDisplay.classList.remove('active');
+        }
+        
+        // 显示未开通提示
+        function showNotActivatedAlert() {
+            notActivatedAlert.style.display = 'block';
+            resultDisplay.classList.remove('active');
+            
+            // 自动滚动到提示区域
+            notActivatedAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // 显示结果
+        function showResultDisplay() {
+            notActivatedAlert.style.display = 'none';
+            resultDisplay.classList.add('active');
+            
+            // 自动滚动到结果区域
+            resultDisplay.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // 模拟结果数据（实际应从服务器获取）
+        function getResultContent(testId) {
+            // 这里可以根据testId返回不同的结果内容
+            // 目前返回固定内容作为示例
+            
+            return {
+                testId: testId,
+                activated: true,
+                resultType: 'A',
+                content: {
+                    primaryFactors: '面部肌肉使用不均',
+                    secondaryFactors: '日常姿势习惯影响',
+                    auxiliaryFactors
