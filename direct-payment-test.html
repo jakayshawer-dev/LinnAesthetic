@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>直接支付页面测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-link {
+            display: inline-block;
+            background: #4f46e5;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+        .test-link:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+        .instructions {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4f46e5;
+        }
+        .debug-info {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f0f9ff;
+            border-radius: 6px;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <h1>直接支付页面测试</h1>
+    
+    <div class="instructions">
+        <h3>测试步骤：</h3>
+        <div class="step">1. 点击下面的链接打开支付页面</div>
+        <div class="step">2. 在支付页面中点击淘宝按钮</div>
+        <div class="step">3. 观察是否跳转到淘宝</div>
+        <div class="step">4. 检查浏览器控制台是否有错误</div>
+    </div>
+    
+    <a href="payment-page.html?testId=LAA24001" class="test-link" target="_blank">
+        🔗 打开支付页面（测试编号：LAA24001）
+    </a>
+    
+    <div>
+        <h3>备用测试链接：</h3>
+        <p><a href="payment-page.html?testId=LAA24002" target="_blank">测试编号 LAA24002</a></p>
+        <p><a href="payment-page.html?testId=LAA24003" target="_blank">测试编号 LAA24003</a></p>
+    </div>
+    
+    <div>
+        <h3>如果淘宝按钮不工作：</h3>
+        <ol>
+            <li>打开浏览器开发者工具（F12）</li>
+            <li>切换到 Console（控制台）标签</li>
+            <li>查看是否有红色错误信息</li>
+            <li>尝试以下解决方法：
+                <ul>
+                    <li>按住 Ctrl 键点击淘宝按钮</li>
+                    <li>右键淘宝按钮，选择"在新标签页中打开"</li>
+                    <li>检查浏览器是否阻止了弹出窗口</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+    
+    <div>
+        <h3>手动测试淘宝链接：</h3>
+        <p>直接测试淘宝链接是否有效：</p>
+        <p><a href="https://item.taobao.com/item.htm?ft=t&id=1034939670570" target="_blank">
+            https://item.taobao.com/item.htm?ft=t&id=1034939670570
+        </a></p>
+    </div>
+    
+    <div class="debug-info">
+        <h3>调试信息：</h3>
+        <div id="debug-log">等待测试...</div>
+    </div>
+    
+    <script>
+        const debugLog = document.getElementById('debug-log');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#3b82f6';
+            debugLog.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            
+            // 输出到控制台
+            if (type === 'error') console.error(message);
+            else if (type === 'warning') console.warn(message);
+            else console.log(message);
+        }
+        
+        // 检查当前环境
+        log('页面加载完成');
+        log('当前URL: ' + window.location.href);
+        log('协议: ' + window.location.protocol);
+        log('主机: ' + window.location.host);
+        
+        // 检查重要函数
+        if (typeof window.open === 'function') {
+            log('✅ window.open 函数可用');
+        } else {
+            log('❌ window.open 函数不可用', 'error');
+        }
+        
+        // 检查是否在安全上下文中
+        if (window.location.protocol === 'file:') {
+            log('⚠️ 警告：通过 file:// 协议访问，可能有安全限制', 'warning');
+        }
+        
+        if (window.location.protocol === 'http:' && !window.location.hostname.includes('localhost')) {
+            log('⚠️ 警告：通过 HTTP 协议访问（非HTTPS）', 'warning');
+        }
+        
+        // 测试淘宝链接格式
+        const taobaoUrl = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
+        if (taobaoUrl.startsWith('https://')) {
+            log('✅ 淘宝链接使用 HTTPS');
+        } else {
+            log('⚠️ 淘宝链接未使用 HTTPS', 'warning');
+        }
+        
+        // 捕获错误
+        window.addEventListener('error', function(event) {
+            log('全局错误: ' + event.message + ' at ' + event.filename + ':' + event.lineno, 'error');
+        });
+        
+        // 监听来自支付页面的消息（如果使用postMessage）
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'taobao-click') {
+                log('收到支付页面消息: ' + JSON.stringify(event.data));
+            }
+        });
+        
+        // 自动测试淘宝链接（可选）
+        setTimeout(() => {
+            log('--- 自动测试开始 ---');
+            log('测试淘宝链接格式...');
+            
+            // 检查链接格式
+            const urlRegex = /^https?:\/\/item\.taobao\.com\/item\.htm\?/;
+            if (urlRegex.test(taobaoUrl)) {
+                log('✅ 淘宝链接格式正确');
+            } else {
+                log('❌ 淘宝链接格式不正确', 'error');
+            }
+            
+            // 检查商品ID
+            const idMatch = taobaoUrl.match(/id=(\d+)/);
+            if (idMatch && idMatch[1].length >= 10) {
+                log('✅ 找到商品ID: ' + idMatch[1]);
+            } else {
+                log('❌ 未找到有效的商品ID', 'error');
+            }
+            
+            log('--- 自动测试完成 ---');
+        }, 1000);
+    </script>
+</body>
+</html>

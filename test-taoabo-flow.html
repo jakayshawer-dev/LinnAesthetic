@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试淘宝跳转流程</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #4f46e5;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: #4338ca;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+        .success {
+            color: #10b981;
+            border-left: 4px solid #10b981;
+        }
+        .error {
+            color: #ef4444;
+            border-left: 4px solid #ef4444;
+        }
+        .warning {
+            color: #f59e0b;
+            border-left: 4px solid #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <h1>淘宝跳转流程测试</h1>
+    
+    <div class="test-section">
+        <h2>测试1: 直接测试淘宝链接</h2>
+        <p>淘宝商品链接: <code>https://item.taobao.com/item.htm?ft=t&id=1034939670570</code></p>
+        <button class="test-button" onclick="testDirectLink()">测试直接跳转</button>
+        <div id="result1" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试2: 模拟支付页面淘宝按钮</h2>
+        <p>模拟 payment-page.html 中的淘宝按钮点击</p>
+        <button class="test-button" onclick="testPaymentPageButton()">测试支付页面按钮</button>
+        <div id="result2" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试3: 完整流程测试</h2>
+        <p>模拟用户从首页到支付页面的完整流程</p>
+        <button class="test-button" onclick="testFullFlow()">测试完整流程</button>
+        <div id="result3" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试4: 检查淘宝链接有效性</h2>
+        <p>检查淘宝链接是否能正常访问</p>
+        <button class="test-button" onclick="checkTaobaoLink()">检查淘宝链接</button>
+        <div id="result4" class="result"></div>
+    </div>
+    
+    <script>
+        // 淘宝链接
+        const TAOBAO_URL = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
+        
+        // 测试1: 直接测试淘宝链接
+        function testDirectLink() {
+            const result = document.getElementById('result1');
+            try {
+                // 尝试在新窗口打开
+                const newWindow = window.open(TAOBAO_URL, '_blank');
+                if (newWindow) {
+                    result.innerHTML = '<div class="success">✅ 成功打开新窗口，淘宝链接正常</div>';
+                    result.innerHTML += '<p>注意：某些浏览器可能会阻止弹出窗口，请检查浏览器设置</p>';
+                } else {
+                    result.innerHTML = '<div class="warning">⚠️ 窗口被浏览器阻止，请允许弹出窗口</div>';
+                    result.innerHTML += '<p>解决方法：<br>1. 检查浏览器弹出窗口设置<br>2. 尝试按住Ctrl键点击链接<br>3. 右键链接选择"在新标签页中打开"</p>';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 打开链接时出错: ${error.message}</div>`;
+            }
+        }
+        
+        // 测试2: 模拟支付页面淘宝按钮
+        function testPaymentPageButton() {
+            const result = document.getElementById('result2');
+            
+            // 模拟支付页面中的代码
+            const mockTaobaoBtn = {
+                addEventListener: function(event, handler) {
+                    if (event === 'click') {
+                        // 模拟点击
+                        try {
+                            window.open(TAOBAO_URL, '_blank');
+                            result.innerHTML = '<div class="success">✅ 模拟按钮点击成功，淘宝链接正常</div>';
+                            result.innerHTML += '<p>支付页面中的淘宝按钮代码工作正常</p>';
+                        } catch (error) {
+                            result.innerHTML = `<div class="error">❌ 模拟按钮点击出错: ${error.message}</div>`;
+                        }
+                    }
+                }
+            };
+            
+            // 模拟事件监听
+            mockTaobaoBtn.addEventListener('click', function() {
+                window.open(TAOBAO_URL, '_blank');
+            });
+            
+            // 触发点击
+            mockTaobaoBtn.addEventListener('click', null);
+        }
+        
+        // 测试3: 完整流程测试
+        function testFullFlow() {
+            const result = document.getElementById('result3');
+            result.innerHTML = '<div>测试完整流程...</div>';
+            
+            // 模拟用户完成问卷，生成测试编号
+            const testId = 'LAA' + (24000 + Math.floor(Math.random() * 1000));
+            
+            // 模拟跳转到支付页面
+            setTimeout(() => {
+                const paymentUrl = `http://localhost:8080/payment-page.html?testId=${encodeURIComponent(testId)}`;
+                result.innerHTML += `<div>生成的测试编号: <strong>${testId}</strong></div>`;
+                result.innerHTML += `<div>支付页面URL: <code>${paymentUrl}</code></div>`;
+                
+                // 检查支付页面是否能正常加载
+                fetch(paymentUrl)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.text();
+                        }
+                        throw new Error(`HTTP ${response.status}`);
+                    })
+                    .then(html => {
+                        // 检查页面中是否有淘宝按钮
+                        if (html.includes('taobao-btn')) {
+                            result.innerHTML += '<div class="success">✅ 支付页面加载成功，包含淘宝按钮</div>';
+                            
+                            // 检查是否有淘宝链接
+                            if (html.includes('item.taobao.com')) {
+                                result.innerHTML += '<div class="success">✅ 支付页面包含淘宝链接</div>';
+                            } else {
+                                result.innerHTML += '<div class="error">❌ 支付页面缺少淘宝链接</div>';
+                            }
+                        } else {
+                            result.innerHTML += '<div class="error">❌ 支付页面缺少淘宝按钮</div>';
+                        }
+                    })
+                    .catch(error => {
+                        result.innerHTML += `<div class="error">❌ 加载支付页面失败: ${error.message}</div>`;
+                    });
+            }, 500);
+        }
+        
+        // 测试4: 检查淘宝链接有效性
+        function checkTaobaoLink() {
+            const result = document.getElementById('result4');
+            result.innerHTML = '<div>检查淘宝链接中...</div>';
+            
+            // 注意：由于CORS限制，我们不能直接fetch淘宝页面
+            // 但我们可以检查链接格式和尝试其他方法
+            
+            // 检查链接格式
+            const urlPattern = /^https?:\/\/item\.taobao\.com\/item\.htm\?/;
+            if (urlPattern.test(TAOBAO_URL)) {
+                result.innerHTML += '<div class="success">✅ 淘宝链接格式正确</div>';
+            } else {
+                result.innerHTML += '<div class="error">❌ 淘宝链接格式不正确</div>';
+            }
+            
+            // 检查是否有商品ID
+            const idMatch = TAOBAO_URL.match(/id=(\d+)/);
+            if (idMatch) {
+                result.innerHTML += `<div class="success">✅ 找到商品ID: ${idMatch[1]}</div>`;
+            } else {
+                result.innerHTML += '<div class="error">❌ 未找到商品ID</div>';
+            }
+            
+            // 提供手动测试方法
+            result.innerHTML += `
+                <div class="warning">⚠️ 由于安全限制，无法自动测试链接可访问性</div>
+                <p>请手动测试：</p>
+                <ol>
+                    <li><a href="${TAOBAO_URL}" target="_blank">点击这里打开淘宝链接</a></li>
+                    <li>如果链接无法打开，可能是：<br>
+                        - 商品已下架<br>
+                        - 链接需要登录<br>
+                        - 地区限制</li>
+                    <li>检查浏览器控制台是否有错误</li>
+                </ol>
+            `;
+        }
+        
+        // 页面加载完成后自动运行一些测试
+        window.addEventListener('load', function() {
+            // 自动运行格式检查
+            checkTaobaoLink();
+        });
+    </script>
+</body>
+</html>

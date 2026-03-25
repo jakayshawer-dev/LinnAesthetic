@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实际支付页面测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .iframe-container {
+            border: 2px solid #4f46e5;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 600px;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .primary-btn {
+            background: #4f46e5;
+            color: white;
+        }
+        .secondary-btn {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        .taobao-btn {
+            background: #FF4400;
+            color: white;
+            font-size: 16px;
+            padding: 12px 24px;
+        }
+        .log-container {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .test-id {
+            font-family: monospace;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>实际支付页面测试</h1>
+    
+    <div class="test-container">
+        <div>
+            <h3>测试说明</h3>
+            <p>这个测试会加载实际的 <code>payment-page.html</code> 并在iframe中显示。</p>
+            <p>测试编号: <span class="test-id" id="current-test-id">LAA24001</span></p>
+            <div class="controls">
+                <button class="primary-btn" onclick="loadPaymentPage()">加载支付页面</button>
+                <button class="secondary-btn" onclick="generateNewTestId()">生成新测试编号</button>
+                <button class="taobao-btn" onclick="simulateTaobaoClick()">模拟点击淘宝按钮</button>
+                <button class="secondary-btn" onclick="checkIframeContent()">检查iframe内容</button>
+            </div>
+        </div>
+        
+        <div class="iframe-container">
+            <iframe id="payment-frame" src="about:blank"></iframe>
+        </div>
+        
+        <div>
+            <h3>测试日志</h3>
+            <div id="log" class="log-container"></div>
+        </div>
+    </div>
+    
+    <script>
+        let currentTestId = 'LAA24001';
+        const TAOBAO_URL = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
+        
+        // 更新显示的测试编号
+        function updateTestIdDisplay() {
+            document.getElementById('current-test-id').textContent = currentTestId;
+        }
+        
+        // 生成新测试编号
+        function generateNewTestId() {
+            const lastNum = parseInt(currentTestId.replace('LAA', '')) || 24000;
+            currentTestId = 'LAA' + (lastNum + 1);
+            updateTestIdDisplay();
+            log('生成新测试编号: ' + currentTestId);
+        }
+        
+        // 加载支付页面
+        function loadPaymentPage() {
+            const iframe = document.getElementById('payment-frame');
+            const url = `payment-page.html?testId=${encodeURIComponent(currentTestId)}`;
+            
+            log('加载支付页面: ' + url);
+            iframe.src = url;
+            
+            // 监听iframe加载完成
+            iframe.onload = function() {
+                log('支付页面加载完成');
+                
+                // 尝试检查iframe中的内容
+                setTimeout(() => {
+                    checkIframeContent();
+                }, 1000);
+            };
+            
+            iframe.onerror = function() {
+                log('错误: 支付页面加载失败', 'error');
+            };
+        }
+        
+        // 检查iframe内容
+        function checkIframeContent() {
+            const iframe = document.getElementById('payment-frame');
+            
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // 检查关键元素
+                const testIdElement = iframeDoc.getElementById('test-id-number');
+                const taobaoBtn = iframeDoc.getElementById('taobao-btn');
+                const taobaoUrlScript = iframeDoc.querySelector('script');
+                
+                if (testIdElement) {
+                    log('找到测试编号元素: ' + testIdElement.textContent);
+                } else {
+                    log('警告: 未找到测试编号元素', 'warning');
+                }
+                
+                if (taobaoBtn) {
+                    log('找到淘宝按钮元素');
+                    
+                    // 检查按钮样式和文本
+                    const btnText = taobaoBtn.textContent || taobaoBtn.innerText;
+                    log('淘宝按钮文本: ' + btnText.trim());
+                    
+                    // 检查按钮是否有事件监听器
+                    log('淘宝按钮已找到，可以点击测试');
+                } else {
+                    log('错误: 未找到淘宝按钮元素', 'error');
+                }
+                
+                // 检查是否有淘宝URL定义
+                if (taobaoUrlScript && taobaoUrlScript.textContent.includes('TAOBAO_URL')) {
+                    log('找到淘宝URL定义');
+                } else {
+                    log('警告: 未找到淘宝URL定义', 'warning');
+                }
+                
+            } catch (error) {
+                log('检查iframe内容时出错: ' + error.message, 'error');
+                log('可能原因: 跨域限制，iframe来自不同源');
+            }
+        }
+        
+        // 模拟点击淘宝按钮
+        function simulateTaobaoClick() {
+            const iframe = document.getElementById('payment-frame');
+            
+            try {
+                const iframeWindow = iframe.contentWindow;
+                
+                // 方法1: 直接调用iframe中的函数
+                if (iframeWindow && typeof iframeWindow.open === 'function') {
+                    log('尝试在iframe中打开淘宝链接');
+                    const newWindow = iframeWindow.open(TAOBAO_URL, '_blank');
+                    
+                    if (newWindow) {
+                        log('成功: 在iframe上下文中打开淘宝链接');
+                    } else {
+                        log('警告: iframe中的window.open被阻止', 'warning');
+                    }
+                } else {
+                    log('错误: 无法访问iframe的window对象', 'error');
+                }
+                
+                // 方法2: 尝试直接点击按钮
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const taobaoBtn = iframeDoc.getElementById('taobao-btn');
+                    
+                    if (taobaoBtn) {
+                        log('尝试直接点击淘宝按钮');
+                        taobaoBtn.click();
+                        log('已触发淘宝按钮点击事件');
+                    }
+                } catch (clickError) {
+                    log('点击按钮时出错: ' + clickError.message, 'error');
+                }
+                
+            } catch (error) {
+                log('模拟点击时出错: ' + error.message, 'error');
+                log('可能由于跨域限制，无法直接操作iframe内容');
+                
+                // 备用方案: 直接在当前窗口打开
+                log('备用方案: 在当前窗口打开淘宝链接');
+                window.open(TAOBAO_URL, '_blank');
+            }
+        }
+        
+        // 日志函数
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff4444' : type === 'warning' ? '#ffaa00' : '#00aaff';
+            logDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            // 输出到控制台
+            if (type === 'error') {
+                console.error(message);
+            } else if (type === 'warning') {
+                console.warn(message);
+            } else {
+                console.log(message);
+            }
+        }
+        
+        // 初始化
+        window.addEventListener('load', function() {
+            updateTestIdDisplay();
+            log('测试页面加载完成');
+            log('淘宝链接: ' + TAOBAO_URL);
+            log('点击"加载支付页面"开始测试');
+        });
+        
+        // 捕获错误
+        window.addEventListener('error', function(e) {
+            log('全局错误: ' + e.message, 'error');
+        });
+    </script>
+</body>
+</html>

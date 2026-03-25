@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试淘宝按钮问题</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-info { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+        button { margin: 10px; padding: 10px 20px; }
+    </style>
+</head>
+<body>
+    <h1>调试淘宝按钮问题</h1>
+    
+    <div class="debug-info">
+        <h3>测试1: 检查按钮是否存在</h3>
+        <button onclick="checkButtonExistence()">检查按钮</button>
+        <div id="result1"></div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>测试2: 检查事件绑定</h3>
+        <button onclick="checkEventBinding()">检查事件</button>
+        <div id="result2"></div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>测试3: 直接测试window.open</h3>
+        <button onclick="testWindowOpen()">测试window.open</button>
+        <div id="result3"></div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>测试4: 加载并测试实际支付页面</h3>
+        <button onclick="loadAndTestPaymentPage()">加载支付页面</button>
+        <div id="result4"></div>
+    </div>
+    
+    <script>
+        const TAOBAO_URL = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
+        
+        function checkButtonExistence() {
+            const result = document.getElementById('result1');
+            // 模拟支付页面结构
+            const mockButton = document.createElement('button');
+            mockButton.id = 'taobao-btn';
+            mockButton.className = 'taobao-btn';
+            mockButton.innerHTML = '<i class="fab fa-alipay"></i> 去淘宝下单解锁结果';
+            document.body.appendChild(mockButton);
+            
+            // 检查按钮是否存在
+            const btn = document.getElementById('taobao-btn');
+            if (btn) {
+                result.innerHTML = '<div class="success">✅ 按钮存在，ID: ' + btn.id + '</div>';
+                result.innerHTML += '<div>按钮HTML: ' + btn.outerHTML + '</div>';
+            } else {
+                result.innerHTML = '<div class="error">❌ 按钮不存在</div>';
+            }
+            
+            // 清理
+            document.body.removeChild(mockButton);
+        }
+        
+        function checkEventBinding() {
+            const result = document.getElementById('result2');
+            
+            // 创建测试按钮
+            const testBtn = document.createElement('button');
+            testBtn.id = 'test-taobao-btn';
+            testBtn.textContent = '测试事件绑定';
+            document.body.appendChild(testBtn);
+            
+            // 绑定事件（模拟支付页面方式）
+            testBtn.addEventListener('click', function() {
+                result.innerHTML += '<div class="success">✅ 事件触发成功</div>';
+                try {
+                    window.open(TAOBAO_URL, '_blank');
+                    result.innerHTML += '<div class="success">✅ window.open调用成功</div>';
+                } catch (e) {
+                    result.innerHTML += '<div class="error">❌ window.open错误: ' + e.message + '</div>';
+                }
+            });
+            
+            // 触发点击
+            testBtn.click();
+            
+            // 清理
+            document.body.removeChild(testBtn);
+        }
+        
+        function testWindowOpen() {
+            const result = document.getElementById('result3');
+            result.innerHTML = '<div>测试window.open...</div>';
+            
+            try {
+                const newWindow = window.open(TAOBAO_URL, '_blank');
+                if (newWindow) {
+                    result.innerHTML += '<div class="success">✅ window.open成功，新窗口已打开</div>';
+                } else {
+                    result.innerHTML += '<div class="error">❌ window.open返回null，可能被浏览器阻止</div>';
+                    result.innerHTML += '<p>常见原因：<br>1. 弹出窗口被浏览器拦截<br>2. 不是用户直接触发的操作<br>3. 安全限制</p>';
+                }
+            } catch (e) {
+                result.innerHTML += '<div class="error">❌ window.open异常: ' + e.message + '</div>';
+            }
+        }
+        
+        function loadAndTestPaymentPage() {
+            const result = document.getElementById('result4');
+            result.innerHTML = '<div>加载支付页面...</div>';
+            
+            // 使用fetch获取支付页面内容
+            fetch('payment-page.html')
+                .then(response => response.text())
+                .then(html => {
+                    result.innerHTML += '<div class="success">✅ 支付页面加载成功</div>';
+                    
+                    // 检查关键内容
+                    const checks = [
+                        { name: '淘宝按钮HTML', test: html.includes('id="taobao-btn"') },
+                        { name: '淘宝URL定义', test: html.includes('TAOBAO_URL') },
+                        { name: '事件绑定代码', test: html.includes('taobaoBtn.addEventListener') },
+                        { name: 'window.open调用', test: html.includes('window.open(TAOBAO_URL') }
+                    ];
+                    
+                    checks.forEach(check => {
+                        if (check.test) {
+                            result.innerHTML += '<div class="success">✅ ' + check.name + ' 存在</div>';
+                        } else {
+                            result.innerHTML += '<div class="error">❌ ' + check.name + ' 缺失</div>';
+                        }
+                    });
+                    
+                    // 提取淘宝URL
+                    const urlMatch = html.match(/const TAOBAO_URL = '([^']+)'/);
+                    if (urlMatch) {
+                        result.innerHTML += '<div class="success">✅ 找到淘宝URL: ' + urlMatch[1] + '</div>';
+                    } else {
+                        result.innerHTML += '<div class="error">❌ 未找到淘宝URL定义</div>';
+                    }
+                })
+                .catch(error => {
+                    result.innerHTML += '<div class="error">❌ 加载支付页面失败: ' + error.message + '</div>';
+                });
+        }
+        
+        // 页面加载时自动运行一些测试
+        window.addEventListener('load', function() {
+            checkButtonExistence();
+            checkEventBinding();
+            testWindowOpen();
+        });
+    </script>
+    
+    <!-- 加载图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</body>
+</html>

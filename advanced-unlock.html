@@ -60,55 +60,78 @@
                 
 
                 
-                <!-- 支付方式选择 -->
+                <!-- 支付方式 -->
                 <div class="payment-methods">
-                    <h3><i class="fas fa-credit-card"></i> 选择支付方式</h3>
+                    <h3><i class="fas fa-credit-card"></i> 支付方式</h3>
                     
-                    <div class="method-tabs">
-                        <button class="method-tab active" data-method="taobao">
-                            <i class="fas fa-shopping-cart"></i> 淘宝下单
-                        </button>
-                        <button class="method-tab" data-method="alipay">
-                            <i class="fab fa-alipay"></i> 支付宝支付
-                        </button>
-                        <button class="method-tab" data-method="wechat">
-                            <i class="fab fa-weixin"></i> 微信支付
-                        </button>
-                    </div>
-                    
-                    <!-- 收款码展示区 -->
-                    <div class="qrcode-section">
-                        <div class="qrcode-container active" id="taobao-qrcode">
-                            <div class="qrcode-placeholder">
+                    <!-- 淘宝支付 -->
+                    <div class="taobao-payment-section" style="
+                        background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+                        border-radius: 16px;
+                        padding: 25px;
+                        margin: 20px 0;
+                        border: 2px solid #ffd54f;
+                    ">
+                        <div class="taobao-info" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 20px;
+                            margin-bottom: 25px;
+                        ">
+                            <div class="taobao-icon" style="
+                                background: #FF4400;
+                                color: white;
+                                width: 60px;
+                                height: 60px;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 28px;
+                            ">
                                 <i class="fas fa-shopping-cart"></i>
-                                <p>淘宝商品链接</p>
-                                <small>（点击"我已付款"按钮将跳转到淘宝）</small>
                             </div>
-                            <p class="qrcode-note">推荐使用淘宝下单，￥29.9</p>
+                            <div class="taobao-content">
+                                <h4 style="
+                                    font-size: 22px;
+                                    color: #333;
+                                    margin: 0 0 10px 0;
+                                ">淘宝下单支付</h4>
+                                <p class="taobao-price" style="
+                                    font-size: 36px;
+                                    font-weight: bold;
+                                    color: #FF4400;
+                                    margin: 10px 0;
+                                ">￥29.9</p>
+                                <p class="taobao-desc" style="
+                                    color: #666;
+                                    margin: 5px 0;
+                                ">点击下方按钮跳转到淘宝商品页面，完成下单支付</p>
+                            </div>
                         </div>
                         
-                        <div class="qrcode-container" id="alipay-qrcode">
-                            <div class="qrcode-placeholder">
-                                <i class="fab fa-alipay"></i>
-                                <p>支付宝收款码</p>
-                                <small>（收款码将由管理员提供）</small>
-                            </div>
-                            <p class="qrcode-note">使用支付宝扫一扫完成支付</p>
+                        <div class="payment-instruction" style="
+                            background: white;
+                            padding: 20px;
+                            border-radius: 12px;
+                            border-left: 4px solid #4f46e5;
+                        ">
+                            <p style="
+                                font-weight: bold;
+                                color: #333;
+                                margin-bottom: 15px;
+                            "><i class="fas fa-info-circle" style="color: #4f46e5;"></i> <strong>支付流程：</strong></p>
+                            <ol style="
+                                margin: 0;
+                                padding-left: 20px;
+                            ">
+                                <li style="margin-bottom: 8px;">点击"获取测试编号并支付"按钮</li>
+                                <li style="margin-bottom: 8px;">系统生成专属测试编号</li>
+                                <li style="margin-bottom: 8px;">跳转到淘宝商品页面完成下单</li>
+                                <li style="margin-bottom: 8px;">将测试编号提供给淘宝客服</li>
+                                <li>客服开通后查看完整评估报告</li>
+                            </ol>
                         </div>
-                        
-                        <div class="qrcode-container" id="wechat-qrcode">
-                            <div class="qrcode-placeholder">
-                                <i class="fab fa-weixin"></i>
-                                <p>微信收款码</p>
-                                <small>（收款码将由管理员提供）</small>
-                            </div>
-                            <p class="qrcode-note">使用微信扫一扫完成支付</p>
-                        </div>
-                    </div>
-                    
-                    <div class="payment-instruction">
-                        <p><i class="fas fa-info-circle"></i> <strong>支付说明：</strong>推荐使用淘宝下单，完成支付后将测试编号提供给客服开通服务。</p>
-                        <p class="instruction-note">淘宝商品：￥29.9，下单后联系客服提供测试编号</p>
                     </div>
                 </div>
                 
@@ -147,34 +170,12 @@
 
     <script>
         // DOM元素
-        const methodTabs = document.querySelectorAll('.method-tab');
-        const qrcodeContainers = document.querySelectorAll('.qrcode-container');
         const paidBtn = document.getElementById('paid-btn');
         const keepInfoBtn = document.getElementById('keep-info-btn');
 
         // 初始化应用
         function initUnlockApp() {
-            // 绑定支付方式切换
-            methodTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // 移除所有激活状态
-                    methodTabs.forEach(t => t.classList.remove('active'));
-                    qrcodeContainers.forEach(c => c.classList.remove('active'));
-                    
-                    // 激活当前标签
-                    tab.classList.add('active');
-                    const method = tab.dataset.method;
-                    
-                    // 显示对应的收款码
-                    const qrcodeId = `${method}-qrcode`;
-                    const qrcodeElement = document.getElementById(qrcodeId);
-                    if (qrcodeElement) {
-                        qrcodeElement.classList.add('active');
-                    }
-                });
-            });
-            
-            // 我已付款按钮
+            // 获取测试编号并支付按钮
             paidBtn.addEventListener('click', () => {
                 // 生成测试编号并跳转到支付页面
                 const testId = generateTestId();
