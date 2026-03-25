@@ -235,20 +235,11 @@ function restartTest() {
 
 // 进入第二层进阶评估
 function showAdvancedAssessment() {
-    // 生成测试编号
-    const testId = generateTestId();
-    
-    // 保存测试编号到localStorage
-    localStorage.setItem('current_test_id', testId);
-    localStorage.setItem('laa_answers', JSON.stringify(userAnswers));
-    localStorage.setItem('laa_scores', JSON.stringify(currentScores));
-    localStorage.setItem('laa_results', JSON.stringify(currentResults));
-    
-    // 跳转到支付页面
-    window.location.href = 'payment-page.html?testId=' + encodeURIComponent(testId);
+    // 跳转到第二层说明页
+    window.location.href = 'advanced-intro.html';
 }
 
-// 生成测试编号
+// 生成测试编号（在advanced-unlock.html中使用）
 function generateTestId() {
     // 从localStorage获取最后一个编号，如果没有则从24001开始
     let lastId = localStorage.getItem('last_test_id');

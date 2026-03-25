@@ -72,7 +72,10 @@
                     <h3><i class="fas fa-credit-card"></i> 选择支付方式</h3>
                     
                     <div class="method-tabs">
-                        <button class="method-tab active" data-method="alipay">
+                        <button class="method-tab active" data-method="taobao">
+                            <i class="fas fa-shopping-cart"></i> 淘宝下单
+                        </button>
+                        <button class="method-tab" data-method="alipay">
                             <i class="fab fa-alipay"></i> 支付宝支付
                         </button>
                         <button class="method-tab" data-method="wechat">
@@ -82,7 +85,16 @@
                     
                     <!-- 收款码展示区 -->
                     <div class="qrcode-section">
-                        <div class="qrcode-container active" id="alipay-qrcode">
+                        <div class="qrcode-container active" id="taobao-qrcode">
+                            <div class="qrcode-placeholder">
+                                <i class="fas fa-shopping-cart"></i>
+                                <p>淘宝商品链接</p>
+                                <small>（点击"我已付款"按钮将跳转到淘宝）</small>
+                            </div>
+                            <p class="qrcode-note">推荐使用淘宝下单，￥29.9</p>
+                        </div>
+                        
+                        <div class="qrcode-container" id="alipay-qrcode">
                             <div class="qrcode-placeholder">
                                 <i class="fab fa-alipay"></i>
                                 <p>支付宝收款码</p>
@@ -102,8 +114,8 @@
                     </div>
                     
                     <div class="payment-instruction">
-                        <p><i class="fas fa-info-circle"></i> <strong>支付说明：</strong>请完成付款后，再点击下方"我已付款"。</p>
-                        <p class="instruction-note">当前版本为确认后开通，完成确认后可查看进阶评估结果。</p>
+                        <p><i class="fas fa-info-circle"></i> <strong>支付说明：</strong>推荐使用淘宝下单，完成支付后将测试编号提供给客服开通服务。</p>
+                        <p class="instruction-note">淘宝商品：￥29.9，下单后联系客服提供测试编号</p>
                     </div>
                 </div>
                 
@@ -111,24 +123,25 @@
                 <div class="process-explanation">
                     <h3><i class="fas fa-question-circle"></i> 付款后会发生什么？</h3>
                     <div class="explanation-content">
-                        <p>付款成功后，你将直接进入 LAA 进阶评估结果页，查看：</p>
-                        <ul>
-                            <li>主要问题与次要代偿</li>
-                            <li>左右表现侧与驱动侧分析</li>
-                            <li>问题形成逻辑</li>
-                            <li>处理顺序建议</li>
-                        </ul>
-                        <p class="explanation-note">当前版本需要确认后开通，不是自动识别付款系统。</p>
+                        <p>点击"我已付款"后，系统将：</p>
+                        <ol>
+                            <li>生成专属测试编号（如 LAA24001）</li>
+                            <li>跳转到支付页面，显示你的测试编号</li>
+                            <li>在支付页面点击淘宝链接完成下单</li>
+                            <li>将测试编号提供给淘宝客服</li>
+                            <li>客服开通后，在结果查看页面查看完整评估报告</li>
+                        </ol>
+                        <p class="explanation-note">淘宝支付：￥29.9，下单后联系客服提供测试编号开通服务</p>
                     </div>
                 </div>
                 
                 <!-- 底部按钮区 -->
                 <div class="action-buttons">
                     <button id="paid-btn" class="btn-primary">
-                        <i class="fas fa-check-circle"></i> 我已付款
+                        <i class="fas fa-shopping-cart"></i> 获取测试编号并支付
                     </button>
                     <button id="keep-info-btn" class="btn-secondary">
-                        <i class="fas fa-save"></i> 暂时先保留当前信息
+                        <i class="fas fa-save"></i> 暂时保留信息
                     </button>
                 </div>
                 
@@ -170,8 +183,14 @@
             
             // 我已付款按钮
             paidBtn.addEventListener('click', () => {
-                // 跳转到付款确认页
-                window.location.href = 'advanced-confirm.html';
+                // 生成测试编号并跳转到支付页面
+                const testId = generateTestId();
+                
+                // 保存所有数据到localStorage
+                localStorage.setItem('current_test_id', testId);
+                
+                // 跳转到标准支付页面
+                window.location.href = 'payment-page.html?testId=' + encodeURIComponent(testId);
             });
             
             // 保留信息按钮
@@ -190,6 +209,24 @@
                     keepInfoBtn.click();
                 }
             });
+        }
+
+        // 生成测试编号
+        function generateTestId() {
+            // 从localStorage获取最后一个编号，如果没有则从24001开始
+            let lastId = localStorage.getItem('last_test_id');
+            if (!lastId) {
+                lastId = '24000';
+            }
+            
+            // 生成新编号
+            const newIdNum = parseInt(lastId) + 1;
+            const newId = 'LAA' + newIdNum;
+            
+            // 保存到localStorage
+            localStorage.setItem('last_test_id', newIdNum.toString());
+            
+            return newId;
         }
 
         // 页面加载完成后初始化
