@@ -130,6 +130,83 @@
         .test-id-reminder strong {
             color: #ff9800;
         }
+        
+        /* 淘宝商品图样式 */
+        .taobao-product-image {
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border: 2px solid #ffebee;
+        }
+        
+        .taobao-product-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .product-image-placeholder {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        /* 价格区域 */
+        .price-section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .price-amount {
+            font-size: 48px;
+            font-weight: 700;
+            color: #e74c3c;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+        
+        .price-note {
+            font-size: 15px;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        
+        /* 淘宝按钮 */
+        .taobao-btn {
+            background: #FF4400;
+            color: white;
+            padding: 18px 40px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 300px;
+            transition: all 0.3s;
+        }
+        
+        .taobao-btn:hover {
+            background: #FF5500;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,68,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -200,11 +277,162 @@
                     </div>
                 </div>
                 
+                <!-- 进阶评估说明 -->
+                <div class="upgrade-module" style="
+                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    border-radius: 16px;
+                    padding: 25px;
+                    margin: 25px 0;
+                    border: 2px solid #dee2e6;
+                ">
+                    <h3 style="
+                        color: #333;
+                        margin-top: 0;
+                        margin-bottom: 20px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    ">
+                        <i class="fas fa-star" style="color: #ffc107;"></i>
+                        进阶评估结果需要付费查看，你将获得如下
+                    </h3>
+                    
+                    <div class="upgrade-content" style="
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                        gap: 15px;
+                        margin-bottom: 20px;
+                    ">
+                        <div class="upgrade-item" style="
+                            background: white;
+                            padding: 15px;
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        ">
+                            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                            <span>专属测试编号，用于客服开通服务</span>
+                        </div>
+                        <div class="upgrade-item" style="
+                            background: white;
+                            padding: 15px;
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        ">
+                            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                            <span>详细的问题主次关系分析报告</span>
+                        </div>
+                        <div class="upgrade-item" style="
+                            background: white;
+                            padding: 15px;
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        ">
+                            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                            <span>左右两侧表现侧与驱动侧识别</span>
+                        </div>
+                        <div class="upgrade-item" style="
+                            background: white;
+                            padding: 15px;
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        ">
+                            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                            <span>个性化的处理顺序建议</span>
+                        </div>
+                        <div class="upgrade-item" style="
+                            background: white;
+                            padding: 15px;
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        ">
+                            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                            <span>专业客服一对一服务支持</span>
+                        </div>
+                    </div>
+                    
+                    <div class="upgrade-note" style="
+                        background: #fff3cd;
+                        border-left: 4px solid #ffc107;
+                        padding: 15px;
+                        border-radius: 0 8px 8px 0;
+                        font-size: 0.95em;
+                        color: #856404;
+                    ">
+                        <i class="fas fa-info-circle"></i>
+                        支付￥29.9后，将测试编号提供给淘宝客服，即可开通完整评估服务。
+                    </div>
+                </div>
+                
+                <!-- 价格区域 -->
+                <div class="price-section">
+                    <h3><i class="fas fa-tag"></i> 解锁价格</h3>
+                    <div class="price-amount">￥29.9</div>
+                    <p class="price-note">请先前往淘宝下单，确认后为你开通结果查看权限</p>
+                    
+                    <!-- 淘宝商品图 -->
+                    <div class="taobao-product-image">
+                        <img src="assets/images/taobao-product.svg" alt="淘宝商品图 - LAA 进阶评估服务" 
+                             onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxkZWZzPgogICAgICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICAgICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZmY2YjZiO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICAgICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmZjhlNTM7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDwvZGVmcz4KICAgIAogICAgPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIHJ4PSIxMiIgZmlsbD0idXJsKCNncmFkaWVudCkiIC8+CiAgICAKICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iYm9sZCI+CiAgICAgICAg5LiL6L2955S75Lu3CiAgICA8L3RleHQ+CiAgICA8dGV4dCB4PSIxNTAiIHk9IjE4MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiI+CiAgICAgICAgTEFBIOaJgOaciee6p+WIq+W4iAogICAgPC90ZXh0PgogICAgPHRleHQgeD0iMTUwIiB5PSIyMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSJib2xkIj4KICAgICAgICAmIzY1Mjg1OzI5LjkKICAgIDwvdGV4dD4KPC9zdmc+Cg=='">
+                        <div class="image-fallback" style="display: none; text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%); color: white; border-radius: 12px;">
+                            <i class="fas fa-shopping-bag" style="font-size: 2em; margin-bottom: 10px;"></i>
+                            <div style="font-weight: bold; font-size: 1.2em;">淘宝商品图</div>
+                            <div style="margin-top: 5px;">LAA 进阶评估服务</div>
+                            <div style="font-size: 1.5em; font-weight: bold; margin-top: 10px;">￥29.9</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 淘宝按钮 -->
+                    <button class="taobao-btn" id="taobao-btn">
+                        <i class="fab fa-alipay"></i> 去淘宝下单解锁结果
+                    </button>
+                    
+                    <!-- 备用复制按钮 -->
+                    <button class="copy-link-btn" id="copy-link-btn" style="
+                        background: #f8f9fa;
+                        color: #666;
+                        padding: 12px 25px;
+                        border-radius: 25px;
+                        font-size: 1em;
+                        border: 1px solid #ddd;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        margin: 10px auto;
+                        width: 100%;
+                        max-width: 250px;
+                        transition: all 0.3s;
+                    ">
+                        <i class="fas fa-copy"></i> 复制商品链接
+                    </button>
+                    
+                    <!-- 跳转提示 -->
+                    <p style="font-size: 0.85em; color: #666; margin-top: 10px;">
+                        <i class="fas fa-info-circle"></i> 如未自动跳转，请复制链接到浏览器打开
+                    </p>
+                </div>
+                
                 <!-- 重要提示区域 -->
                 <div style="text-align: center; margin: 40px 0;">
                     <!-- 测试编号提醒 -->
                     <div class="test-id-reminder">
-                        <p><strong>重要提示：</strong>请将你的测试编号 <span id="reminder-test-id" style="font-weight: bold; color: #d35400;">LAA24001</span> 发送给客服，或填写在订单备注中。</p>
+                        <p><strong>重要提示：</strong>下单时，请将你的测试编号 <span id="reminder-test-id" style="font-weight: bold; color: #d35400;">LAA24001</span> 发送给客服，或填写在订单备注中。</p>
                         <p>这样我们才能为你匹配并开通专属的进阶评估结果。</p>
                     </div>
                 </div>
@@ -213,8 +441,8 @@
                 <div class="instruction-box">
                     <h4><i class="fas fa-list-alt"></i> 操作流程说明</h4>
                     <ol style="margin: 10px 0 0 20px; padding: 0;">
-                        <li>联系客服获取商品链接</li>
-                        <li>完成下单支付</li>
+                        <li>点击上方"去淘宝下单解锁结果"按钮</li>
+                        <li>在淘宝完成下单支付（￥29.9）</li>
                         <li>将测试编号提供给客服或填写在订单备注</li>
                         <li>等待我们确认订单（通常24小时内）</li>
                         <li>确认后，使用同一测试编号查看结果</li>
@@ -251,9 +479,14 @@
         const testIdNumber = document.getElementById('test-id-number');
         const reminderTestId = document.getElementById('reminder-test-id');
         const copyTestIdBtn = document.getElementById('copy-test-id-btn');
+        const taobaoBtn = document.getElementById('taobao-btn');
+        const copyLinkBtn = document.getElementById('copy-link-btn');
         const checkResultBtn = document.getElementById('check-result-btn');
         const backToHomeBtn = document.getElementById('back-to-home-btn');
         const statusIndicator = document.getElementById('status-indicator');
+        
+        // 淘宝商品链接
+        const TAOBAO_URL = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
         
         // 页面加载初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -308,6 +541,27 @@
             statusIndicator.innerHTML = `<i class="${statusInfo.icon}"></i> ${statusInfo.text}`;
         }
         
+        // 检查图片加载
+        function checkImageLoad() {
+            const productImage = document.querySelector('.taobao-product-image img');
+            const fallback = document.querySelector('.image-fallback');
+            
+            if (productImage) {
+                productImage.onerror = function() {
+                    console.log('商品图片加载失败，显示备用内容');
+                    if (fallback) {
+                        fallback.style.display = 'block';
+                        this.style.display = 'none';
+                    }
+                };
+                
+                // 检查图片是否已加载失败
+                if (productImage.complete && productImage.naturalHeight === 0) {
+                    productImage.onerror();
+                }
+            }
+        }
+        
         // 绑定事件
         function bindEvents() {
             // 复制测试编号
@@ -329,6 +583,61 @@
                 }
             });
             
+            // 淘宝下单按钮 - 直接跳转
+            taobaoBtn.addEventListener('click', function() {
+                // 直接跳转到淘宝商品页
+                window.open(TAOBAO_URL, '_blank');
+            });
+            
+            // 复制商品链接按钮
+            copyLinkBtn.addEventListener('click', async function() {
+                try {
+                    await navigator.clipboard.writeText(TAOBAO_URL);
+                    
+                    // 显示复制成功反馈
+                    const originalText = copyLinkBtn.innerHTML;
+                    copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                    copyLinkBtn.style.background = '#4CAF50';
+                    copyLinkBtn.style.color = 'white';
+                    copyLinkBtn.style.borderColor = '#4CAF50';
+                    
+                    setTimeout(() => {
+                        copyLinkBtn.innerHTML = originalText;
+                        copyLinkBtn.style.background = '#f8f9fa';
+                        copyLinkBtn.style.color = '#666';
+                        copyLinkBtn.style.borderColor = '#ddd';
+                    }, 2000);
+                    
+                    showNotification('淘宝商品链接已复制到剪贴板', 'success');
+                } catch (err) {
+                    console.error('复制失败:', err);
+                    
+                    // 备用方法
+                    const textArea = document.createElement('textarea');
+                    textArea.value = TAOBAO_URL;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    
+                    try {
+                        const successful = document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        
+                        if (successful) {
+                            showNotification('淘宝商品链接已复制到剪贴板', 'success');
+                        } else {
+                            showNotification('复制失败，请手动复制链接：' + TAOBAO_URL, 'error');
+                        }
+                    } catch (err2) {
+                        document.body.removeChild(textArea);
+                        showNotification('复制失败，请手动复制链接：' + TAOBAO_URL, 'error');
+                    }
+                }
+            });
+            
             // 尝试查看结果
             checkResultBtn.addEventListener('click', function() {
                 const testId = testIdNumber.textContent;
@@ -347,6 +656,9 @@
             backToHomeBtn.addEventListener('click', function() {
                 window.location.href = 'index.html';
             });
+            
+            // 检查图片加载
+            checkImageLoad();
             
             // 添加键盘支持
             document.addEventListener('keydown', function(e) {

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完整流程测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .test-step {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        .step-number {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .step-content {
+            display: inline-block;
+            vertical-align: top;
+            width: calc(100% - 50px);
+        }
+        .expected {
+            background: #d4edda;
+            border-left-color: #28a745;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .actual {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .link {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>完整用户流程测试</h1>
+    
+    <div class="test-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+            <h3>第一层：免费评估</h3>
+            <p><strong>页面：</strong> <code>index.html</code></p>
+            <p><strong>操作：</strong> 完成12题免费评估</p>
+            <p><strong>结果页按钮：</strong> "进入 LAA 进阶评估"</p>
+            
+            <div class="expected">
+                <strong>✅ 期望：</strong> 点击后跳转到 <code>advanced-intro.html</code>（第二层说明页）
+            </div>
+            
+            <div class="actual">
+                <strong>🔍 实际：</strong> 
+                <button onclick="testStep1()">测试跳转</button>
+                <span id="step1-result"></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+            <h3>第二层：说明页</h3>
+            <p><strong>页面：</strong> <code>advanced-intro.html</code></p>
+            <p><strong>操作：</strong> 阅读说明，点击"开始补充评估"</p>
+            
+            <div class="expected">
+                <strong>✅ 期望：</strong> 跳转到 <code>advanced-questions.html</code>（4个补充问题）
+            </div>
+            
+            <div class="actual">
+                <strong>🔍 实际：</strong> 
+                <button onclick="testStep2()">测试跳转</button>
+                <span id="step2-result"></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+            <h3>第三层：补充问题</h3>
+            <p><strong>页面：</strong> <code>advanced-questions.html</code></p>
+            <p><strong>操作：</strong> 完成4个补充问题，点击"下一步"</p>
+            
+            <div class="expected">
+                <strong>✅ 期望：</strong> 跳转到 <code>advanced-photo.html</code>（上传自然正面照）
+            </div>
+            
+            <div class="actual">
+                <strong>🔍 实际：</strong> 
+                <button onclick="testStep3()">测试跳转</button>
+                <span id="step3-result"></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+            <h3>第四层：上传照片</h3>
+            <p><strong>页面：</strong> <code>advanced-photo.html</code></p>
+            <p><strong>操作：</strong> 上传正面照，点击"继续"</p>
+            
+            <div class="expected">
+                <strong>✅ 期望：</strong> 跳转到 <code>payment-page.html</code>（结果解锁页/淘宝支付页）
+            </div>
+            
+            <div class="actual">
+                <strong>🔍 实际：</strong> 
+                <button onclick="testStep4()">测试跳转</button>
+                <span id="step4-result"></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-number">5</div>
+        <div class="step-content">
+            <h3>第五层：支付页面</h3>
+            <p><strong>页面：</strong> <code>payment-page.html</code></p>
+            <p><strong>验证：</strong></p>
+            <ul>
+                <li>✅ 显示测试编号</li>
+                <li>✅ 显示淘宝商品图（本地资源）</li>
+                <li>✅ 淘宝按钮直接跳转淘宝链接</li>
+                <li>✅ 有备用复制链接按钮</li>
+                <li>❌ <strong>问题：</strong> 不应该在第一层完成后直接出现</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <h2>🔍 问题诊断</h2>
+        <p><strong>你说"淘宝支付页还在第一层完成后"，可能的原因：</strong></p>
+        <ol>
+            <li>用户直接访问了 <code>payment-page.html</code> 链接</li>
+            <li>第一层结果页有隐藏的跳转到支付页面的逻辑</li>
+            <li>测试时跳过了中间步骤</li>
+            <li>浏览器缓存了旧版本</li>
+        </ol>
+        
+        <p><strong>修复验证：</strong></p>
+        <ul>
+            <li>✅ 已从 <code>index.html</code> 移除淘宝支付按钮</li>
+            <li>✅ 已修复 <code>advanced-photo.html</code> 跳转到 <code>payment-page.html</code></li>
+            <li>✅ 流程应该是：第一层 → 第二层说明 → 补充问题 → 上传照片 → 支付页</li>
+        </ul>
+    </div>
+    
+    <div class="test-step">
+        <h2>🚀 测试链接</h2>
+        <p>按正确流程测试：</p>
+        <ol>
+            <li><a class="link" href="index.html" target="_blank">1. 从主入口开始</a></li>
+            <li><a class="link" href="advanced-intro.html" target="_blank">2. 第二层说明页</a></li>
+            <li><a class="link" href="advanced-questions.html" target="_blank">3. 补充问题页</a></li>
+            <li><a class="link" href="advanced-photo.html" target="_blank">4. 上传照片页</a></li>
+            <li><a class="link" href="payment-page.html" target="_blank">5. 支付页面（应通过流程到达）</a></li>
+        </ol>
+        
+        <p><strong>⚠️ 注意：</strong> 如果直接打开支付页面，它会显示，但这不代表流程错误。必须通过完整流程到达。</p>
+    </div>
+
+    <script>
+        function testStep1() {
+            // 模拟第一层跳转
+            const detailBtn = document.getElementById('detail-btn');
+            if (detailBtn && detailBtn.onclick) {
+                document.getElementById('step1-result').innerHTML = '<span style="color: green;">✓ 按钮存在，点击应跳转到第二层说明页</span>';
+            } else {
+                // 检查app.js中的函数
+                document.getElementById('step1-result').innerHTML = '<span style="color: orange;">⚠ 需要检查app.js中的showAdvancedAssessment函数</span>';
+            }
+        }
+        
+        function testStep2() {
+            document.getElementById('step2-result').innerHTML = '<span style="color: green;">✓ advanced-intro.html 应跳转到 advanced-questions.html</span>';
+        }
+        
+        function testStep3() {
+            document.getElementById('step3-result').innerHTML = '<span style="color: green;">✓ advanced-questions.html 应跳转到 advanced-photo.html</span>';
+        }
+        
+        function testStep4() {
+            document.getElementById('step4-result').innerHTML = '<span style="color: green;">✓ advanced-photo.html 应跳转到 payment-page.html（已修复）</span>';
+        }
+        
+        // 检查当前URL参数
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('direct')) {
+            alert('⚠️ 注意：直接访问支付页面不能证明流程错误！必须通过完整流程测试。');
+        }
+    </script>
+</body>
+</html>

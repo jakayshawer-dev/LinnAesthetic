@@ -20,7 +20,6 @@ const observation = document.getElementById('observation');
 const optionsContainer = document.getElementById('options-container');
 const retestBtn = document.getElementById('retest-btn');
 const detailBtn = document.getElementById('detail-btn');
-const taobaoDirectBtn = document.getElementById('taobao-direct-btn');
 
 // 结果页元素
 const resultTendency = document.getElementById('result-tendency');
@@ -42,10 +41,7 @@ function initApp() {
     retestBtn.addEventListener('click', restartTest);
     detailBtn.addEventListener('click', showAdvancedAssessment);
     
-    // 绑定淘宝直接支付按钮
-    if (taobaoDirectBtn) {
-        taobaoDirectBtn.addEventListener('click', goToTaobaoDirectly);
-    }
+
     
     // 显示首页
     showPage('home');
@@ -246,19 +242,6 @@ function showAdvancedAssessment() {
 }
 
 // 直接跳转到淘宝
-function goToTaobaoDirectly() {
-    const TAOBAO_URL = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
-    
-    // 生成测试编号
-    const testId = generateTestId();
-    
-    // 保存测试编号
-    localStorage.setItem('current_test_id', testId);
-    
-    // 跳转到支付页面
-    window.location.href = 'payment-page.html?testId=' + encodeURIComponent(testId);
-}
-
 // 生成测试编号（在advanced-unlock.html中使用）
 function generateTestId() {
     // 从localStorage获取最后一个编号，如果没有则从24001开始

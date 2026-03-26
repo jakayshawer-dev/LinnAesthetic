@@ -78,32 +78,7 @@
             line-height: 1.5;
         }
         
-        /* 淘宝按钮 */
-        .taobao-action-btn {
-            background: #FF4400;
-            color: white;
-            padding: 20px 45px;
-            border-radius: 25px;
-            font-size: 1.3em;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin: 30px auto;
-            width: 100%;
-            max-width: 350px;
-            transition: all 0.3s;
-            box-shadow: 0 6px 20px rgba(255,68,0,0.2);
-        }
-        
-        .taobao-action-btn:hover {
-            background: #FF5500;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255,68,0,0.3);
-        }
+
         
         /* 提示区域 */
         .reminder-box {
@@ -226,7 +201,7 @@
                 </div>
                 
                 <h1 class="main-title">解锁 LAA 进阶评估结果</h1>
-                <p class="subtitle">你已完成补充评估信息，接下来可通过淘宝下单解锁更进一步的结果分析</p>
+                <p class="subtitle">你已完成免费评估，接下来可继续完成进阶评估以获取更详细的分析结果</p>
                 
                 <!-- 测试编号显示 -->
                 <div class="test-id-display">
@@ -246,8 +221,8 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="info-content">
-                        <p>你已完成补充问题与正面照提交。</p>
-                        <p class="info-highlight">下单后即可继续查看你的 LAA 进阶评估结果。</p>
+                        <p>你已完成免费评估，获得了初步分析结果。</p>
+                        <p class="info-highlight">继续完成进阶评估以获取更详细的分析结果。</p>
                     </div>
                 </div>
                 
@@ -265,13 +240,13 @@
                 
                 <!-- 重要提示 -->
                 <div class="reminder-box">
-                    <p><strong>重要提示：</strong>下单后，请将你的测试编号 <span id="reminder-test-id" style="font-weight: bold; color: #d35400;">LAA24001</span> 发送给客服，或填写在订单备注中。</p>
-                    <p>这样我们才能为你匹配并开通专属的进阶评估结果。</p>
+                    <p><strong>重要提示：</strong>请保存好你的测试编号 <span id="reminder-test-id" style="font-weight: bold; color: #d35400;">LAA24001</span>。</p>
+                    <p>完成进阶评估后，将凭此编号为你匹配专属的进阶评估结果。</p>
                 </div>
                 
                 <!-- 底部提示 -->
                 <div class="instruction-box">
-                    <p><i class="fas fa-info-circle"></i> <strong>温馨提示：</strong>下单后，请保留你的测试编号。确认订单后，将为你开通对应结果查看权限。</p>
+                    <p><i class="fas fa-info-circle"></i> <strong>温馨提示：</strong>请保留你的测试编号。完成进阶评估后，将凭此编号为你开通对应结果查看权限。</p>
                 </div>
                 
                 <div class="system-identifier-bottom">
@@ -284,14 +259,10 @@
     <script src="js/test-id.js"></script>
     <script src="js/data-manager.js"></script>
     <script>
-        // 淘宝商品链接
-        const TAOBAO_URL = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
-        
         // DOM元素
         const testIdNumber = document.getElementById('test-id-number');
         const reminderTestId = document.getElementById('reminder-test-id');
         const copyTestIdBtn = document.getElementById('copy-test-id-btn');
-        const taobaoActionBtn = document.getElementById('taobao-action-btn');
         
         // 页面加载初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -328,22 +299,6 @@
                 } else {
                     alert('复制失败，请手动选择并复制编号：' + testId);
                 }
-            });
-            
-            // 绑定淘宝按钮
-            taobaoActionBtn.addEventListener('click', function() {
-                // 在新标签页打开淘宝
-                const newWindow = window.open(TAOBAO_URL, '_blank');
-                
-                // 如果被浏览器阻止，提示用户
-                if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-                    setTimeout(() => {
-                        alert('如果未跳转到淘宝，请手动访问：' + TAOBAO_URL + '\n\n请记得提供测试编号：' + testId);
-                    }, 500);
-                }
-                
-                // 显示提示
-                showNotification('请在淘宝完成下单，并将测试编号提供给客服');
             });
         }
         
