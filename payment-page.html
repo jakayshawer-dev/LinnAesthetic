@@ -57,31 +57,6 @@
             margin-bottom: 30px;
         }
         
-        .taobao-btn {
-            background: #FF4400;
-            color: white;
-            padding: 18px 40px;
-            border-radius: 25px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px auto;
-            width: 100%;
-            max-width: 300px;
-            transition: all 0.3s;
-        }
-        
-        .taobao-btn:hover {
-            background: #FF5500;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255,68,0,0.3);
-        }
-        
         .instruction-box {
             background: #f8f9fa;
             border-left: 4px solid #3498db;
@@ -167,7 +142,7 @@
                 </div>
                 
                 <h1 class="main-title">解锁 LAA 进阶评估结果</h1>
-                <p class="subtitle">你已完成补充评估信息，接下来可通过淘宝下单解锁更进一步的结果分析</p>
+                <p class="subtitle">你已完成补充评估信息，接下来可解锁更进一步的结果分析</p>
                 
                 <!-- 测试编号显示 -->
                 <div class="test-id-display">
@@ -225,27 +200,11 @@
                     </div>
                 </div>
                 
-                <!-- 价格区域 -->
+                <!-- 重要提示区域 -->
                 <div style="text-align: center; margin: 40px 0;">
-                    <!-- 淘宝商品图 -->
-                    <div style="margin-bottom: 20px;">
-                        <div style="width: 300px; height: 300px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                            <i class="fas fa-shopping-cart" style="font-size: 60px; margin-bottom: 20px;"></i>
-                            <h3 style="margin: 0; font-size: 20px;">淘宝商品</h3>
-                            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">大小脸评估服务</p>
-                            <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.8;">￥29.9</p>
-                        </div>
-                        <p style="font-size: 12px; color: #666; margin-top: 10px; text-align: center;">点击下方按钮前往淘宝下单</p>
-                    </div>
-                    
-                    <!-- 淘宝按钮 -->
-                    <button class="taobao-btn" id="taobao-btn" style="margin-top: 20px;">
-                        <i class="fab fa-alipay"></i> 去淘宝下单解锁结果
-                    </button>
-                    
                     <!-- 测试编号提醒 -->
-                    <div class="test-id-reminder" style="margin-top: 30px;">
-                        <p><strong>重要提示：</strong>下单时，请将你的测试编号 <span id="reminder-test-id" style="font-weight: bold; color: #d35400;">LAA24001</span> 发送给客服，或填写在订单备注中。</p>
+                    <div class="test-id-reminder">
+                        <p><strong>重要提示：</strong>请将你的测试编号 <span id="reminder-test-id" style="font-weight: bold; color: #d35400;">LAA24001</span> 发送给客服，或填写在订单备注中。</p>
                         <p>这样我们才能为你匹配并开通专属的进阶评估结果。</p>
                     </div>
                 </div>
@@ -254,29 +213,18 @@
                 <div class="instruction-box">
                     <h4><i class="fas fa-list-alt"></i> 操作流程说明</h4>
                     <ol style="margin: 10px 0 0 20px; padding: 0;">
-                        <li>点击上方按钮前往淘宝商品页</li>
-                        <li>在淘宝完成下单支付</li>
+                        <li>联系客服获取商品链接</li>
+                        <li>完成下单支付</li>
                         <li>将测试编号提供给客服或填写在订单备注</li>
                         <li>等待我们确认订单（通常24小时内）</li>
                         <li>确认后，使用同一测试编号查看结果</li>
                     </ol>
                 </div>
                 
-                <!-- 浏览器帮助 -->
-                <div class="instruction-box" style="background: #fff8e1; border-left-color: #f59e0b;">
-                    <h4><i class="fas fa-question-circle"></i> 如果淘宝按钮不工作：</h4>
-                    <ul style="margin: 10px 0 0 20px; padding: 0;">
-                        <li>按住 <kbd>Ctrl</kbd> 键点击淘宝按钮</li>
-                        <li>或右键按钮选择"在新标签页中打开"</li>
-                        <li>或直接访问：<a href="https://item.taobao.com/item.htm?ft=t&id=1034939670570" target="_blank">淘宝商品链接</a></li>
-                        <li>检查浏览器是否阻止了弹出窗口</li>
-                    </ul>
-                </div>
-                
                 <!-- 底部提示 -->
                 <div class="reminder">
                     <p><i class="fas fa-info-circle"></i> <strong>温馨提示：</strong>下单后，请保留你的测试编号。确认订单后，将为你开通对应结果查看权限。</p>
-                    <p>如有问题，可通过淘宝客服联系我们。</p>
+                    <p>如有问题，可通过客服联系我们。</p>
                 </div>
                 
                 <div class="action-buttons">
@@ -303,13 +251,9 @@
         const testIdNumber = document.getElementById('test-id-number');
         const reminderTestId = document.getElementById('reminder-test-id');
         const copyTestIdBtn = document.getElementById('copy-test-id-btn');
-        const taobaoBtn = document.getElementById('taobao-btn');
         const checkResultBtn = document.getElementById('check-result-btn');
         const backToHomeBtn = document.getElementById('back-to-home-btn');
         const statusIndicator = document.getElementById('status-indicator');
-        
-        // 淘宝商品链接
-        const TAOBAO_URL = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
         
         // 页面加载初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -385,32 +329,6 @@
                 }
             });
             
-            // 淘宝下单按钮
-            taobaoBtn.addEventListener('click', function() {
-                // 方法1: 在新标签页打开淘宝（主要方法）
-                const newWindow = window.open(TAOBAO_URL, '_blank');
-                
-                // 如果被浏览器阻止，使用方法2
-                if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-                    // 方法2: 使用<a>标签方式（更可靠）
-                    const fallbackLink = document.createElement('a');
-                    fallbackLink.href = TAOBAO_URL;
-                    fallbackLink.target = '_blank';
-                    fallbackLink.style.display = 'none';
-                    document.body.appendChild(fallbackLink);
-                    fallbackLink.click();
-                    document.body.removeChild(fallbackLink);
-                    
-                    // 方法3: 提示用户备用方案
-                    setTimeout(() => {
-                        showNotification('如果未跳转到淘宝，请尝试：1.按住Ctrl键点击按钮 2.右键选择"在新标签页中打开" 3.手动访问：' + TAOBAO_URL);
-                    }, 500);
-                }
-                
-                // 显示提示
-                showNotification('请在淘宝完成下单，并将测试编号提供给客服');
-            });
-            
             // 尝试查看结果
             checkResultBtn.addEventListener('click', function() {
                 const testId = testIdNumber.textContent;
@@ -421,7 +339,7 @@
                     window.location.href = 'result-viewer.html?testId=' + encodeURIComponent(testId);
                 } else {
                     // 如果未开通，显示提示
-                    showNotification('该测试编号尚未开通结果查看权限。如你已完成淘宝下单，请等待确认后再次查看。', 'info');
+                    showNotification('该测试编号尚未开通结果查看权限。如你已完成下单，请等待确认后再次查看。', 'info');
                 }
             });
             
@@ -432,9 +350,7 @@
             
             // 添加键盘支持
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    taobaoBtn.click();
-                } else if (e.key === 'Escape') {
+                if (e.key === 'Escape') {
                     backToHomeBtn.click();
                 } else if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
                     copyTestIdBtn.click();
