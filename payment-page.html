@@ -396,10 +396,14 @@
                         </div>
                     </div>
                     
-                    <!-- 淘宝按钮 -->
-                    <button class="taobao-btn" id="taobao-btn">
+                    <!-- 淘宝按钮 - 使用<a>标签避免弹窗拦截 -->
+                    <a href="https://item.taobao.com/item.htm?ft=t&id=1034939670570" 
+                       target="_blank" 
+                       class="taobao-btn" 
+                       id="taobao-btn"
+                       style="text-decoration: none; display: inline-block; text-align: center;">
                         <i class="fab fa-alipay"></i> 去淘宝下单解锁结果
-                    </button>
+                    </a>
                     
                     <!-- 备用复制按钮 -->
                     <button class="copy-link-btn" id="copy-link-btn" style="
@@ -583,24 +587,8 @@
                 }
             });
             
-            // 淘宝下单按钮 - 直接跳转
-            taobaoBtn.addEventListener('click', function() {
-                // 去除可能的空格
-                const cleanUrl = TAOBAO_URL.trim();
-                console.log('跳转到:', cleanUrl); // 调试用，确认链接正确
-                
-                // 新窗口打开
-                const newWindow = window.open(cleanUrl, '_blank');
-                
-                // 如果被拦截，提示用户
-                if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-                    alert('跳转被拦截，请复制链接到浏览器打开：\n' + cleanUrl);
-                    // 自动复制到剪贴板
-                    navigator.clipboard.writeText(cleanUrl).catch(err => {
-                        console.error('复制失败:', err);
-                    });
-                }
-            });
+            // 淘宝按钮现在使用<a>标签，不需要JavaScript事件监听
+            // 保留原来的变量定义，供复制按钮使用
             
             // 复制商品链接按钮
             copyLinkBtn.addEventListener('click', async function() {
