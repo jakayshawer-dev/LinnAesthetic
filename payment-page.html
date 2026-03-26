@@ -515,9 +515,8 @@
             } else {
                 updateTestIdDisplay(testId);
                 
-                // 检查状态
-                const status = window.checkTestIdStatus(testId);
-                updateStatusIndicator(status.status);
+                // 检查状态（简化）
+                updateStatusIndicator('submitted'); // 默认显示"信息已提交"状态
             }
             
             // 绑定事件
@@ -647,15 +646,9 @@
             // 尝试查看结果
             checkResultBtn.addEventListener('click', function() {
                 const testId = testIdNumber.textContent;
-                const status = window.checkTestIdStatus(testId);
                 
-                if (status.activated) {
-                    // 如果已开通，跳转到结果查看页
-                    window.location.href = 'result-viewer.html?testId=' + encodeURIComponent(testId);
-                } else {
-                    // 如果未开通，显示提示
-                    showNotification('该测试编号尚未开通结果查看权限。如你已完成下单，请等待确认后再次查看。', 'info');
-                }
+                // 简化逻辑：直接跳转到结果查看页，让结果页自己处理状态检查
+                window.location.href = 'result-viewer.html?testId=' + encodeURIComponent(testId);
             });
             
             // 返回首页
@@ -743,9 +736,8 @@
                 window.TestIDManager.setCurrentTestId(testIdFromUrl);
                 updateTestIdDisplay(testIdFromUrl);
                 
-                // 检查状态
-                const status = window.checkTestIdStatus(testIdFromUrl);
-                updateStatusIndicator(status.status);
+                // 检查状态（简化）
+                updateStatusIndicator('submitted'); // 默认显示"信息已提交"状态
             }
         }
         
