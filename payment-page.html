@@ -384,11 +384,11 @@
                     <div class="price-amount">￥29.9</div>
                     <p class="price-note">请先前往淘宝下单，确认后为你开通结果查看权限</p>
                     
-                    <!-- 淘宝商品图 -->
-                    <div class="taobao-product-image">
-                        <img src="assets/images/taobao-product.svg" alt="淘宝商品图 - LAA 进阶评估服务" 
-                             onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxkZWZzPgogICAgICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICAgICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZmY2YjZiO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICAgICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmZjhlNTM7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDwvZGVmcz4KICAgIAogICAgPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIHJ4PSIxMiIgZmlsbD0idXJsKCNncmFkaWVudCkiIC8+CiAgICAKICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iYm9sZCI+CiAgICAgICAg5LiL6L2955S75Lu3CiAgICA8L3RleHQ+CiAgICA8dGV4dCB4PSIxNTAiIHk9IjE4MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiI+CiAgICAgICAgTEFBIOaJgOaciee6p+WIq+W4iAogICAgPC90ZXh0PgogICAgPHRleHQgeD0iMTUwIiB5PSIyMTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSJib2xkIj4KICAgICAgICAmIzY1Mjg1OzI5LjkKICAgIDwvdGV4dD4KPC9zdmc+Cg=='">
-                        <div class="image-fallback" style="display: none; text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%); color: white; border-radius: 12px;">
+                    <!-- 商品图片 -->
+                    <div style="width:100%;max-width:400px;margin:20px auto;text-align:center;">
+                        <img src="assets/images/taobao-product.png" alt="LAA进阶评估" style="width:100%;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.1);"
+                             onerror="this.onerror=null; this.style.display='none'; document.getElementById('image-fallback').style.display='block';">
+                        <div id="image-fallback" style="display: none; text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%); color: white; border-radius: 12px;">
                             <i class="fas fa-shopping-bag" style="font-size: 2em; margin-bottom: 10px;"></i>
                             <div style="font-weight: bold; font-size: 1.2em;">淘宝商品图</div>
                             <div style="margin-top: 5px;">LAA 进阶评估服务</div>
@@ -543,8 +543,8 @@
         
         // 检查图片加载
         function checkImageLoad() {
-            const productImage = document.querySelector('.taobao-product-image img');
-            const fallback = document.querySelector('.image-fallback');
+            const productImage = document.querySelector('img[src*="taobao-product.png"]');
+            const fallback = document.getElementById('image-fallback');
             
             if (productImage) {
                 productImage.onerror = function() {
