@@ -5,195 +5,120 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>简单淘宝跳转测试</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .test-area {
-            margin: 30px 0;
-            padding: 20px;
-            border: 2px solid #4f46e5;
-            border-radius: 10px;
-        }
-        button {
-            background: #FF4400;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            cursor: pointer;
-            margin: 10px 0;
-        }
-        button:hover {
-            background: #FF5500;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f0f9ff;
-            border-radius: 6px;
-        }
-        .console-log {
-            background: #1e1e1e;
-            color: #00ff00;
-            padding: 15px;
-            border-radius: 6px;
-            font-family: monospace;
-            margin-top: 20px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
     </style>
 </head>
 <body>
-    <h1>简单淘宝跳转测试</h1>
+    <h1>淘宝跳转简单测试</h1>
     
-    <div class="test-area">
-        <h2>测试1: 直接使用 window.open</h2>
-        <button id="test1-btn">测试 window.open('淘宝链接', '_blank')</button>
-        <div id="test1-result" class="result"></div>
+    <div class="test">
+        <h3>测试1：最基本的 window.open</h3>
+        <button onclick="test1()">测试 window.open()</button>
+        <div id="result1"></div>
     </div>
     
-    <div class="test-area">
-        <h2>测试2: 使用 &lt;a&gt; 标签</h2>
-        <a id="test2-link" href="https://item.taobao.com/item.htm?ft=t&id=1034939670570" target="_blank">
-            <button>点击测试 &lt;a&gt; 标签跳转</button>
+    <div class="test">
+        <h3>测试2：带错误处理的 window.open</h3>
+        <button onclick="test2()">测试带错误处理</button>
+        <div id="result2"></div>
+    </div>
+    
+    <div class="test">
+        <h3>测试3：直接 location.href</h3>
+        <button onclick="test3()">测试 location.href</button>
+        <div id="result3"></div>
+    </div>
+    
+    <div class="test">
+        <h3>测试4：使用 &lt;a&gt; 标签</h3>
+        <a href="https://item.taobao.com/item.htm?ft=t&id=1034939670570" target="_blank" style="display: inline-block; padding: 10px 20px; background: #FF4400; color: white; text-decoration: none; border-radius: 5px;">
+            点击这里跳转到淘宝
         </a>
-        <div id="test2-result" class="result"></div>
+        <p>如果这个能跳转，说明链接没问题</p>
     </div>
     
-    <div class="test-area">
-        <h2>测试3: 模拟支付页面按钮</h2>
-        <button id="test3-btn" class="taobao-btn">
-            <i class="fab fa-alipay"></i> 去淘宝下单解锁结果
-        </button>
-        <div id="test3-result" class="result"></div>
+    <div class="test">
+        <h3>测试5：复制链接到剪贴板</h3>
+        <button onclick="test5()">复制淘宝链接</button>
+        <div id="result5"></div>
     </div>
-    
-    <div class="test-area">
-        <h2>浏览器控制台日志</h2>
-        <div id="console-log" class="console-log"></div>
-    </div>
-    
+
     <script>
-        // 淘宝链接
         const TAOBAO_URL = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
         
-        // 日志函数
-        function log(message, type = 'info') {
-            const consoleDiv = document.getElementById('console-log');
-            const timestamp = new Date().toLocaleTimeString();
-            const color = type === 'error' ? '#ff4444' : type === 'warning' ? '#ffaa00' : '#00aaff';
-            consoleDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
-            
-            // 也输出到浏览器控制台
-            if (type === 'error') {
-                console.error(message);
-            } else if (type === 'warning') {
-                console.warn(message);
-            } else {
-                console.log(message);
+        function test1() {
+            document.getElementById('result1').innerHTML = '正在打开淘宝...';
+            try {
+                window.open(TAOBAO_URL, '_blank');
+                document.getElementById('result1').innerHTML = '<span class="success">✅ 已调用 window.open()</span>';
+            } catch (error) {
+                document.getElementById('result1').innerHTML = `<span class="error">❌ 错误: ${error.message}</span>`;
             }
         }
         
-        // 测试1: 直接使用 window.open
-        document.getElementById('test1-btn').addEventListener('click', function() {
-            log('测试1: 开始测试 window.open');
-            const resultDiv = document.getElementById('test1-result');
+        function test2() {
+            document.getElementById('result2').innerHTML = '正在测试...';
+            const cleanUrl = TAOBAO_URL.trim();
             
-            try {
-                log('尝试打开窗口: ' + TAOBAO_URL);
-                const newWindow = window.open(TAOBAO_URL, '_blank');
-                
-                if (newWindow === null || newWindow === undefined) {
-                    resultDiv.innerHTML = '<div style="color: #ffaa00;">⚠️ 窗口被浏览器阻止（弹出窗口拦截）</div>';
-                    resultDiv.innerHTML += '<p>可能的原因：<br>1. 浏览器设置了弹出窗口拦截<br>2. 不是用户直接触发的点击事件<br>3. 安全限制</p>';
-                    log('警告: 窗口被浏览器阻止', 'warning');
-                } else if (newWindow.closed) {
-                    resultDiv.innerHTML = '<div style="color: #ff4444;">❌ 窗口立即被关闭</div>';
-                    log('错误: 窗口立即被关闭', 'error');
-                } else {
-                    resultDiv.innerHTML = '<div style="color: #00aa00;">✅ 成功打开新窗口</div>';
-                    resultDiv.innerHTML += '<p>淘宝链接正常，新窗口已打开</p>';
-                    log('成功: 新窗口已打开');
-                }
-            } catch (error) {
-                resultDiv.innerHTML = `<div style="color: #ff4444;">❌ 发生错误: ${error.message}</div>`;
-                log('错误: ' + error.message, 'error');
-            }
-        });
-        
-        // 测试2: 使用 <a> 标签（应该总是有效）
-        document.getElementById('test2-link').addEventListener('click', function(e) {
-            log('测试2: <a> 标签点击事件');
-            const resultDiv = document.getElementById('test2-result');
-            resultDiv.innerHTML = '<div style="color: #00aa00;">✅ <a> 标签跳转应该总是有效</div>';
-            resultDiv.innerHTML += '<p>这是最可靠的跳转方式</p>';
-            log('使用 <a> 标签跳转');
-        });
-        
-        // 测试3: 模拟支付页面按钮
-        document.getElementById('test3-btn').addEventListener('click', function() {
-            log('测试3: 模拟支付页面按钮点击');
-            const resultDiv = document.getElementById('test3-result');
+            // 检查URL
+            console.log('URL:', cleanUrl);
+            console.log('URL长度:', cleanUrl.length);
+            console.log('URL最后字符:', cleanUrl.charCodeAt(cleanUrl.length - 1));
             
-            // 模拟支付页面中的代码
-            try {
-                log('调用 window.open: ' + TAOBAO_URL);
-                const newWindow = window.open(TAOBAO_URL, '_blank');
+            const newWindow = window.open(cleanUrl, '_blank');
+            
+            if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                document.getElementById('result2').innerHTML = '<span class="error">❌ 弹窗被拦截！请允许弹窗或使用下面的链接</span><br>' +
+                    `<a href="${cleanUrl}" target="_blank">手动点击这里打开</a>`;
                 
-                if (newWindow) {
-                    resultDiv.innerHTML = '<div style="color: #00aa00;">✅ 模拟成功，淘宝链接正常</div>';
-                    resultDiv.innerHTML += '<p>支付页面中的淘宝按钮代码工作正常</p>';
-                    log('成功: 模拟支付页面按钮工作正常');
-                    
-                    // 模拟显示提示（像支付页面那样）
-                    setTimeout(() => {
-                        resultDiv.innerHTML += '<div style="color: #ffaa00; margin-top: 10px;">💡 提示: 请在淘宝完成下单，并将测试编号提供给客服</div>';
-                        log('显示用户提示');
-                    }, 500);
-                } else {
-                    resultDiv.innerHTML = '<div style="color: #ffaa00;">⚠️ 窗口被阻止，可能是弹出窗口拦截</div>';
-                    resultDiv.innerHTML += '<p>解决方法：<br>1. 允许此网站的弹出窗口<br>2. 使用Ctrl+点击<br>3. 右键选择"在新标签页中打开"</p>';
-                    log('警告: 窗口被阻止', 'warning');
-                }
-            } catch (error) {
-                resultDiv.innerHTML = `<div style="color: #ff4444;">❌ 模拟出错: ${error.message}</div>`;
-                log('错误: ' + error.message, 'error');
+                // 尝试复制到剪贴板
+                navigator.clipboard.writeText(cleanUrl).then(() => {
+                    document.getElementById('result2').innerHTML += '<br><span class="success">✅ 链接已复制到剪贴板</span>';
+                }).catch(err => {
+                    document.getElementById('result2').innerHTML += `<br><span class="error">❌ 复制失败: ${err.message}</span>`;
+                });
+            } else {
+                document.getElementById('result2').innerHTML = '<span class="success">✅ 弹窗成功打开！</span>';
             }
-        });
+        }
         
-        // 页面加载完成日志
+        function test3() {
+            document.getElementById('result3').innerHTML = '正在跳转...';
+            window.location.href = TAOBAO_URL;
+        }
+        
+        function test5() {
+            navigator.clipboard.writeText(TAOBAO_URL).then(() => {
+                document.getElementById('result5').innerHTML = '<span class="success">✅ 淘宝链接已复制到剪贴板</span>';
+            }).catch(err => {
+                document.getElementById('result5').innerHTML = `<span class="error">❌ 复制失败: ${err.message}</span><br>` +
+                    `手动复制: ${TAOBAO_URL}`;
+            });
+        }
+        
+        // 页面加载时检查
         window.addEventListener('load', function() {
-            log('页面加载完成，开始淘宝跳转测试');
-            log('淘宝链接: ' + TAOBAO_URL);
-            
-            // 检查浏览器特性
-            if (typeof window.open !== 'function') {
-                log('错误: window.open 不是函数', 'error');
-            } else {
-                log('window.open 函数可用');
-            }
-            
-            // 检查链接格式
-            if (TAOBAO_URL.startsWith('https://')) {
-                log('链接使用 HTTPS，安全');
-            } else {
-                log('警告: 链接不使用 HTTPS', 'warning');
-            }
-        });
-        
-        // 捕获可能的错误
-        window.addEventListener('error', function(e) {
-            log('全局错误: ' + e.message + ' at ' + e.filename + ':' + e.lineno, 'error');
+            console.log('页面加载完成，淘宝URL:', TAOBAO_URL);
+            console.log('URL验证:', TAOBAO_URL.startsWith('https://'));
+            console.log('包含淘宝域名:', TAOBAO_URL.includes('taobao.com'));
         });
     </script>
     
-    <!-- 加载Font Awesome图标 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <div style="margin-top: 30px; padding: 15px; background: #f0f8ff; border-radius: 5px;">
+        <h3>问题诊断指南：</h3>
+        <ol>
+            <li>如果<strong>测试4的&lt;a&gt;标签</strong>能跳转，说明链接本身没问题</li>
+            <li>如果<strong>测试1的window.open</strong>不能跳转，可能是弹窗被拦截</li>
+            <li>尝试<strong>关闭广告拦截插件</strong>（如AdBlock、uBlock Origin）</li>
+            <li>尝试<strong>使用Chrome的无痕模式</strong>测试</li>
+            <li>检查<strong>浏览器控制台（F12）</strong>是否有错误信息</li>
+        </ol>
+        
+        <p><strong>立即测试：</strong> <a href="https://jakayshawer-dev.github.io/LinnAesthetic/simple-taobao-test.html" target="_blank">打开测试页面</a></p>
+    </div>
 </body>
 </html>
