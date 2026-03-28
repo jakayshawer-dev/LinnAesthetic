@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>按钮跳转修复测试</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .test-case { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        pre { background: #333; color: #fff; padding: 15px; border-radius: 4px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>按钮跳转修复测试</h1>
+    
+    <div class="test-case">
+        <h2>测试1：检查JS文件加载</h2>
+        <button onclick="checkJSFiles()">检查JS文件</button>
+        <div id="js-status"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试2：模拟16题答案并生成testId</h2>
+        <button onclick="simulate16Questions()">模拟16题答案</button>
+        <button onclick="checkCurrentTestId()">检查当前testId</button>
+        <div id="answer-status"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试3：测试按钮跳转逻辑</h2>
+        <button onclick="testButtonLogic()">测试跳转逻辑</button>
+        <div id="button-logic-status"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试4：完整流程测试</h2>
+        <button onclick="runFullTest()">运行完整测试</button>
+        <div id="full-test-status"></div>
+    </div>
+    
+    <script src="js/answer-hash-generator.js"></script>
+    <script src="js/test-id.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        // 测试1：检查JS文件加载
+        function checkJSFiles() {
+            const status = document.getElementById('js-status');
+            let html = '<h3>JS文件加载状态：</h3>';
+            
+            const files = [
+                { name: 'AnswerHashGenerator', check: () => window.AnswerHashGenerator },
+                { name: 'TestIDManager', check: () => window.TestIDManager },
+                { name: 'generateTestIdFromAnswers', check: () => window.generateTestIdFromAnswers },
+                { name: 'checkTestIdStatus', check: () => window.checkTestIdStatus },
+                { name: 'showAdvancedAssessment', check: () => typeof showAdvancedAssessment === 'function' }
+            ];
+            
+            files.forEach(file => {
+                const exists = file.check();
+                if (exists) {
+                    html += `<p class="success">✅ ${file.name} 已加载</p>`;
+                } else {
+                    html += `<p class="error">❌ ${file.name} 未加载</p>`;
+                }
+            });
+            
+            status.innerHTML = html;
+        }
+        
+        // 测试2：模拟16题答案
+        function simulate16Questions() {
+            const status = document.getElementById('answer-status');
+            
+            // 模拟16个问题的答案
+            const answers = {};
+            for (let i = 1; i <= 16; i++) {
+                const options = ['A', 'B', 'C', 'D'];
+                answers[`Q${i}`] = options[Math.floor(Math.random() * options.length)];
+            }
+            
+            status.innerHTML = `<h3>模拟16题答案：</h3>
+                <pre>${JSON.stringify(answers, null, 2)}</pre>`;
+            
+            // 生成testId
+            try {
+                if (window.TestIDManager && window.TestIDManager.generateNewTestId) {
+                    const testId = window.TestIDManager.generateNewTestId(answers);
+                    
+                    // 保存到localStorage
+                    localStorage.setItem('current_basic_test_id', testId);
+                    localStorage.setItem('current_test_id', testId);
+                    
+                    status.innerHTML += `
+                        <p class="success">✅ 生成testId: ${testId}</p>
+                        <p>基于 ${Object.keys(answers).length} 个答案</p>
+                        <p>已保存到 localStorage</p>
+                    `;
+                    
+                    // 验证1对1绑定
+                    setTimeout(() => {
+                        const record = window.TestIDManager.getTestRecord(testId);
+                        if (record && record.userData && record.userData.answers) {
+                            const match = JSON.stringify(record.userData.answers) === JSON.stringify(answers);
+                            status.innerHTML += `<p class="${match ? 'success' : 'error'}">
+                                ${match ? '✅' : '❌'} 答案验证: ${match ? '匹配成功' : '匹配失败'}
+                            </p>`;
+                        }
+                    }, 100);
+                } else {
+                    status.innerHTML += '<p class="error">❌ TestIDManager未加载</p>';
+                }
+            } catch (error) {
+                status.innerHTML += `<p class="error">❌ 生成testId错误: ${error.message}</p>`;
+            }
+        }
+        
+        // 检查当前testId
+        function checkCurrentTestId() {
+            const status = document.getElementById('answer-status');
+            const testId = localStorage.getItem('current_basic_test_id');
+            
+            if (!testId) {
+                status.innerHTML += '<p class="warning">⚠️ 当前没有testId</p>';
+                return;
+            }
+            
+            let html = `<h3>当前testId: ${testId}</h3>`;
+            
+            // 检查记录状态
+            try {
+                const record = window.TestIDManager.getTestRecord(testId);
+                if (record) {
+                    html += `<p>创建时间: ${record.createdAt}</p>
+                            <p>支付状态: ${record.paid ? '✅ 已支付' : '❌ 未支付'}</p>
+                            <p>开通状态: ${record.opened ? '✅ 已开通' : '❌ 未开通'}</p>
+                            <p>答案数量: ${record.userData && record.userData.answers ? Object.keys(record.userData.answers).length : 0}</p>`;
+                    
+                    // 检查状态函数
+                    const statusCheck = window.checkTestIdStatus(testId);
+                    html += `<p>状态检查: ${JSON.stringify(statusCheck)}</p>`;
+                } else {
+                    html += '<p class="error">❌ 记录不存在</p>';
+                }
+            } catch (error) {
+                html += `<p class="error">❌ 检查记录错误: ${error.message}</p>`;
+            }
+            
+            status.innerHTML += html;
+        }
+        
+        // 测试3：按钮跳转逻辑
+        function testButtonLogic() {
+            const status = document.getElementById('button-logic-status');
+            const testId = localStorage.getItem('current_basic_test_id');
+            
+            if (!testId) {
+                status.innerHTML = '<p class="warning">⚠️ 请先生成testId（测试2）</p>';
+                return;
+            }
+            
+            let html = `<h3>按钮跳转逻辑测试 (testId: ${testId})</h3>`;
+            
+            // 模拟showAdvancedAssessment函数
+            try {
+                if (typeof showAdvancedAssessment !== 'function') {
+                    html += '<p class="error">❌ showAdvancedAssessment函数不存在</p>';
+                    status.innerHTML = html;
+                    return;
+                }
+                
+                html += '<p class="success">✅ showAdvancedAssessment函数存在</p>';
+                
+                // 记录原始location
+                const originalHref = window.location.href;
+                let redirectUrl = null;
+                
+                // 临时重写location.href来捕获跳转
+                const originalLocation = window.location;
+                Object.defineProperty(window, 'location', {
+                    get: () => ({ href: originalHref }),
+                    set: function(value) {
+                        redirectUrl = value;
+                        console.log('捕获到跳转:', value);
+                    }
+                });
+                
+                // 执行函数
+                showAdvancedAssessment();
+                
+                // 恢复location
+                delete window.location;
+                window.location = originalLocation;
+                
+                if (redirectUrl) {
+                    html += `<p class="success">✅ 跳转成功！</p>
+                            <p>跳转目标: <a href="${redirectUrl}" target="_blank">${redirectUrl}</a></p>`;
+                    
+                    // 分析跳转逻辑
+                    const record = window.TestIDManager.getTestRecord(testId);
+                    if (record) {
+                        html += `<p>跳转原因分析:</p>
+                                <ul>
+                                    <li>testId存在: ✅</li>
+                                    <li>支付状态: ${record.paid ? '✅ 已支付' : '❌ 未支付'}</li>
+                                    <li>开通状态: ${record.opened ? '✅ 已开通' : '❌ 未开通'}</li>
+                                    <li>有答题数据: ${record.userData && record.userData.answers ? '✅' : '❌'}</li>
+                                </ul>`;
+                        
+                        // 预期跳转
+                        let expectedUrl = 'advanced-intro.html';
+                        if (record.paid && record.opened && record.userData && record.userData.answers) {
+                            expectedUrl = `result-viewer.html?testId=${testId}`;
+                        } else if (record.paid && !record.opened) {
+                            expectedUrl = `advanced-unlock.html?testId=${testId}`;
+                        } else if (!record.paid) {
+                            expectedUrl = `payment-page.html?testId=${testId}`;
+                        }
+                        
+                        const correct = redirectUrl.includes(expectedUrl);
+                        html += `<p class="${correct ? 'success' : 'error'}">
+                            ${correct ? '✅' : '❌'} 跳转逻辑: ${correct ? '正确' : '错误'}
+                            (预期: ${expectedUrl})
+                        </p>`;
+                    }
+                } else {
+                    html += '<p class="error">❌ 没有发生跳转</p>';
+                    
+                    // 调试原因
+                    html += '<p>可能原因:</p><ul>';
+                    html += '<li>TestIDManager未正确加载</li>';
+                    html += '<li>checkTestIdStatus函数有问题</li>';
+                    html += '<li>showAdvancedAssessment函数逻辑错误</li>';
+                    html += '</ul>';
+                }
+                
+            } catch (error) {
+                html += `<p class="error">❌ 测试错误: ${error.message}</p>
+                        <pre>${error.stack}</pre>`;
+            }
+            
+            status.innerHTML = html;
+        }
+        
+        // 测试4：完整流程测试
+        function runFullTest() {
+            const status = document.getElementById('full-test-status');
+            status.innerHTML = '<h3>完整流程测试：</h3>';
+            
+            // 步骤1：生成答案和testId
+            status.innerHTML += '<p>1. 生成16题答案和testId...</p>';
+            simulate16Questions();
+            
+            setTimeout(() => {
+                const testId = localStorage.getItem('current_basic_test_id');
+                status.innerHTML += `<p>✅ 生成testId: ${testId}</p>`;
+                
+                // 步骤2：标记为已支付
+                status.innerHTML += '<p>2. 模拟支付...</p>';
+                try {
+                    window.TestIDManager.updateTestRecord(testId, {
+                        paid: true,
+                        paymentTime: new Date().toISOString(),
+                        status: 'paid'
+                    });
+                    status.innerHTML += '<p>✅ 标记为已支付</p>';
+                    
+                    // 步骤3：标记为已开通
+                    status.innerHTML += '<p>3. 模拟后台开通...</p>';
+                    window.TestIDManager.updateTestRecord(testId, {
+                        opened: true,
+                        activationTime: new Date().toISOString(),
+                        status: 'activated'
+                    });
+                    status.innerHTML += '<p>✅ 标记为已开通</p>';
+                    
+                    // 步骤4：测试按钮跳转
+                    status.innerHTML += '<p>4. 测试按钮跳转...</p>';
+                    setTimeout(() => testButtonLogic(), 500);
+                    
+                } catch (error) {
+                    status.innerHTML += `<p class="error">❌ 流程错误: ${error.message}</p>`;
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>

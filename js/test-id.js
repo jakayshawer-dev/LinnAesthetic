@@ -41,30 +41,47 @@ class TestIDManager {
         localStorage.setItem(this.storageKey, JSON.stringify(data));
     }
 
-    // 生成新的测试编号
+    // 生成新的测试编号（基于答案，确保1对1绑定）
     generateNewTestId(answers = null) {
         const data = this.getStorageData();
         
         let newId;
         
-        // 如果有答案，尝试基于答案生成编号
-        if (answers && window.AnswerHash) {
+        // 如果有答案，使用答案哈希生成唯一编号
+        if (answers && typeof answers === 'object') {
             try {
-                newId = window.AnswerHash.generateTestIdFromAnswers(answers);
-                console.log('基于答案生成测试编号:', newId);
+                // 使用AnswerHashGenerator生成基于答案的唯一ID
+                if (window.AnswerHashGenerator && window.generateTestIdFromAnswers) {
+                    newId = window.generateTestIdFromAnswers(answers);
+                    console.log('✅ 基于答案生成唯一测试编号:', newId);
+                    
+                    // 检查是否已存在相同的答案记录
+                    const existingRecord = data.testRecords[newId];
+                    if (existingRecord) {
+                        console.log('📝 相同答案的测试编号已存在，返回现有编号');
+                        this.currentTestId = newId;
+                        sessionStorage.setItem('current_test_id', newId);
+                        localStorage.setItem('current_test_id', newId);
+                        return newId;
+                    }
+                } else {
+                    console.warn('⚠️ AnswerHashGenerator未加载，使用顺序编号');
+                    data.lastId += 1;
+                    newId = `LAA${data.lastId}`;
+                }
             } catch (error) {
                 console.warn('基于答案生成编号失败:', error);
+                data.lastId += 1;
+                newId = `LAA${data.lastId}`;
             }
-        }
-        
-        // 如果无法基于答案生成，使用顺序编号
-        if (!newId) {
+        } else {
+            // 没有答案时使用顺序编号
             data.lastId += 1;
             newId = `LAA${data.lastId}`;
             console.log('使用顺序测试编号:', newId);
         }
         
-        // 检查编号是否已存在
+        // 检查编号是否已存在（顺序编号的情况）
         if (data.testRecords[newId]) {
             console.warn('测试编号已存在:', newId);
             // 如果存在，添加后缀
@@ -90,7 +107,12 @@ class TestIDManager {
             activationTime: null,
             resultType: null,
             notes: '',
-            userData: answers || {}
+            userData: {
+                answers: answers || {},  // 保存原始答案（确保1对1）
+                basic_answers: [],       // 基础问题答案
+                advanced_answers: null,  // 进阶问题答案
+                answer_hash: answers ? (window.getAnswerHash ? window.getAnswerHash(newId) : null) : null
+            }
         };
 
         this.saveStorageData(data);
@@ -98,10 +120,9 @@ class TestIDManager {
         
         // 也在sessionStorage中保存当前测试ID
         sessionStorage.setItem('current_test_id', newId);
-        
-        // 保存到localStorage以便其他页面访问
         localStorage.setItem('current_test_id', newId);
         
+        console.log('🎯 创建新测试记录:', newId, '答案数量:', answers ? Object.keys(answers).length : 0);
         return newId;
     }
 

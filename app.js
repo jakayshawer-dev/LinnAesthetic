@@ -186,6 +186,45 @@ function calculateAndShowResults() {
     // 计算结果
     currentResults = calculateResults(currentScores);
     
+    // 🎯 关键：生成基于答案的唯一testId
+    try {
+        // 确保AnswerHashGenerator已加载
+        if (typeof window.AnswerHashGenerator === 'undefined') {
+            console.warn('AnswerHashGenerator未加载，尝试加载...');
+            // 这里可以动态加载，但为了简单起见，我们假设已通过script标签加载
+        }
+        
+        // 确保TestIDManager已加载
+        if (window.TestIDManager && window.TestIDManager.generateNewTestId) {
+            // 生成基于答案的唯一testId
+            const testId = window.TestIDManager.generateNewTestId(userAnswers);
+            
+            // 保存到localStorage供其他页面使用
+            localStorage.setItem('current_basic_test_id', testId);
+            localStorage.setItem('current_test_id', testId);
+            
+            console.log('✅ 生成唯一testId:', testId, '基于', Object.keys(userAnswers).length, '个答案');
+            
+            // 在结果页显示testId（可选）
+            setTimeout(() => {
+                const resultElement = document.getElementById('result-summary');
+                if (resultElement) {
+                    const existingText = resultElement.innerHTML;
+                    resultElement.innerHTML = existingText + 
+                        `<div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #007bff;">
+                            <strong>📋 您的测试编号：</strong><br>
+                            <code style="font-size: 18px; font-weight: bold; color: #007bff;">${testId}</code><br>
+                            <small>请保存此编号，用于查看进阶评估结果</small>
+                        </div>`;
+                }
+            }, 100);
+        } else {
+            console.warn('TestIDManager未正确加载，无法生成testId');
+        }
+    } catch (error) {
+        console.error('生成testId时出错:', error);
+    }
+    
     // 更新结果页
     updateResultPage();
     
