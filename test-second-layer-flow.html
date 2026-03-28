@@ -6,35 +6,237 @@
     <title>第二层流程测试</title>
     <style>
         body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
-        .test-step { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .test-case { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
         button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
-        .success { color: green; }
-        .error { color: red; }
-        .warning { color: orange; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .status.pass { background: #d4edda; border: 1px solid #c3e6cb; }
+        .status.fail { background: #f8d7da; border: 1px solid #f5c6cb; }
         pre { background: #333; color: #fff; padding: 15px; border-radius: 4px; overflow: auto; }
     </style>
 </head>
 <body>
-    <h1>第二层流程测试 - testId应在第二层完成后生成</h1>
+    <h1>第二层流程测试</h1>
+    <p>测试第二层问卷流程是否打通：4题 → testId → 照片页</p>
     
-    <div class="test-step">
-        <h2>测试目标</h2>
-        <p>验证正确的用户流程：</p>
+    <div class="test-case">
+        <h2>测试1：准备基础数据</h2>
+        <p>第二层需要基础答案（从第一层来）</p>
+        <button onclick="prepareBasicData()">准备基础答案</button>
+        <div id="basic-data-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试2：检查JS文件加载</h2>
+        <button onclick="checkJSFiles()">检查JS文件</button>
+        <div id="js-files-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试3：模拟第二层流程</h2>
+        <button onclick="simulateSecondLayer()">模拟第二层流程</button>
+        <div id="simulation-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试4：直接测试第二层页面</h2>
+        <p><a href="advanced-questions.html" target="_blank">打开第二层问卷</a></p>
+        <p>测试步骤：</p>
         <ol>
-            <li>第一层：12题基础评估 → 保存基础答案</li>
-            <li>第二层：4题进阶评估 → 生成testId</li>
-            <li>照片上传 → 完成第二层评估</li>
-            <li>支付 → 标记 paid = true</li>
-            <li>后台开通 → 标记 opened = true</li>
-            <li>查看结果 → 显示final-v3评估文案</li>
+            <li>点击第1题选项 → 应该自动跳第2题</li>
+            <li>点击第2题选项 → 应该自动跳第3题</li>
+            <li>点击第3题选项 → 应该自动跳第4题</li>
+            <li>点击第4题选项 → 应该生成testId并跳转到照片页</li>
         </ol>
     </div>
     
-    <div class="test-step">
-        <h2>步骤1：模拟第一层基础评估</h2>
-        <button onclick="simulateFirstLayer()">模拟12题基础评估</button>
-        <div id="first-layer-status"></div>
-    </div>
-    
-    <div class="test-step">
-        <h2>步骤
+    <script>
+        // 测试1：准备基础数据
+        function prepareBasicData() {
+            const result = document.getElementById('basic-data-result');
+            result.innerHTML = '<div class="status">准备中...</div>';
+            
+            try {
+                // 模拟12题基础答案
+                const basicAnswers = {};
+                for (let i = 1; i <= 12; i++) {
+                    basicAnswers['BQ' + i] = '选项' + (i % 4 + 1);
+                }
+                
+                localStorage.setItem('laa_basic_answers', JSON.stringify(basicAnswers));
+                
+                // 验证保存
+                const saved = localStorage.getItem('laa_basic_answers');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    result.innerHTML = `<div class="status pass">✅ 基础答案已准备</div>
+                                       <p>共 ${Object.keys(parsed).length} 个基础答案</p>
+                                       <pre>${JSON.stringify(parsed, null, 2)}</pre>`;
+                } else {
+                    result.innerHTML = '<div class="status fail">❌ 基础答案保存失败</div>';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status fail">❌ 错误: ${error.message}</div>`;
+            }
+        }
+        
+        // 测试2：检查JS文件加载
+        async function checkJSFiles() {
+            const result = document.getElementById('js-files-result');
+            result.innerHTML = '<div class="status">检查中...</div>';
+            
+            const files = [
+                { name: 'data-manager.js', url: 'js/data-manager.js' },
+                { name: 'answer-hash-generator.js', url: 'js/answer-hash-generator.js' },
+                { name: 'test-id.js', url: 'js/test-id.js' },
+                { name: 'second-layer-testid.js', url: 'js/second-layer-testid.js' }
+            ];
+            
+            let html = '<h3>JS文件检查：</h3>';
+            let allPass = true;
+            
+            for (const file of files) {
+                try {
+                    const response = await fetch(file.url);
+                    if (response.ok) {
+                        html += `<div class="status pass">✅ ${file.name} - 可访问</div>`;
+                        
+                        // 尝试加载并检查函数
+                        if (file.name === 'second-layer-testid.js') {
+                            const script = document.createElement('script');
+                            script.src = file.url;
+                            script.onload = function() {
+                                if (window.generateSecondLayerTestId) {
+                                    html += `<div class="status pass">✅ generateSecondLayerTestId函数已加载</div>`;
+                                    document.getElementById('js-files-result').innerHTML = html;
+                                }
+                            };
+                            document.head.appendChild(script);
+                        }
+                    } else {
+                        html += `<div class="status fail">❌ ${file.name} - 不可访问 (${response.status})</div>`;
+                        allPass = false;
+                    }
+                } catch (error) {
+                    html += `<div class="status fail">❌ ${file.name} - 访问失败: ${error.message}</div>`;
+                    allPass = false;
+                }
+            }
+            
+            if (allPass) {
+                html += '<div class="status pass" style="margin-top: 15px;">✅ 所有JS文件都可访问</div>';
+            } else {
+                html += '<div class="status fail" style="margin-top: 15px;">❌ 部分JS文件访问失败</div>';
+            }
+            
+            result.innerHTML = html;
+        }
+        
+        // 测试3：模拟第二层流程
+        async function simulateSecondLayer() {
+            const result = document.getElementById('simulation-result');
+            result.innerHTML = '<div class="status">模拟中...</div>';
+            
+            // 确保有基础数据
+            if (!localStorage.getItem('laa_basic_answers')) {
+                prepareBasicData();
+                setTimeout(() => simulateSecondLayer(), 500);
+                return;
+            }
+            
+            // 加载必要的JS
+            await loadRequiredJS();
+            
+            let html = '<h3>第二层流程模拟：</h3>';
+            
+            try {
+                // 模拟4题答案
+                const advancedAnswers = {
+                    'AQ1': '微笑或说话时更明显',
+                    'AQ2': '左侧更明显',
+                    'AQ3': '拍照时会注意，会刻意调整角度',
+                    'AQ4': '了解问题的性质和原因'
+                };
+                
+                // 获取基础答案
+                const basicAnswers = JSON.parse(localStorage.getItem('laa_basic_answers'));
+                
+                html += `<p>基础答案: ${Object.keys(basicAnswers).length} 个</p>`;
+                html += `<p>进阶答案: ${Object.keys(advancedAnswers).length} 个</p>`;
+                
+                // 生成testId
+                if (window.generateSecondLayerTestId) {
+                    const testId = window.generateSecondLayerTestId(basicAnswers, advancedAnswers);
+                    
+                    html += `<div class="status pass">✅ testId生成成功: ${testId}</div>`;
+                    html += `<p>testId格式验证: ${testId.startsWith('LAA') ? '✅ 正确' : '❌ 错误'}</p>`;
+                    
+                    // 检查TestIDManager
+                    if (window.TestIDManager) {
+                        const record = window.TestIDManager.getTestRecord(testId);
+                        if (record) {
+                            html += `<div class="status pass">✅ testId已保存到TestIDManager</div>`;
+                            html += `<pre>${JSON.stringify(record, null, 2)}</pre>`;
+                        } else {
+                            html += `<div class="status fail">❌ testId未保存到TestIDManager</div>`;
+                        }
+                    }
+                    
+                    // 模拟跳转
+                    html += `<div class="status pass">✅ 应该跳转到: advanced-photo.html?testId=${encodeURIComponent(testId)}</div>`;
+                    
+                } else {
+                    html += `<div class="status fail">❌ generateSecondLayerTestId函数未找到</div>`;
+                }
+                
+            } catch (error) {
+                html += `<div class="status fail">❌ 模拟失败: ${error.message}</div>`;
+                html += `<pre>${error.stack}</pre>`;
+            }
+            
+            result.innerHTML = html;
+        }
+        
+        // 加载必要的JS文件
+        async function loadRequiredJS() {
+            return new Promise((resolve) => {
+                const scripts = [
+                    'js/data-manager.js',
+                    'js/answer-hash-generator.js',
+                    'js/test-id.js',
+                    'js/second-layer-testid.js'
+                ];
+                
+                let loaded = 0;
+                scripts.forEach(src => {
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.onload = () => {
+                        loaded++;
+                        if (loaded === scripts.length) {
+                            setTimeout(resolve, 500);
+                        }
+                    };
+                    script.onerror = () => {
+                        loaded++;
+                        if (loaded === scripts.length) {
+                            setTimeout(resolve, 500);
+                        }
+                    };
+                    document.head.appendChild(script);
+                });
+            });
+        }
+        
+        // 页面加载时自动检查
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('第二层流程测试页面已加载');
+            setTimeout(() => {
+                prepareBasicData();
+                checkJSFiles();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

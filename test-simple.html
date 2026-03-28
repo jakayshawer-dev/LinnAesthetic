@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单测试 - 开始测试按钮</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 10px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>简单测试 - 开始测试按钮</h1>
+    
+    <div>
+        <h2>问题：点击"开始测试"按钮没有跳转</h2>
+        <p>这个页面测试最基本的按钮功能。</p>
+    </div>
+    
+    <div>
+        <h3>测试按钮：</h3>
+        <button id="test-btn">点击我测试</button>
+        <div id="result"></div>
+    </div>
+    
+    <div>
+        <h3>如果上面的按钮工作，但主页面按钮不工作：</h3>
+        <p>可能是以下原因：</p>
+        <ol>
+            <li>JS文件加载失败</li>
+            <li>DOM元素获取失败</li>
+            <li>事件绑定失败</li>
+            <li>控制台有JS错误</li>
+        </ol>
+        <p>按F12打开开发者工具，查看控制台错误。</p>
+    </div>
+    
+    <script>
+        document.getElementById('test-btn').addEventListener('click', function() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<p class="success">✅ 按钮点击事件正常工作！</p>';
+            result.innerHTML += '<p>说明基本的JavaScript事件绑定是正常的。</p>';
+            result.innerHTML += '<p>如果主页面按钮不工作，问题可能在：</p>';
+            result.innerHTML += '<ul>';
+            result.innerHTML += '<li>app.js文件加载失败</li>';
+            result.innerHTML += '<li>DOM元素ID不匹配</li>';
+            result.innerHTML += '<li>控制台有JS错误阻止执行</li>';
+            result.innerHTML += '</ul>';
+        });
+        
+        // 检查控制台
+        console.log('测试页面已加载');
+        console.log('如果看到这条消息，说明控制台正常工作');
+    </script>
+</body>
+</html>

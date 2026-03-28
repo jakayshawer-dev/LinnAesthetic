@@ -3,9 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LAA · 大小脸免费评估（修复版）</title>
+    <title>LAA · 大小脸免费评估（紧急修复版）</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        // 紧急修复：在页面加载前检查并修复可能的JS错误
+        window.addEventListener('error', function(e) {
+            console.warn('捕获到JS错误:', e.message);
+            // 如果是retestBtn或detailBtn相关的错误，尝试修复
+            if (e.message.includes('retestBtn') || e.message.includes('detailBtn')) {
+                console.log('检测到按钮相关错误，应用紧急修复...');
+                // 延迟执行修复
+                setTimeout(applyEmergencyFix, 100);
+            }
+        });
+        
+        function applyEmergencyFix() {
+            console.log('应用紧急修复...');
+            // 安全地获取和绑定按钮事件
+            const retestBtn = document.getElementById('retest-btn');
+            const detailBtn = document.getElementById('detail-btn');
+            
+            if (retestBtn && typeof restartTest === 'function') {
+                retestBtn.addEventListener('click', restartTest);
+                console.log('✅ 紧急修复：retestBtn事件绑定成功');
+            }
+            
+            if (detailBtn && typeof showAdvancedAssessment === 'function') {
+                detailBtn.addEventListener('click', showAdvancedAssessment);
+                console.log('✅ 紧急修复：detailBtn事件绑定成功');
+            }
+        }
+    </script>
 </head>
 <body>
     <div id="app">
@@ -133,9 +162,11 @@
     <script src="results.js"></script>
     <script src="js/answer-hash-generator.js"></script>
     <script src="js/test-id.js"></script>
+    
+    <!-- 加载修复后的app.js逻辑 -->
     <script>
-        // 临时加载修复后的app.js内容
-        // 这是修复后的app.js核心逻辑
+        // 修复版app.js逻辑
+        console.log('加载修复版app.js逻辑...');
         
         // 全局状态
         let currentQuestionIndex = 0;
@@ -167,7 +198,7 @@
         
         // 初始化应用
         function initApp() {
-            console.log('初始化应用...');
+            console.log('初始化应用（修复版）...');
             
             // 绑定事件监听器
             startBtn.addEventListener('click', startTest);
@@ -181,11 +212,15 @@
             if (retestBtn) {
                 retestBtn.addEventListener('click', restartTest);
                 console.log('✅ retestBtn事件绑定成功');
+            } else {
+                console.warn('⚠️ retestBtn未找到');
             }
             
             if (detailBtn) {
                 detailBtn.addEventListener('click', showAdvancedAssessment);
                 console.log('✅ detailBtn事件绑定成功');
+            } else {
+                console.warn('⚠️ detailBtn未找到');
             }
             
             // 显示首页
@@ -396,18 +431,18 @@
             if (!testId) {
                 // 没有第二层testId，跳转到第二层说明页
                 console.log('🔄 没有第二层testId，跳转到第二层说明页');
-                alert('请先完成第二层进阶评估（4题+照片）');
-                // 在实际应用中这里应该跳转到 advanced-intro.html
+                window.location.href = 'advanced-intro.html';
                 return;
             }
             
-            alert('第二层功能测试通过！在实际应用中会跳转到相应页面。');
+            // 在实际应用中这里会检查支付和开通状态
+            window.location.href = 'advanced-intro.html';
         }
         
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', initApp);
         
-        // 添加触摸支持（移动端）
+        // 添加触摸支持
         let touchStartX = 0;
         document.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].screenX;
@@ -425,6 +460,8 @@
                 if (!prevBtn.disabled) showPreviousQuestion();
             }
         });
+        
+        console.log('修复版app.js逻辑加载完成');
     </script>
 </body>
 </html>
