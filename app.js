@@ -104,16 +104,20 @@ function showQuestion(index) {
     
     optionsContainer.innerHTML = '';
     
-    question.options.forEach((option, optionIndex) => {
+    question.options.forEach((optionObj, optionIndex) => {
         const optionElement = document.createElement('div');
         optionElement.className = 'option';
         if (userAnswers[index] === optionIndex) {
             optionElement.classList.add('selected');
         }
         
+        // 处理选项格式：可能是字符串或对象 { text: "...", value: "..." }
+        const optionText = typeof optionObj === 'object' ? optionObj.text : optionObj;
+        const optionValue = typeof optionObj === 'object' ? optionObj.value : optionIndex;
+        
         optionElement.innerHTML = `
             <div class="option-content">
-                <div class="option-text">${option}</div>
+                <div class="option-text">${optionText}</div>
             </div>
         `;
         
@@ -201,8 +205,13 @@ function calculateAndShowResults() {
     // 💾 保存基础答案到localStorage，供第二层使用
     try {
         const basicAnswers = {};
-        userAnswers.forEach((answer, index) => {
-            basicAnswers['BQ' + (index + 1)] = questions[index].options[answer];
+        userAnswers.forEach((answerIndex, index) => {
+            if (answerIndex !== null) {
+                const option = questions[index].options[answerIndex];
+                // 保存选项文本
+                const optionText = typeof option === 'object' ? option.text : option;
+                basicAnswers['BQ' + (index + 1)] = optionText;
+            }
         });
         localStorage.setItem('laa_basic_answers', JSON.stringify(basicAnswers));
         console.log('💾 基础答案已保存:', Object.keys(basicAnswers).length, '个答案');

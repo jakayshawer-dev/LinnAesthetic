@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完整修复测试</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .test-case { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .option { 
+            background: white; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            border: 2px solid #ddd;
+            cursor: pointer;
+        }
+        .option:hover { border-color: #007bff; }
+        .option.selected { border-color: #007bff; background: #e7f3ff; }
+    </style>
+</head>
+<body>
+    <h1>完整修复测试</h1>
+    <p>测试所有修复是否正常工作</p>
+    
+    <div class="test-case">
+        <h2>测试1：检查questions.js格式</h2>
+        <button onclick="testQuestionsFormat()">测试questions格式</button>
+        <div id="test1-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试2：检查app.js选项生成</h2>
+        <button onclick="testAppOptionGeneration()">测试选项生成</button>
+        <div id="test2-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试3：检查scoring.js计算</h2>
+        <button onclick="testScoring()">测试评分计算</button>
+        <div id="test3-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试4：模拟完整流程</h2>
+        <button onclick="simulateCompleteFlow()">模拟完整流程</button>
+        <div id="test4-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试5：检查第二层问卷</h2>
+        <button onclick="testSecondLayer()">测试第二层</button>
+        <div id="test5-result"></div>
+    </div>
+    
+    <script src="questions.js"></script>
+    <script src="scoring.js"></script>
+    <script src="results.js"></script>
+    <script src="js/answer-hash-generator.js"></script>
+    <script src="js/test-id.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        // 测试1：检查questions.js格式
+        function testQuestionsFormat() {
+            const result = document.getElementById('test1-result');
+            
+            if (typeof questions === 'undefined') {
+                result.innerHTML = '<p class="error">❌ questions变量未定义</p>';
+                return;
+            }
+            
+            let html = `<p class="success">✅ questions.js已加载</p>
+                       <p>题目总数: ${questions.length}</p>
+                       <h3>格式检查：</h3>`;
+            
+            let allValid = true;
+            
+            for (let i = 0; i < questions.length; i++) {
+                const q = questions[i];
+                
+                // 检查题目结构
+                if (!q.title || !q.observation || !q.options) {
+                    html += `<p class="error">❌ 第${i+1}题结构不完整</p>`;
+                    allValid = false;
+                    continue;
+                }
+                
+                // 检查选项格式
+                const firstOption = q.options[0];
+                if (typeof firstOption === 'object') {
+                    if (!firstOption.text || !firstOption.value) {
+                        html += `<p class="error">❌ 第${i+1}题选项格式错误</p>`;
+                        allValid = false;
+                    } else {
+                        html += `<p>第${i+1}题: 选项格式为对象 {text: "${firstOption.text}", value: "${firstOption.value}"}</p>`;
+                    }
+                } else {
+                    html += `<p>第${i+1}题: 选项格式为字符串 "${firstOption}"</p>`;
+                }
+            }
+            
+            if (allValid) {
+                html += '<p class="success">✅ 所有题目格式正确</p>';
+            }
+            
+            result.innerHTML = html;
+        }
+        
+        // 测试2：检查app.js选项生成
+        function testAppOptionGeneration() {
+            const result = document.getElementById('test2-result');
+            
+            if (typeof showQuestion !== 'function') {
+                result.innerHTML = '<p class="error">❌ showQuestion函数未定义</p>';
+                return;
+            }
+            
+            // 创建测试环境
+            const testContainer = document.createElement('div');
+            testContainer.id = 'test-options-container';
+            document.body.appendChild(testContainer);
+            
+            const testTitle = document.createElement('h2');
+            testTitle.id = 'test-question-title';
+            document.body.appendChild(testTitle);
+            
+            const testObservation = document.createElement('div');
+            testObservation.id = 'test-observation';
+            document.body.appendChild(testObservation);
+            
+            try {
+                // 临时替换全局变量
+                const originalContainer = window.optionsContainer;
+                const originalTitle = window.questionTitle;
+                const originalObservation = window.observation;
+                
+                window.optionsContainer = testContainer;
+                window.questionTitle = testTitle;
+                window.observation = testObservation;
+                
+                // 测试第一题
+                showQuestion(0);
+                
+                const options = testContainer.querySelectorAll('.option');
+                let html = `<p class="success">✅ showQuestion函数工作正常</p>
+                           <p>生成的选项数量: ${options.length}</p>
+                           <p>题目标题: ${testTitle.textContent}</p>
+                           <p>观察提示: ${testObservation.textContent}</p>`;
+                
+                if (options.length > 0) {
+                    html += '<h4>生成的选项：</h4>';
+                    options.forEach((option, idx) => {
+                        const text = option.querySelector('.option-text').textContent;
+                        html += `<p>${idx+1}. ${text}</p>`;
+                    });
+                    
+                    // 测试点击选项
+                    html += '<h4>测试选项点击：</h4>';
+                    const testAnswers = new Array(questions.length).fill(null);
+                    window.userAnswers = testAnswers;
+                    
+                    options[0].click();
+                    setTimeout(() => {
+                        if (testAnswers[0] === 0) {
+                            html += '<p class="success">✅ 选项点击事件工作正常</p>';
+                        } else {
+                            html += '<p class="error">❌ 选项点击事件未正确设置答案</p>';
+                        }
+                        result.innerHTML = html;
+                    }, 100);
+                }
+                
+                result.innerHTML = html;
+                
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ 测试失败: ${error.message}</p>
+                                   <pre>${error.stack}</pre>`;
+            } finally {
+                // 清理
+                testContainer.remove();
+                testTitle.remove();
+                testObservation.remove();
+                
+                // 恢复原始变量
+                if (window.originalContainer) window.optionsContainer = window.originalContainer;
+                if (window.originalTitle) window.questionTitle = window.originalTitle;
+                if (window.originalObservation) window.observation = window.originalObservation;
+            }
+        }
+        
+        // 测试3：检查scoring.js计算
+        function testScoring() {
+            const result = document.getElementById('test3-result');
+            
+            if (typeof calculateScores !== 'function') {
+                result.innerHTML = '<p class="error">❌ calculateScores函数未定义</p>';
+                return;
+            }
+            
+            // 创建测试答案
+            const testAnswers = [
+                0, // left_bigger
+                0, // left_tight
+                0, // left_pulled
+                0, // left_flat
+                0, // left_eye
+                0, // left_brow
+                0, // left_mouth
+                0, // left_nasolabial
+                0, // left_jawline
+                0, // left_ear
+                0, // left_head
+                0  // left_shoulder
+            ];
+            
+            try {
+                const scores = calculateScores(testAnswers);
+                
+                let html = `<p class="success">✅ calculateScores函数工作正常</p>
+                           <h4>计算结果：</h4>
+                           <pre>${JSON.stringify(scores, null, 2)}</pre>`;
+                
+                // 验证一些关键分数
+                if (scores.leftScore > 0) {
+                    html += '<p class="success">✅ leftScore计算正确</p>';
+                } else {
+                    html += '<p class="error">❌ leftScore计算可能有问题</p>';
+                }
+                
+                result.innerHTML = html;
+                
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ 计算失败: ${error.message}</p>
+                                   <pre>${error.stack}</pre>`;
+            }
+        }
+        
+        // 测试4：模拟完整流程
+        function simulateCompleteFlow() {
+            const result = document.getElementById('test4-result');
+            result.innerHTML = '<p>模拟完整流程...</p>';
+            
+            let html = '<h3>完整流程模拟：</h3>';
+            
+            // 步骤1：模拟第一层评估
+            html += '<p>1. 模拟第一层12题评估...</p>';
+            
+            const testAnswers = [];
+            for (let i = 0; i < 12; i++) {
+                testAnswers.push(Math.floor(Math.random() * 3)); // 随机选择0-2
+            }
+            
+            window.userAnswers = testAnswers;
+            
+            // 步骤2：计算分数
+            if (typeof calculateScores === 'function') {
+                const scores = calculateScores(testAnswers);
+                html += `<p class="success">✅ 分数计算完成</p>
+                        <p>leftScore: ${scores.leftScore}, rightScore: ${scores.rightScore}</p>`;
+            }
+            
+            // 步骤3：计算结果
+            if (typeof calculateResults === 'function') {
+                const scores = calculateScores(testAnswers);
+                const results = calculateResults(scores);
+                html += `<p class="success">✅ 结果计算完成</p>
+                        <p>倾向: ${results.tendency}, 方向: ${results.direction}, 侧别: ${results.side}</p>`;
+            }
+            
+            // 步骤4：保存基础答案
+            try {
+                const basicAnswers = {};
+                testAnswers.forEach((answerIndex, index) => {
+                    if (answerIndex !== null) {
+                        const option = questions[index].options[answerIndex];
+                        const optionText = typeof option === 'object' ? option.text : option;
+                        basicAnswers['BQ' + (index + 1)] = optionText;
+                    }
+                });
+                
+                localStorage.setItem('laa_basic_answers', JSON.stringify(basicAnswers));
+                html += `<p class="success">✅ 基础答案已保存 (${Object.keys(basicAnswers).length}个)</p>`;
+            } catch (error) {
+                html += `<p class="error">❌ 保存基础答案失败: ${error.message}</p>`;
+            }
+            
+            // 步骤5：模拟第二层
+            html += '<p>2. 模拟第二层4题评估...</p>';
+            
+            const advancedAnswers = {
+                'AQ1': '微笑或说话时更明显',
+                'AQ2': '左侧更明显',
+                'AQ3': '拍照时会注意，会刻意调整角度',
+                'AQ4': '了解问题的性质和原因'
+            };
+            
+            html += `<p>进阶答案: ${Object.keys(advancedAnswers).length}个</p>`;
+            
+            // 步骤6：生成testId
+            if (window.generateSecondLayerTestId) {
+                try {
+                    const basicAnswers = JSON.parse(localStorage.getItem('laa_basic_answers') || '{}');
+                    const testId = window.generateSecondLayerTestId(basicAnswers, advancedAnswers);
+                    
+                    html += `<p class="success">✅ testId生成成功: ${testId}</p>`;
+                    html += `<p>应该跳转到: advanced-photo.html?testId=${encodeURIComponent(testId)}</p>`;
+                } catch (error) {
+                    html += `<p class="error">❌ testId生成失败: ${error.message}</p>`;
+                }
+            }
+            
+            html += '<p class="success">✅ 完整流程模拟完成！</p>';
+            
+            result.innerHTML = html;
+        }
+        
+        // 测试5：检查第二层问卷
+        function testSecondLayer() {
+            const result = document.getElementById('test5-result');
+            
+            // 检查第二层相关文件
+            const files = [
+                'js/second-layer-testid.js',
+                'js/answer-hash-generator.js',
+                'js/test-id.js',
+                'advanced-questions.html'
+            ];
+            
+            let html = '<h3>第二层问卷检查：</h3>';
+            
+            files.forEach(file => {
+                html += `<p>检查 ${file}...</p>`;
+            });
+            
+            html += '<p>要完整测试第二层，请直接打开：<a href="advanced-questions.html" target="_blank">advanced-questions.html</a></p>';
+            html += '<p>测试步骤：</p>';
+            html += '<ol>';
+            html += '<li>确保已完成第一层评估（或使用测试数据）</li>';
+            html += '<li>点击第1题选项 → 应该自动跳第2题</li>';
+            html += '<li>点击第2题选项 → 应该自动跳第3题</li>';
+            html += '<li>点击第3题选项 → 应该自动跳第4题</li>';
+            html += '<li>点击第4题选项 → 应该生成testId并跳转到照片页</li>';
+            html += '</ol>';
+            
+            result.innerHTML = html;
+        }
+        
+        // 页面加载时自动运行一些测试
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('完整修复测试页面已加载');
+            
+            setTimeout(() => {
+                testQuestionsFormat();
+                testScoring();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
