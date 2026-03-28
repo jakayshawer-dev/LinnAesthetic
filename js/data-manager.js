@@ -4,6 +4,23 @@ class DataManager {
     constructor() {
         this.storageKey = 'laa_user_data';
         this.testIdManager = window.TestIDManager;
+        this.secondLayerEngine = null;
+        this.initSecondLayerEngine();
+    }
+
+    // 初始化第二层结果引擎
+    initSecondLayerEngine() {
+        try {
+            // 动态导入第二层结果引擎
+            if (typeof SecondLayerEngine !== 'undefined') {
+                this.secondLayerEngine = new SecondLayerEngine();
+                console.log('第二层结果引擎初始化成功');
+            } else {
+                console.warn('第二层结果引擎未加载，将使用模拟数据');
+            }
+        } catch (error) {
+            console.error('第二层结果引擎初始化失败:', error);
+        }
     }
 
     // 保存用户答案
@@ -75,8 +92,12 @@ class DataManager {
         const record = this.testIdManager.getTestRecord(testId);
         if (!record) return null;
 
-        // 这里应该根据resultType返回不同的结果
-        // 暂时返回模拟数据
+        // 优先使用真实第二层结果
+        if (record.secondLayerResult) {
+            return this.formatSecondLayerResult(record.secondLayerResult);
+        }
+
+        // 如果没有真实结果，使用模拟数据（兼容旧数据）
         return this.generateResult(record.resultType || 'A');
     }
 
@@ -226,6 +247,82 @@ class DataManager {
         });
 
         return stats;
+    }
+
+    // 格式化第二层结果引擎的输出
+    formatSecondLayerResult(engineResult) {
+        if (!engineResult || !engineResult.generatedResult) {
+            return this.generateResult('A'); // 回退到模拟数据
+        }
+
+        const result = engineResult.generatedResult;
+        
+        return {
+            title: result.mainTitle || 'LAA 进阶评估结果',
+            summary: result.analysis || '根据您的评估结果生成的分析',
+            sections: [
+                {
+                    title: '主要分析方向',
+                    content: result.mainDescription || '系统分析结果'
+                },
+                {
+                    title: '具体分析内容',
+                    content: result.analysis || '详细分析内容'
+                },
+                {
+                    title: '优先处理方向',
+                    content: result.priorityDirection || '待系统进一步分析'
+                },
+                {
+                    title: '备注信息',
+                    content: result.remarks || '系统自动生成结果'
+                }
+            ],
+            recommendations: [
+                '建议根据分析结果制定个性化改善计划',
+                '如有疑问可咨询专业评估师',
+                '定期跟踪评估效果'
+            ]
+        };
+    }
+
+    // 保存第二层评估结果
+    saveSecondLayerResult(testId, inputData) {
+        if (!this.secondLayerEngine) {
+            console.error('第二层结果引擎未初始化');
+            return null;
+        }
+
+        try {
+            // 验证输入数据
+            const validation = this.secondLayerEngine.validateInputData(inputData);
+            if (!validation.isValid) {
+                console.error('输入数据验证失败:', validation.errors);
+                return null;
+            }
+
+            // 确定主模板
+            const templateResult = this.secondLayerEngine.determineMainTemplate(inputData);
+            
+            // 生成第二层结果
+            const secondLayerResult = this.secondLayerEngine.generateSecondLayerResult(inputData, templateResult);
+            
+            // 更新测试记录
+            const updates = {
+                secondLayerResult: secondLayerResult,
+                secondLayerInput: inputData,
+                resultType: templateResult.template ? templateResult.template.id.replace('template', '') : 'A'
+            };
+
+            this.testIdManager.updateTestRecord(testId, updates);
+            
+            console.log('第二层结果保存成功:', secondLayerResult);
+            return secondLayerResult;
+            
+        } catch (error) {
+            console.error('保存第二层结果失败:', error);
+            return null;
+        }
     }
 }
 
