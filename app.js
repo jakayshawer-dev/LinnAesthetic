@@ -237,8 +237,79 @@ function restartTest() {
 
 // 进入第二层进阶评估
 function showAdvancedAssessment() {
-    // 跳转到第二层说明页
-    window.location.href = 'advanced-intro.html';
+    // 获取当前用户的测试编号（从localStorage或生成新的）
+    let testId = localStorage.getItem('current_basic_test_id');
+    
+    if (!testId) {
+        // 如果没有基础测试编号，生成一个新的
+        testId = generateBasicTestId();
+        localStorage.setItem('current_basic_test_id', testId);
+    }
+    
+    // 检查测试编号状态
+    try {
+        if (!window.checkTestIdStatus) {
+            // 如果TestIDManager未加载，跳转到说明页
+            window.location.href = 'advanced-intro.html';
+            return;
+        }
+        
+        const status = window.checkTestIdStatus(testId);
+        
+        if (!status.exists) {
+            // 测试编号不存在，跳转到说明页
+            window.location.href = 'advanced-intro.html';
+            return;
+        }
+        
+        // 检查支付状态
+        if (!status.paid) {
+            // 未支付，跳转到支付页面
+            window.location.href = 'payment-page.html?testId=' + encodeURIComponent(testId);
+            return;
+        }
+        
+        // 检查开通状态
+        if (!status.opened) {
+            // 已支付但未开通，跳转到解锁页面
+            window.location.href = 'advanced-unlock.html?testId=' + encodeURIComponent(testId);
+            return;
+        }
+        
+        // 检查答题数据
+        const record = window.TestIDManager ? window.TestIDManager.getTestRecord(testId) : null;
+        if (!record || !record.userData || !record.userData.advanced_answers) {
+            // 已支付且已开通但无答题数据，跳转到进阶问卷
+            window.location.href = 'advanced-questions.html?testId=' + encodeURIComponent(testId);
+            return;
+        }
+        
+        // 所有条件满足，跳转到结果页面
+        window.location.href = 'result-viewer.html?testId=' + encodeURIComponent(testId);
+        
+    } catch (error) {
+        console.error('检查状态时出错:', error);
+        // 出错时跳转到说明页
+        window.location.href = 'advanced-intro.html';
+    }
+}
+
+// 生成基础测试编号
+function generateBasicTestId() {
+    // 从localStorage获取最后一个编号
+    let lastId = localStorage.getItem('last_basic_test_id');
+    if (!lastId) {
+        lastId = '24000'; // 起始编号
+    }
+    
+    // 生成新编号
+    const newIdNum = parseInt(lastId) + 1;
+    const newId = 'LAA' + newIdNum;
+    
+    // 保存到localStorage
+    localStorage.setItem('last_basic_test_id', newIdNum.toString());
+    
+    return newId;
 }
 
 // 直接跳转到淘宝

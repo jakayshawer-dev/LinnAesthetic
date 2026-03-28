@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页面流程测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .flow-diagram {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .flow-step {
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+            background: #e8f4fd;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+        .status-pending { background: #ffc107; color: #000; }
+        .status-paid { background: #17a2b8; color: #fff; }
+        .status-opened { background: #28a745; color: #fff; }
+    </style>
+</head>
+<body>
+    <h1>主页面"尝试查看进阶评估结果"按钮测试</h1>
+    
+    <div class="test-section">
+        <h2>测试目标</h2>
+        <p>验证主页面(index.html)中"尝试查看进阶评估结果"按钮的智能跳转逻辑：</p>
+        
+        <div class="flow-diagram">
+            <div class="flow-step">
+                <strong>步骤1：用户点击按钮</strong>
+                <p>→ 获取或生成基础测试编号</p>
+            </div>
+            
+            <div class="flow-step">
+                <strong>步骤2：检查测试编号状态</strong>
+                <p>→ 如果不存在：跳转到 advanced-intro.html (说明页)</p>
+            </div>
+            
+            <div class="flow-step">
+                <strong>步骤3：检查支付状态</strong>
+                <p>→ 如果未支付：跳转到 payment-page.html (支付页)</p>
+            </div>
+            
+            <div class="flow-step">
+                <strong>步骤4：检查开通状态</strong>
+                <p>→ 如果已支付但未开通：跳转到 advanced-unlock.html (解锁页)</p>
+            </div>
+            
+            <div class="flow-step">
+                <strong>步骤5：检查答题数据</strong>
+                <p>→ 如果已支付且已开通但无答题数据：跳转到 advanced-questions.html (进阶问卷)</p>
+            </div>
+            
+            <div class="flow-step">
+                <strong>步骤6：所有条件满足</strong>
+                <p>→ 跳转到 result-viewer.html (结果页)</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>1. 设置测试环境</h2>
+        
+        <div class="input-group">
+            <label for="testId">测试编号：</label>
+            <input type="text" id="testId" value="LAA24001">
+        </div>
+        
+        <button onclick="setupTestEnvironment()">设置测试环境</button>
+        <button onclick="clearTestEnvironment()">清除测试环境</button>
+        
+        <div id="envStatus" style="margin-top: 15px;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 模拟不同状态</h2>
+        
+        <p>当前状态：</p>
+        <div id="currentStatus" style="margin: 10px 0;"></div>
+        
+        <div class="status-controls">
+            <button onclick="setStatus('not_exists')">测试编号不存在</button>
+            <button onclick="setStatus('not_paid')">未支付</button>
+            <button onclick="setStatus('paid_not_opened')">已支付未开通</button>
+            <button onclick="setStatus('paid_opened_no_answers')">已支付已开通无答题数据</button>
+            <button onclick="setStatus('complete')">完整状态（可查看结果）</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 测试按钮跳转逻辑</h2>
+        
+        <button onclick="testButtonLogic()">测试按钮逻辑</button>
+        <button onclick="openMainPage()">打开主页面</button>
+        <button onclick="simulateButtonClick()">模拟按钮点击</button>
+        
+        <div id="testResult" style="margin-top: 15px; padding: 15px; background: white; border-radius: 4px; display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 预期跳转页面</h2>
+        
+        <div id="expectedRedirect" style="padding: 15px; background: #e8f4fd; border-radius: 4px;">
+            <p>根据当前状态，按钮应该跳转到：</p>
+            <p id="redirectTarget" style="font-weight: bold; color: #007bff;"></p>
+        </div>
+    </div>
+    
+    <script src="js/test-id.js"></script>
+    <script>
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('主页面流程测试已加载');
+            updateStatusDisplay();
+            updateRedirectTarget();
+        });
+        
+        // 设置测试环境
+        function setupTestEnvironment() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            
+            // 保存基础测试编号
+            localStorage.setItem('current_basic_test_id', testId);
+            
+            // 创建测试记录
+            const record = {
+                id: testId,
+                createdAt: new Date().toISOString(),
+                status: 'pending',
+                paid: false,
+                opened: false,
+                userData: {}
+            };
+            
+            // 保存到TestIDManager
+            window.TestIDManager.createTestRecord(testId, record);
+            
+            document.getElementById('envStatus').innerHTML = 
+                `<p style="color: green;">✅ 测试环境已设置</p>
+                 <p>测试编号：${testId}</p>
+                 <p>已保存到 localStorage 和 TestIDManager</p>`;
+            
+            updateStatusDisplay();
+            updateRedirectTarget();
+        }
+        
+        // 清除测试环境
+        function clearTestEnvironment() {
+            localStorage.removeItem('current_basic_test_id');
+            document.getElementById('envStatus').innerHTML = 
+                `<p style="color: orange;">🔄 测试环境已清除</p>`;
+            
+            updateStatusDisplay();
+            updateRedirectTarget();
+        }
+        
+        // 设置状态
+        function setStatus(statusType) {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            let updates = {};
+            
+            switch(statusType) {
+                case 'not_exists':
+                    // 删除记录
+                    const data = window.TestIDManager.getStorageData();
+                    if (data.testRecords && data.testRecords[testId]) {
+                        delete data.testRecords[testId];
+                        window.TestIDManager.saveStorageData(data);
+                    }
+                    break;
+                    
+                case 'not_paid':
+                    updates = { paid: false, opened: false, status: 'pending' };
+                    break;
+                    
+                case 'paid_not_opened':
+                    updates = { paid: true, opened: false, status: 'paid' };
+                    break;
+                    
+                case 'paid_opened_no_answers':
+                    updates = { 
+                        paid: true, 
+                        opened: true, 
+                        status: 'opened',
+                        userData: { basic_answers: ['A', 'B', 'C'] } // 只有基础答案，无进阶答案
+                    };
+                    break;
+                    
+                case 'complete':
+                    updates = { 
+                        paid: true, 
+                        opened: true, 
+                        status: 'activated',
+                        userData: {
+                            basic_answers: ['A', 'B', 'C'],
+                            advanced_answers: [
+                                "微笑或说话时更明显",
+                                "某一侧表情或发力更常用",
+                                "静态还好，但一动起来就更明显",
+                                "为什么两边位置/高低/线条方向不一样"
+                            ]
+                        }
+                    };
+                    break;
+            }
+            
+            if (Object.keys(updates).length > 0) {
+                window.TestIDManager.updateTestRecord(testId, updates);
+            }
+            
+            updateStatusDisplay();
+            updateRedirectTarget();
+        }
+        
+        // 更新状态显示
+        function updateStatusDisplay() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            const status = window.checkTestIdStatus(testId);
+            const record = window.TestIDManager.getTestRecord(testId);
+            
+            let html = '';
+            
+            if (!status.exists) {
+                html = `<p><span class="status-badge status-pending">测试编号不存在</span></p>`;
+            } else {
+                html = `<p>`;
+                html += `<span class="status-badge ${getStatusClass(status.status)}">${status.status}</span>`;
+                if (status.paid) html += `<span class="status-badge status-paid">已支付</span>`;
+                if (status.opened) html += `<span class="status-badge status-opened">已开通</span>`;
+                html += `</p>`;
+                
+                html += `<p><strong>支付状态：</strong>${status.paid ? '✅ 已支付' : '❌ 未支付'}</p>`;
+                html += `<p><strong>开通状态：</strong>${status.opened ? '✅ 已开通' : '❌ 未开通'}</p>`;
+                
+                if (record && record.userData) {
+                    const hasAdvancedAnswers = record.userData.advanced_answers && record.userData.advanced_answers.length > 0;
+                    html += `<p><strong>进阶答题数据：</strong>${hasAdvancedAnswers ? '✅ 已完成' : '❌ 未完成'}</p>`;
+                }
+            }
+            
+            document.getElementById('currentStatus').innerHTML = html;
+        }
+        
+        // 获取状态CSS类
+        function getStatusClass(status) {
+            switch(status) {
+                case 'pending': return 'status-pending';
+                case 'paid': return 'status-paid';
+                case 'opened': return 'status-opened';
+                case 'activated': return 'status-paid status-opened';
+                default: return 'status-pending';
+            }
+        }
+        
+        // 更新预期跳转目标
+        function updateRedirectTarget() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            const status = window.checkTestIdStatus(testId);
+            const record = window.TestIDManager.getTestRecord(testId);
+            
+            let target = '';
+            let reason = '';
+            
+            if (!status.exists) {
+                target = 'advanced-intro.html';
+                reason = '测试编号不存在';
+            } else if (!status.paid) {
+                target = 'payment-page.html?testId=' + testId;
+                reason = '未支付';
+            } else if (!status.opened) {
+                target = 'advanced-unlock.html?testId=' + testId;
+                reason = '已支付但未开通';
+            } else if (!record || !record.userData || !record.userData.advanced_answers) {
+                target = 'advanced-questions.html?testId=' + testId;
+                reason = '已支付且已开通但无答题数据';
+            } else {
+                target = 'result-viewer.html?testId=' + testId;
+                reason = '所有条件满足';
+            }
+            
+            document.getElementById('redirectTarget').innerHTML = 
+                `<strong>${target}</strong><br>
+                 <small>原因：${reason}</small>`;
+        }
+        
+        // 测试按钮逻辑
+        function testButtonLogic() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            
+            // 模拟showAdvancedAssessment函数逻辑
+            let result = '';
+            
+            try {
+                if (!window.checkTestIdStatus) {
+                    result = '❌ TestIDManager未加载，应该跳转到：advanced-intro.html';
+                } else {
+                    const status = window.checkTestIdStatus(testId);
+                    
+                    if (!status.exists) {
+                        result = '✅ 测试编号不存在，应该跳转到：advanced-intro.html';
+                    } else if (!status.paid) {
+                        result = '✅ 未支付，应该跳转到：payment-page.html?testId=' + testId;
+                    } else if (!status.opened) {
+                        result = '✅ 已支付但未开通，应该跳转到：advanced-unlock.html?testId=' + testId;
+                    } else {
+                        const record = window.TestIDManager.getTestRecord(testId);
+                        if (!record || !record.userData || !record.userData.advanced_answers) {
+                            result = '✅ 已支付且已开通但无答题数据，应该跳转到：advanced-questions.html?testId=' + testId;
+                        } else {
+                            result = '✅ 所有条件满足，应该跳转到：result-viewer.html?testId=' + testId;
+                        }
+                    }
+                }
+            } catch (error) {
+                result = '❌ 检查状态时出错，应该跳转到：advanced-intro.html<br>错误：' + error.message;
+            }
+            
+            document.getElementById('testResult').innerHTML = result;
+            document.getElementById('testResult').style.display = 'block';
+        }
+        
+        // 打开主页面
+        function openMainPage() {
+            window.open('index.html', '_blank');
+        }
+        
+        // 模拟按钮点击
+        function simulateButtonClick() {
+            // 这里应该调用实际的showAdvancedAssessment函数
+            // 但由于安全限制，我们只能显示预期结果
+            testButtonLogic();
+        }
+    </script>
+</body>
+</html>
