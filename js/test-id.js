@@ -100,6 +100,17 @@ class TestIDManager {
         return false;
     }
 
+    // 删除测试记录
+    deleteTestRecord(testId) {
+        const data = this.getStorageData();
+        if (data.testRecords[testId]) {
+            delete data.testRecords[testId];
+            this.saveStorageData(data);
+            return true;
+        }
+        return false;
+    }
+
     // 检查测试编号状态
     checkTestStatus(testId) {
         const record = this.getTestRecord(testId);

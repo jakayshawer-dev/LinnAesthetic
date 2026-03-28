@@ -334,6 +334,7 @@
     </style>
 </head>
 <body>
+    <script src="js/test-id.js"></script>
     <!-- 登录界面 -->
     <div class="login-container" id="loginContainer">
         <div class="login-box fade-in">
@@ -362,12 +363,17 @@
                 <div class="stat-change">+0 今日</div>
             </div>
             <div class="stat-card">
+                <h3>已支付</h3>
+                <div class="stat-number" id="paidTests">0</div>
+                <div class="stat-change">支付率 0%</div>
+            </div>
+            <div class="stat-card">
                 <h3>已开通</h3>
                 <div class="stat-number" id="activeTests">0</div>
                 <div class="stat-change">开通率 0%</div>
             </div>
             <div class="stat-card">
-                <h3>待处理</h3>
+                <h3>待开通</h3>
                 <div class="stat-number" id="pendingTests">0</div>
                 <div class="stat-change">需要关注</div>
             </div>
@@ -391,7 +397,9 @@
                         <tr>
                             <th>测试编号</th>
                             <th>创建时间</th>
-                            <th>状态</th>
+                            <th>支付状态</th>
+                            <th>开通状态</th>
+                            <th>综合状态</th>
                             <th>结果类型</th>
                             <th>操作</th>
                         </tr>
@@ -479,16 +487,63 @@
             renderTable();
         }
 
-        // 加载模拟数据
+        // 加载测试记录数据
         function loadMockData() {
-            // 从 localStorage 获取真实数据，如果没有则使用模拟数据
-            const savedData = localStorage.getItem('laa_test_records');
-            if (savedData) {
-                testRecords = JSON.parse(savedData);
-            } else {
-                // 生成模拟数据
+            testRecords = [];
+            
+            try {
+                // 优先从TestIDManager获取真实数据
+                if (window.TestIDManager && window.TestIDManager.getStorageData) {
+                    const data = window.TestIDManager.getStorageData();
+                    
+                    if (data && data.testRecords) {
+                        // 转换TestIDManager数据格式为管理员后台格式
+                        for (const testId in data.testRecords) {
+                            const record = data.testRecords[testId];
+                            
+                            // 只显示已支付的记录（paid = true）
+                            if (record.paid) {
+                                testRecords.push({
+                                    id: record.id,
+                                    createdAt: record.createdAt || new Date().toISOString(),
+                                    status: record.opened ? 'active' : 'pending',
+                                    paid: record.paid || false,
+                                    opened: record.opened || false,
+                                    resultType: record.resultType || null,
+                                    paymentMethod: record.paymentMethod || null,
+                                    paymentTime: record.paymentTime || null,
+                                    activationTime: record.activationTime || null,
+                                    notes: record.notes || '',
+                                    userData: record.userData || {}
+                                });
+                            }
+                        }
+                        
+                        console.log(`从TestIDManager加载了 ${testRecords.length} 条已支付记录`);
+                    }
+                }
+                
+                // 如果没有从TestIDManager获取到数据，尝试从旧格式加载
+                if (testRecords.length === 0) {
+                    const savedData = localStorage.getItem('laa_test_records');
+                    if (savedData) {
+                        testRecords = JSON.parse(savedData);
+                        console.log(`从旧格式加载了 ${testRecords.length} 条记录`);
+                    }
+                }
+                
+                // 如果还是没有数据，生成模拟数据
+                if (testRecords.length === 0) {
+                    generateMockData();
+                    console.log('生成了模拟数据');
+                }
+                
+            } catch (error) {
+                console.error('加载测试记录时出错:', error);
+                // 出错时生成模拟数据
                 generateMockData();
             }
+            
             filteredRecords = [...testRecords];
         }
 
@@ -497,10 +552,12 @@
             const statuses = ['pending', 'active', 'completed'];
             const resultTypes = ['A', 'B', 'C', null];
             
-            for (let i = 1; i <= 50; i++) {
+            for (let i = 1; i <= 20; i++) {
                 const testId = `LAA24${String(i).padStart(3, '0')}`;
                 const status = statuses[Math.floor(Math.random() * statuses.length)];
                 const resultType = status === 'completed' ? resultTypes[Math.floor(Math.random() * 3)] : null;
+                const paid = Math.random() > 0.3; // 70%已支付
+                const opened = paid && Math.random() > 0.5; // 已支付中的50%已开通
                 
                 // 随机日期（最近30天内）
                 const date = new Date();
@@ -509,6 +566,9 @@
                 testRecords.push({
                     id: testId,
                     createdAt: date.toISOString(),
+                    status: paid ? (opened ? 'active' : 'pending') : 'pending',
+                    paid: paid,
+                    opened: opened,
                     status: status,
                     resultType: resultType
                 });
@@ -526,17 +586,26 @@
             const now = new Date();
             const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             
+            // 只统计已支付的记录
+            const paidRecords = testRecords.filter(r => r.paid);
+            
             const stats = {
                 total: testRecords.length,
-                active: testRecords.filter(r => r.status === 'active' || r.status === 'completed').length,
-                pending: testRecords.filter(r => r.status === 'pending').length,
+                paid: paidRecords.length,
+                opened: paidRecords.filter(r => r.opened).length,
+                pending: paidRecords.filter(r => !r.opened).length,
                 recent: testRecords.filter(r => new Date(r.createdAt) >= sevenDaysAgo).length
             };
 
             document.getElementById('totalTests').textContent = stats.total;
-            document.getElementById('activeTests').textContent = stats.active;
+            document.getElementById('paidTests').textContent = stats.paid;
+            document.getElementById('activeTests').textContent = stats.opened;
             document.getElementById('pendingTests').textContent = stats.pending;
             document.getElementById('recentTests').textContent = stats.recent;
+            
+            // 计算开通率
+            const openRate = stats.paid > 0 ? Math.round((stats.opened / stats.paid) * 100) : 0;
+            document.querySelector('#activeTests + .stat-change').textContent = `开通率 ${openRate}%`;
         }
 
         // 处理搜索
@@ -578,19 +647,35 @@
                 // 状态徽章
                 let statusBadge = '';
                 let statusText = '';
-                switch(record.status) {
-                    case 'pending':
-                        statusBadge = '<span class="status-badge status-pending">待开通</span>';
-                        statusText = '待开通';
-                        break;
-                    case 'active':
-                        statusBadge = '<span class="status-badge status-active">已开通</span>';
-                        statusText = '已开通';
-                        break;
-                    case 'completed':
-                        statusBadge = '<span class="status-badge status-completed">已完成</span>';
-                        statusText = '已完成';
-                        break;
+                let paymentStatus = '';
+                let openStatus = '';
+                
+                // 支付状态
+                if (record.paid) {
+                    paymentStatus = '<span class="status-badge status-paid" style="background: #17a2b8;">已支付</span>';
+                } else {
+                    paymentStatus = '<span class="status-badge status-pending">未支付</span>';
+                }
+                
+                // 开通状态
+                if (record.opened) {
+                    openStatus = '<span class="status-badge status-active">已开通</span>';
+                    statusBadge = '<span class="status-badge status-active">已开通</span>';
+                    statusText = '已开通';
+                } else if (record.paid) {
+                    openStatus = '<span class="status-badge status-pending">待开通</span>';
+                    statusBadge = '<span class="status-badge status-pending">待开通</span>';
+                    statusText = '待开通';
+                } else {
+                    openStatus = '<span class="status-badge status-pending">未支付</span>';
+                    statusBadge = '<span class="status-badge status-pending">未支付</span>';
+                    statusText = '未支付';
+                }
+                
+                // 完整状态显示
+                if (record.status === 'completed') {
+                    statusBadge = '<span class="status-badge status-completed">已完成</span>';
+                    statusText = '已完成';
                 }
 
                 // 结果类型显示
@@ -599,13 +684,15 @@
                 row.innerHTML = `
                     <td><span class="test-id">${record.id}</span></td>
                     <td>${formattedDate}</td>
+                    <td>${paymentStatus}</td>
+                    <td>${openStatus}</td>
                     <td>${statusBadge}</td>
                     <td>${resultType}</td>
                     <td>
                         <button class="action-btn view" onclick="viewRecord('${record.id}')">
                             <i class="fas fa-eye"></i> 查看
                         </button>
-                        <button class="action-btn activate" onclick="activateRecord('${record.id}')" ${record.status === 'active' || record.status === 'completed' ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
+                        <button class="action-btn activate" onclick="activateRecord('${record.id}')" ${record.opened || !record.paid ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
                             <i class="fas fa-check"></i> 开通
                         </button>
                         <button class="action-btn deactivate" onclick="deleteRecord('${record.id}')">
@@ -655,36 +742,72 @@
 
         // 激活/开通记录
         function activateRecord(testId) {
-            if (confirm(`确定要开通测试编号 ${testId} 吗？`)) {
-                const record = testRecords.find(r => r.id === testId);
-                if (record) {
-                    record.status = 'active';
-                    localStorage.setItem('laa_test_records', JSON.stringify(testRecords));
-                    
-                    // 更新过滤后的记录
-                    const filteredRecord = filteredRecords.find(r => r.id === testId);
-                    if (filteredRecord) {
-                        filteredRecord.status = 'active';
+            if (confirm(`确定要开通测试编号 ${testId} 吗？开通后用户将可以查看进阶评估结果。`)) {
+                try {
+                    // 使用TestIDManager更新记录
+                    if (window.TestIDManager && window.TestIDManager.updateTestRecord) {
+                        const updates = {
+                            opened: true,
+                            status: 'activated',
+                            activationTime: new Date().toISOString()
+                        };
+                        
+                        const success = window.TestIDManager.updateTestRecord(testId, updates);
+                        
+                        if (success) {
+                            // 同时更新本地记录（保持兼容性）
+                            const record = testRecords.find(r => r.id === testId);
+                            if (record) {
+                                record.status = 'active';
+                                record.opened = true;
+                                localStorage.setItem('laa_test_records', JSON.stringify(testRecords));
+                            }
+                            
+                            // 更新过滤后的记录
+                            const filteredRecord = filteredRecords.find(r => r.id === testId);
+                            if (filteredRecord) {
+                                filteredRecord.status = 'active';
+                                filteredRecord.opened = true;
+                            }
+                            
+                            updateDashboard();
+                            renderTable();
+                            alert(`✅ 测试编号 ${testId} 已成功开通！\n用户现在可以查看进阶评估结果。`);
+                        } else {
+                            alert(`❌ 开通失败：测试编号 ${testId} 不存在`);
+                        }
+                    } else {
+                        alert('❌ 系统错误：TestIDManager未加载');
                     }
-                    
-                    updateDashboard();
-                    renderTable();
-                    alert(`测试编号 ${testId} 已成功开通！`);
+                } catch (error) {
+                    console.error('开通记录时出错:', error);
+                    alert(`❌ 开通失败：${error.message}`);
                 }
             }
         }
 
         // 删除记录
         function deleteRecord(testId) {
-            if (confirm(`确定要删除测试编号 ${testId} 吗？此操作不可撤销。`)) {
-                testRecords = testRecords.filter(r => r.id !== testId);
-                filteredRecords = filteredRecords.filter(r => r.id !== testId);
-                
-                localStorage.setItem('laa_test_records', JSON.stringify(testRecords));
-                
-                updateDashboard();
-                renderTable();
-                alert(`测试编号 ${testId} 已删除！`);
+            if (confirm(`确定要删除测试编号 ${testId} 吗？此操作不可撤销，将同时删除TestIDManager中的记录。`)) {
+                try {
+                    // 从TestIDManager删除记录
+                    if (window.TestIDManager && window.TestIDManager.deleteTestRecord) {
+                        window.TestIDManager.deleteTestRecord(testId);
+                    }
+                    
+                    // 从本地记录删除
+                    testRecords = testRecords.filter(r => r.id !== testId);
+                    filteredRecords = filteredRecords.filter(r => r.id !== testId);
+                    
+                    localStorage.setItem('laa_test_records', JSON.stringify(testRecords));
+                    
+                    updateDashboard();
+                    renderTable();
+                    alert(`✅ 测试编号 ${testId} 已删除！`);
+                } catch (error) {
+                    console.error('删除记录时出错:', error);
+                    alert(`❌ 删除失败：${error.message}`);
+                }
             }
         }
 
