@@ -1,273 +1,231 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LAA 进阶评估 - 补充问题</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>LAA 进阶评估</title>
+ <style>
+ * { margin: 0; padding: 0; box-sizing: border-box; }
+ body {
+ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+ min-height: 100vh;
+ padding: 20px;
+ }
+ .container { max-width: 600px; margin: 0 auto; }
+ .header { text-align: center; color: white; margin-bottom: 30px; }
+ .header h1 { font-size: 24px; margin-bottom: 10px; }
+ .progress-bar {
+ background: rgba(255,255,255,0.2);
+ height: 8px; border-radius: 4px;
+ margin-bottom: 30px; overflow: hidden;
+ }
+ .progress-fill { background: white; height: 100%; width: 25%; border-radius: 4px; transition: width 0.3s ease; }
+ .question-card {
+ background: white; border-radius: 16px;
+ padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+ }
+ .question-number { color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+ .question-title { font-size: 20px; color: #333; margin-bottom: 15px; line-height: 1.5; }
+ .question-subtitle { color: #666; font-size: 14px; margin-bottom: 25px; line-height: 1.6; }
+ .options { display: flex; flex-direction: column; gap: 12px; }
+ .option {
+ display: flex; align-items: center;
+ padding: 16px 20px; border: 2px solid #e0e0e0;
+ border-radius: 12px; cursor: pointer;
+ transition: all 0.2s ease; background: white;
+ }
+ .option:hover { border-color: #667eea; background: #f8f9ff; }
+ .option.selected { border-color: #667eea; background: #f0f2ff; }
+ .option-indicator {
+ width: 28px; height: 28px; border: 2px solid #ddd;
+ border-radius: 50%; display: flex; align-items: center; justify-content: center;
+ margin-right: 15px; font-weight: 600; color: #666; font-size: 14px; flex-shrink: 0;
+ }
+ .option.selected .option-indicator { background: #667eea; border-color: #667eea; color: white; }
+ .option-text { flex: 1; font-size: 15px; color: #333; line-height: 1.5; }
+ .option.selected .option-text { color: #667eea; font-weight: 500; }
+ .nav-buttons { display: flex; justify-content: space-between; margin-top: 30px; }
+ .btn {
+ padding: 14px 30px; border: none; border-radius: 10px;
+ font-size: 15px; cursor: pointer; transition: all 0.2s ease; font-weight: 500;
+ }
+ .btn-secondary { background: #f0f0f0; color: #666; }
+ .btn-secondary:hover { background: #e0e0e0; }
+ .btn-primary {
+ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+ color: white;
+ }
+ .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+ .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+ .hidden { display: none !important; }
+ </style>
 </head>
 <body>
-    <div id="app">
-        <!-- 第二层补充问题页 -->
-        <div id="advanced-questions-page" class="page active">
-            <div class="container">
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="advanced-progress-fill"></div>
-                    </div>
-                    <div class="progress-text" id="advanced-progress-text">1/4</div>
-                </div>
-                
-                <div class="system-identifier">
-                    LAA · 进阶评估
-                </div>
-                
-                <!-- 第1题 -->
-                <div class="question-item" style="display: block;">
-                    <h2 class="question-title">你觉得你的大小脸问题在什么时候更明显？</h2>
-                    <div class="question-hint">选择最符合你情况的描述</div>
-                    
-                    <div class="options-container">
-                        <div class="option-item" onclick="selectOption(this, 0, 'A')">
-                            <div class="option-content">
-                                <div class="option-text">微笑或说话时更明显</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 0, 'B')">
-                            <div class="option-content">
-                                <div class="option-text">某一侧表情或发力更常用</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 0, 'C')">
-                            <div class="option-content">
-                                <div class="option-text">静态还好，但一动起来就更明显</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 0, 'D')">
-                            <div class="option-content">
-                                <div class="option-text">为什么两边位置/高低/线条方向不一样</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 第2题 -->
-                <div class="question-item" style="display: none;">
-                    <h2 class="question-title">你更关注哪一侧的问题？</h2>
-                    <div class="question-hint">选择你更在意或更明显的一侧</div>
-                    
-                    <div class="options-container">
-                        <div class="option-item" onclick="selectOption(this, 1, 'A')">
-                            <div class="option-content">
-                                <div class="option-text">左侧更明显</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 1, 'B')">
-                            <div class="option-content">
-                                <div class="option-text">右侧更明显</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 1, 'C')">
-                            <div class="option-content">
-                                <div class="option-text">两边都明显，但表现不同</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 1, 'D')">
-                            <div class="option-content">
-                                <div class="option-text">不确定，感觉整体不对称</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 第3题 -->
-                <div class="question-item" style="display: none;">
-                    <h2 class="question-title">这个问题对你的影响程度？</h2>
-                    <div class="question-hint">选择对你生活的影响程度</div>
-                    
-                    <div class="options-container">
-                        <div class="option-item" onclick="selectOption(this, 2, 'A')">
-                            <div class="option-content">
-                                <div class="option-text">只是外观上注意到，不影响生活</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 2, 'B')">
-                            <div class="option-content">
-                                <div class="option-text">拍照时会注意，会刻意调整角度</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 2, 'C')">
-                            <div class="option-content">
-                                <div class="option-text">社交时会不自信，会刻意掩饰</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 2, 'D')">
-                            <div class="option-content">
-                                <div class="option-text">已经影响到心理状态，想寻求改善</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 第4题 -->
-                <div class="question-item" style="display: none;">
-                    <h2 class="question-title">你希望通过评估获得什么？</h2>
-                    <div class="question-hint">选择你最希望获得的结果</div>
-                    
-                    <div class="options-container">
-                        <div class="option-item" onclick="selectOption(this, 3, 'A')">
-                            <div class="option-content">
-                                <div class="option-text">了解问题的性质和原因</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 3, 'B')">
-                            <div class="option-content">
-                                <div class="option-text">知道改善的方向和方法</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 3, 'C')">
-                            <div class="option-content">
-                                <div class="option-text">获得专业的评估和建议</div>
-                            </div>
-                        </div>
-                        <div class="option-item" onclick="selectOption(this, 3, 'D')">
-                            <div class="option-content">
-                                <div class="option-text">找到适合的解决方案</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="system-identifier-bottom">
-                    LAA · 进阶评估
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Step 1：引入依赖JS -->
-    <script src="js/data-manager.js"></script>
-    <script src="js/answer-hash-generator.js"></script>
-    <script src="js/test-id.js"></script>
-    <script src="js/second-layer-testid.js"></script>
-    
-    <!-- Step 2：加入完整问卷控制脚本（核心） -->
-    <script>
-        // ================================
-        // 第二层问卷控制逻辑（完整版本）
-        // ================================
-        
-        let currentQuestion = 0;
-        const advancedAnswers = {};
-        
-        // 获取所有问题
-        const questions = document.querySelectorAll('.question-item');
-        
-        // 初始化
-        function initAdvancedQuestions() {
-            showQuestion(0);
-            updateProgress();
-        }
-        
-        // 显示题目
-        function showQuestion(index) {
-            questions.forEach((q, i) => {
-                q.style.display = i === index ? 'block' : 'none';
-            });
-            updateProgress();
-        }
-        
-        // 点击选项
-        function selectOption(el, qIndex, value) {
-            console.log('选择第' + (qIndex + 1) + '题，选项:', value);
-            
-            // 记录答案
-            advancedAnswers[`AQ${qIndex + 1}`] = value;
-            
-            // UI高亮
-            const options = el.parentNode.querySelectorAll('.option-item');
-            options.forEach(opt => opt.classList.remove('active'));
-            el.classList.add('active');
-            
-            // 自动跳题
-            setTimeout(() => {
-                goToNextQuestion();
-            }, 300);
-        }
-        
-        // 下一题
-        function goToNextQuestion() {
-            if (currentQuestion < 3) {
-                currentQuestion++;
-                showQuestion(currentQuestion);
-            } else {
-                finishAdvancedQuestions();
-            }
-        }
-        
-        // 完成 → 生成 testId
-        function finishAdvancedQuestions() {
-            console.log('完成第二层问卷，答案:', advancedAnswers);
-            
-            const basicAnswersStr = localStorage.getItem('laa_basic_answers');
-            
-            if (!basicAnswersStr) {
-                alert('基础数据丢失，请重新测试');
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            const basicAnswers = JSON.parse(basicAnswersStr);
-            
-            try {
-                // 检查是否所有答案都已收集
-                const allAnswersCollected = Object.keys(advancedAnswers).length === 4;
-                if (!allAnswersCollected) {
-                    alert('请完成所有问题');
-                    return;
-                }
-                
-                console.log('基础答案:', basicAnswers);
-                console.log('进阶答案:', advancedAnswers);
-                
-                const testId = window.generateSecondLayerTestId(
-                    basicAnswers,
-                    advancedAnswers
-                );
-                
-                // 保存 testId
-                localStorage.setItem('current_second_layer_test_id', testId);
-                localStorage.setItem('current_test_id', testId);
-                
-                console.log('✅ 生成testId:', testId);
-                
-                // 显示提示
-                alert('🎯 第二层评估完成！\n\n您的测试编号：' + testId + '\n\n请继续上传照片完成评估。');
-                
-                // 跳转照片页
-                window.location.href = 'advanced-photo.html?testId=' + encodeURIComponent(testId);
-                
-            } catch (err) {
-                console.error('生成testId失败:', err);
-                alert('生成测试编号失败，请重试：' + err.message);
-            }
-        }
-        
-        // 更新进度
-        function updateProgress() {
-            const progressFill = document.getElementById('advanced-progress-fill');
-            const progressText = document.getElementById('advanced-progress-text');
-            
-            if (progressFill && progressText) {
-                const progress = ((currentQuestion + 1) / 4) * 100;
-                progressFill.style.width = `${progress}%`;
-                progressText.textContent = `${currentQuestion + 1}/4`;
-            }
-        }
-        
-        // 初始化
-        document.addEventListener('DOMContentLoaded', initAdvancedQuestions);
-    </script>
+ <div class="container">
+ <div class="header">
+ <h1>LAA · 进阶评估</h1>
+ <p>补充4个问题，让评估更准确</p>
+ </div>
+ <div class="progress-bar">
+ <div class="progress-fill" id="progress-fill"></div>
+ </div>
+ <div class="question-card">
+ <div class="question-number" id="question-number">问题 1/4</div>
+ <h2 class="question-title" id="question-title">加载中...</h2>
+ <p class="question-subtitle" id="question-subtitle"></p>
+ <div class="options" id="options-container"></div>
+ <div class="nav-buttons">
+ <button class="btn btn-secondary" id="prev-btn" style="visibility: hidden;">上一题</button>
+ <button class="btn btn-primary" id="next-btn" disabled>下一题</button>
+ </div>
+ </div>
+ </div>
+ <script>
+ const advancedQuestions = [
+ {
+ id: 'Q1',
+ title: '你最明显感觉左右不对称，是在什么情况下更容易看到？',
+ subtitle: '选择最符合你日常观察的情况',
+ options: [
+ { text: 'A. 静态拍照时更明显', value: 'A' },
+ { text: 'B. 微笑或说话时更明显', value: 'B' },
+ { text: 'C. 咀嚼或用力时更明显', value: 'C' },
+ { text: 'D. 每天看起来不太一样，不太稳定', value: 'D' }
+ ]
+ },
+ {
+ id: 'Q2',
+ title: '你平时最明显、持续时间最长的一种偏侧使用习惯是？',
+ subtitle: '选择你最明显、最长期的习惯',
+ options: [
+ { text: 'A. 单侧咀嚼比较明显', value: 'A' },
+ { text: 'B. 单侧托脸、侧睡或偏向一侧支撑比较明显', value: 'B' },
+ { text: 'C. 某一侧表情或发力更常用', value: 'C' },
+ { text: 'D. 没有明显感觉，或不确定', value: 'D' }
+ ]
+ },
+ {
+ id: 'Q3',
+ title: '你的不对称感受，更接近下面哪一种？',
+ subtitle: '描述你感受到的稳定性特征',
+ options: [
+ { text: 'A. 长期都比较稳定，位置和感觉差不多', value: 'A' },
+ { text: 'B. 最近越来越明显', value: 'B' },
+ { text: 'C. 有时觉得左边明显，有时又觉得右边明显', value: 'C' },
+ { text: 'D. 静态还好，但一动起来就更明显', value: 'D' }
+ ]
+ },
+ {
+ id: 'Q4',
+ title: '你现在最想优先弄清楚的是哪一类问题？',
+ subtitle: '这会影响结果页的解释顺序',
+ options: [
+ { text: 'A. 为什么一边脸看起来更大', value: 'A' },
+ { text: 'B. 为什么笑起来或说话时更不对称', value: 'B' },
+ { text: 'C. 为什么我总分不清到底是哪边有问题', value: 'C' },
+ { text: 'D. 我更想先知道问题主次和处理顺序', value: 'D' },
+ { text: 'E. 以上都有，但我更想先理清整体逻辑', value: 'E' }
+ ]
+ }
+ ];
+ 
+ let currentQuestionIndex = 0;
+ let answers = new Array(4).fill(null);
+ 
+ const questionNumber = document.getElementById('question-number');
+ const questionTitle = document.getElementById('question-title');
+ const questionSubtitle = document.getElementById('question-subtitle');
+ const optionsContainer = document.getElementById('options-container');
+ const prevBtn = document.getElementById('prev-btn');
+ const nextBtn = document.getElementById('next-btn');
+ const progressFill = document.getElementById('progress-fill');
+ 
+ function init() {
+ showQuestion(0);
+ prevBtn.addEventListener('click', () => showQuestion(currentQuestionIndex - 1));
+ nextBtn.addEventListener('click', () => {
+ if (currentQuestionIndex < 3) {
+ showQuestion(currentQuestionIndex + 1);
+ } else {
+ finishQuestions();
+ }
+ });
+ }
+ 
+ function showQuestion(index) {
+ if (index < 0 || index >= 4) return;
+ currentQuestionIndex = index;
+ const question = advancedQuestions[index];
+ 
+ progressFill.style.width = ((index + 1) / 4 * 100) + '%';
+ questionNumber.textContent = `问题 ${index + 1}/4`;
+ questionTitle.textContent = question.title;
+ questionSubtitle.textContent = question.subtitle;
+ 
+ optionsContainer.innerHTML = '';
+ question.options.forEach((option, optionIndex) => {
+ const el = document.createElement('div');
+ el.className = 'option' + (answers[index] === optionIndex ? ' selected' : '');
+ el.innerHTML = `
+ <div class="option-indicator">${String.fromCharCode(65 + optionIndex)}</div>
+ <div class="option-text">${option.text}</div>
+ `;
+ // 关键：阻止事件冒泡，确保只有点击选项时才触发
+ el.addEventListener('click', (e) => {
+ e.stopPropagation();
+ selectOption(index, optionIndex);
+ });
+ optionsContainer.appendChild(el);
+ });
+ 
+ updateButtons();
+ }
+ 
+ function selectOption(questionIndex, optionIndex) {
+ answers[questionIndex] = optionIndex;
+ const options = optionsContainer.querySelectorAll('.option');
+ options.forEach((opt, idx) => {
+ opt.classList.toggle('selected', idx === optionIndex);
+ });
+ updateButtons();
+ // 自动下一题（如果不是最后一题）
+ if (questionIndex < 3) {
+ setTimeout(() => showQuestion(questionIndex + 1), 200);
+ }
+ }
+ 
+ function updateButtons() {
+ prevBtn.style.visibility = currentQuestionIndex === 0 ? 'hidden' : 'visible';
+ nextBtn.disabled = answers[currentQuestionIndex] === null;
+ nextBtn.textContent = currentQuestionIndex === 3 ? '继续' : '下一题';
+ }
+ 
+ function finishQuestions() {
+ const testId = localStorage.getItem('current_second_layer_test_id') || generateTestId();
+ const answerData = {
+ testId: testId,
+ answers: answers.map((idx, i) => ({
+ questionId: advancedQuestions[i].id,
+ selectedOption: advancedQuestions[i].options[idx]?.value || null
+ })),
+ timestamp: new Date().toISOString()
+ };
+ localStorage.setItem('laa_advanced_answers_' + testId, JSON.stringify(answerData));
+ localStorage.setItem('laa_second_layer_completed_' + testId, 'true');
+ window.location.href = 'photo-upload.html?testId=' + encodeURIComponent(testId);
+ }
+ 
+ function generateTestId() {
+ let lastId = localStorage.getItem('last_test_id') || '24000';
+ const newIdNum = parseInt(lastId) + 1;
+ const newId = 'LAA' + newIdNum;
+ localStorage.setItem('last_test_id', newIdNum.toString());
+ localStorage.setItem('current_second_layer_test_id', newId);
+ return newId;
+ }
+ 
+ document.addEventListener('DOMContentLoaded', init);
+ </script>
 </body>
 </html>
