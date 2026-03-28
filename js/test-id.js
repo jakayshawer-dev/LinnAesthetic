@@ -27,7 +27,13 @@ class TestIDManager {
     // 获取存储数据
     getStorageData() {
         const data = localStorage.getItem(this.storageKey);
-        return data ? JSON.parse(data) : this.initializeStorage();
+        if (data) {
+            return JSON.parse(data);
+        } else {
+            // 初始化并返回数据
+            this.initializeStorage();
+            return this.getStorageData(); // 递归调用，现在应该有数据了
+        }
     }
 
     // 保存存储数据
@@ -36,10 +42,41 @@ class TestIDManager {
     }
 
     // 生成新的测试编号
-    generateNewTestId() {
+    generateNewTestId(answers = null) {
         const data = this.getStorageData();
-        data.lastId += 1;
-        const newId = `LAA${data.lastId}`;
+        
+        let newId;
+        
+        // 如果有答案，尝试基于答案生成编号
+        if (answers && window.AnswerHash) {
+            try {
+                newId = window.AnswerHash.generateTestIdFromAnswers(answers);
+                console.log('基于答案生成测试编号:', newId);
+            } catch (error) {
+                console.warn('基于答案生成编号失败:', error);
+            }
+        }
+        
+        // 如果无法基于答案生成，使用顺序编号
+        if (!newId) {
+            data.lastId += 1;
+            newId = `LAA${data.lastId}`;
+            console.log('使用顺序测试编号:', newId);
+        }
+        
+        // 检查编号是否已存在
+        if (data.testRecords[newId]) {
+            console.warn('测试编号已存在:', newId);
+            // 如果存在，添加后缀
+            let suffix = 1;
+            let uniqueId;
+            do {
+                uniqueId = `${newId}-${suffix}`;
+                suffix++;
+            } while (data.testRecords[uniqueId]);
+            newId = uniqueId;
+            console.log('使用唯一编号:', newId);
+        }
         
         // 创建新的测试记录
         data.testRecords[newId] = {
@@ -53,7 +90,7 @@ class TestIDManager {
             activationTime: null,
             resultType: null,
             notes: '',
-            userData: {}
+            userData: answers || {}
         };
 
         this.saveStorageData(data);
@@ -61,6 +98,9 @@ class TestIDManager {
         
         // 也在sessionStorage中保存当前测试ID
         sessionStorage.setItem('current_test_id', newId);
+        
+        // 保存到localStorage以便其他页面访问
+        localStorage.setItem('current_test_id', newId);
         
         return newId;
     }

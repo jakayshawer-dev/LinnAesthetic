@@ -237,79 +237,149 @@ function restartTest() {
 
 // 进入第二层进阶评估
 function showAdvancedAssessment() {
-    // 获取当前用户的测试编号（从localStorage或生成新的）
-    let testId = localStorage.getItem('current_basic_test_id');
+    console.log('showAdvancedAssessment函数被调用');
     
-    if (!testId) {
-        // 如果没有基础测试编号，生成一个新的
-        testId = generateBasicTestId();
-        localStorage.setItem('current_basic_test_id', testId);
-    }
-    
-    // 检查测试编号状态
     try {
-        if (!window.checkTestIdStatus) {
-            // 如果TestIDManager未加载，跳转到说明页
-            window.location.href = 'advanced-intro.html';
+        // 获取当前用户的测试编号
+        let testId = localStorage.getItem('current_test_id');
+        
+        console.log('当前测试编号:', testId);
+        
+        if (!testId) {
+            // 如果没有测试编号，尝试基于答案生成
+            if (window.AnswerHash) {
+                testId = window.AnswerHash.getCurrentTestId();
+                console.log('基于答案获取测试编号:', testId);
+            }
+            
+            if (!testId) {
+                // 生成新的测试编号
+                testId = generateBasicTestId();
+                console.log('生成新的测试编号:', testId);
+            }
+            
+            localStorage.setItem('current_test_id', testId);
+        }
+        
+        // 检查TestIDManager是否加载
+        if (!window.TestIDManager || !window.checkTestIdStatus) {
+            console.error('TestIDManager未加载');
+            alert('系统加载中，请稍后重试...');
+            setTimeout(() => {
+                window.location.href = 'advanced-intro.html';
+            }, 1000);
             return;
         }
         
+        console.log('检查测试编号状态:', testId);
         const status = window.checkTestIdStatus(testId);
+        console.log('状态检查结果:', status);
         
         if (!status.exists) {
-            // 测试编号不存在，跳转到说明页
-            window.location.href = 'advanced-intro.html';
+            console.log('测试编号不存在，跳转到说明页');
+            // 创建测试记录
+            try {
+                // 获取答案
+                let answers = {};
+                if (window.AnswerHash) {
+                    answers = window.AnswerHash.getBasicAnswers();
+                }
+                
+                // 创建记录
+                window.TestIDManager.createTestRecord(testId, {
+                    id: testId,
+                    createdAt: new Date().toISOString(),
+                    status: 'pending',
+                    paid: false,
+                    opened: false,
+                    userData: answers
+                });
+                
+                console.log('已创建测试记录:', testId);
+            } catch (e) {
+                console.error('创建测试记录失败:', e);
+            }
+            
+            window.location.href = 'advanced-intro.html?testId=' + encodeURIComponent(testId);
             return;
         }
         
         // 检查支付状态
         if (!status.paid) {
-            // 未支付，跳转到支付页面
+            console.log('未支付，跳转到支付页面');
             window.location.href = 'payment-page.html?testId=' + encodeURIComponent(testId);
             return;
         }
         
         // 检查开通状态
         if (!status.opened) {
-            // 已支付但未开通，跳转到解锁页面
+            console.log('已支付未开通，跳转到解锁页面');
             window.location.href = 'advanced-unlock.html?testId=' + encodeURIComponent(testId);
             return;
         }
         
         // 检查答题数据
-        const record = window.TestIDManager ? window.TestIDManager.getTestRecord(testId) : null;
+        const record = window.TestIDManager.getTestRecord(testId);
+        console.log('测试记录:', record);
+        
         if (!record || !record.userData || !record.userData.advanced_answers) {
-            // 已支付且已开通但无答题数据，跳转到进阶问卷
+            console.log('已支付已开通但无答题数据，跳转到进阶问卷');
             window.location.href = 'advanced-questions.html?testId=' + encodeURIComponent(testId);
             return;
         }
         
         // 所有条件满足，跳转到结果页面
+        console.log('所有条件满足，跳转到结果页面');
         window.location.href = 'result-viewer.html?testId=' + encodeURIComponent(testId);
         
     } catch (error) {
-        console.error('检查状态时出错:', error);
+        console.error('showAdvancedAssessment出错:', error);
+        alert('系统错误: ' + error.message);
         // 出错时跳转到说明页
         window.location.href = 'advanced-intro.html';
     }
 }
 
-// 生成基础测试编号
+// 生成基础测试编号（基于答案）
 function generateBasicTestId() {
-    // 从localStorage获取最后一个编号
-    let lastId = localStorage.getItem('last_basic_test_id');
-    if (!lastId) {
-        lastId = '24000'; // 起始编号
+    try {
+        // 尝试从答案生成测试编号
+        if (window.AnswerHash) {
+            const answers = window.AnswerHash.getBasicAnswers();
+            if (Object.keys(answers).length > 0) {
+                const testId = window.AnswerHash.generateTestIdFromAnswers(answers);
+                if (testId) {
+                    console.log('基于答案生成测试编号:', testId);
+                    return testId;
+                }
+            }
+        }
+        
+        // 如果无法从答案生成，使用旧逻辑
+        console.warn('无法从答案生成测试编号，使用顺序编号');
+        let lastId = localStorage.getItem('last_basic_test_id');
+        if (!lastId) {
+            lastId = '24000'; // 起始编号
+        }
+        
+        const newIdNum = parseInt(lastId) + 1;
+        const newId = 'LAA' + newIdNum;
+        
+        localStorage.setItem('last_basic_test_id', newIdNum.toString());
+        
+        return newId;
+    } catch (error) {
+        console.error('生成测试编号错误:', error);
+        
+        // 错误恢复：使用简单编号
+        let lastId = localStorage.getItem('last_basic_test_id') || '24000';
+        const newIdNum = parseInt(lastId) + 1;
+        const newId = 'LAA' + newIdNum;
+        
+        localStorage.setItem('last_basic_test_id', newIdNum.toString());
+        
+        return newId;
     }
-    
-    // 生成新编号
-    const newIdNum = parseInt(lastId) + 1;
-    const newId = 'LAA' + newIdNum;
-    
-    // 保存到localStorage
-    localStorage.setItem('last_basic_test_id', newIdNum.toString());
-    
-    return newId;
 }
 
 // 直接跳转到淘宝
