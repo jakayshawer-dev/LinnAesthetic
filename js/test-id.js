@@ -46,6 +46,8 @@ class TestIDManager {
             id: newId,
             createdAt: new Date().toISOString(),
             status: 'pending', // pending, paid, activated, completed
+            paid: false,        // 支付状态
+            opened: false,      // 开通状态
             paymentMethod: null,
             paymentTime: null,
             activationTime: null,
@@ -113,6 +115,8 @@ class TestIDManager {
             exists: true,
             status: record.status,
             resultType: record.resultType,
+            paid: record.paid || false,
+            opened: record.opened || false,
             activated: record.status === 'activated' || record.status === 'completed',
             message: this.getStatusMessage(record.status)
         };

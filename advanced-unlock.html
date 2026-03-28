@@ -249,6 +249,16 @@
                     <p><i class="fas fa-info-circle"></i> <strong>温馨提示：</strong>请保留你的测试编号。完成进阶评估后，将凭此编号为你开通对应结果查看权限。</p>
                 </div>
                 
+                <!-- 尝试查看结果按钮 -->
+                <div class="try-view-section" style="margin-top: 30px; text-align: center;">
+                    <button class="btn-primary try-view-btn" id="try-view-btn" style="padding: 15px 40px; font-size: 16px;">
+                        <i class="fas fa-eye"></i> 尝试查看结果
+                    </button>
+                    <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                        点击查看已开通的进阶评估结果（需完成支付并开通权限）
+                    </p>
+                </div>
+                
                 <div class="system-identifier-bottom">
                     LAA · 进阶评估
                 </div>
@@ -263,6 +273,7 @@
         const testIdNumber = document.getElementById('test-id-number');
         const reminderTestId = document.getElementById('reminder-test-id');
         const copyTestIdBtn = document.getElementById('copy-test-id-btn');
+        const tryViewBtn = document.getElementById('try-view-btn');
         
         // 页面加载初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -299,6 +310,11 @@
                 } else {
                     alert('复制失败，请手动选择并复制编号：' + testId);
                 }
+            });
+            
+            // 绑定尝试查看结果按钮
+            tryViewBtn.addEventListener('click', function() {
+                checkAndRedirectToResult(testId);
             });
         }
         
@@ -403,6 +419,55 @@
                     }
                 `;
                 document.head.appendChild(style);
+            }
+        }
+        
+        // 检查并跳转到结果页面
+        function checkAndRedirectToResult(testId) {
+            try {
+                // 检查测试编号是否存在
+                if (!window.checkTestIdStatus) {
+                    alert("系统未初始化，请刷新页面重试");
+                    return;
+                }
+                
+                const status = window.checkTestIdStatus(testId);
+                
+                if (!status.exists) {
+                    alert("自测码无效，请重新生成");
+                    return;
+                }
+                
+                // 检查支付状态
+                if (!status.paid) {
+                    alert("请完成支付后再查看结果");
+                    return;
+                }
+                
+                // 检查开通状态
+                if (!status.opened) {
+                    alert("请等待后台确认开通后查看结果");
+                    return;
+                }
+                
+                // 获取记录以检查答题数据
+                let record = null;
+                if (window.TestIDManager && window.TestIDManager.getTestRecord) {
+                    record = window.TestIDManager.getTestRecord(testId);
+                }
+                
+                // 检查是否有答题数据
+                if (!record || !record.userData || !record.userData.advanced_answers) {
+                    alert("未找到答题数据，请确认是否完成测试流程");
+                    return;
+                }
+                
+                // 所有检查通过，跳转到结果页面
+                window.location.href = `result-viewer.html?testId=${testId}`;
+                
+            } catch (error) {
+                console.error('检查记录时出错:', error);
+                alert("系统错误，请稍后重试");
             }
         }
     </script>

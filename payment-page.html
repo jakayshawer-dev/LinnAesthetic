@@ -647,8 +647,39 @@
             checkResultBtn.addEventListener('click', function() {
                 const testId = testIdNumber.textContent;
                 
-                // 简化逻辑：直接跳转到结果查看页，让结果页自己处理状态检查
-                window.location.href = 'result-viewer.html?testId=' + encodeURIComponent(testId);
+                // 检查测试编号状态
+                try {
+                    if (!window.checkTestIdStatus) {
+                        alert("系统未初始化，请刷新页面重试");
+                        return;
+                    }
+                    
+                    const status = window.checkTestIdStatus(testId);
+                    
+                    if (!status.exists) {
+                        alert("自测码无效，请重新生成");
+                        return;
+                    }
+                    
+                    // 检查支付状态
+                    if (!status.paid) {
+                        alert("请完成支付后再查看结果");
+                        return;
+                    }
+                    
+                    // 检查开通状态
+                    if (!status.opened) {
+                        alert("请等待后台确认开通后查看结果");
+                        return;
+                    }
+                    
+                    // 所有检查通过，跳转到结果页面
+                    window.location.href = 'result-viewer.html?testId=' + encodeURIComponent(testId);
+                    
+                } catch (error) {
+                    console.error('检查记录时出错:', error);
+                    alert("系统错误，请稍后重试");
+                }
             });
             
             // 返回首页

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付流程测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+        .status-pending { background: #ffc107; color: #000; }
+        .status-paid { background: #17a2b8; color: #fff; }
+        .status-opened { background: #28a745; color: #fff; }
+        .status-activated { background: #007bff; color: #fff; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: white;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .test-step {
+            background: #e8f4fd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>支付流程测试 - final-v3集成验证</h1>
+    
+    <div class="test-step">
+        <h3>测试目标：验证"尝试查看结果"按钮的完整流程</h3>
+        <p>1. 生成测试数据（模拟问卷提交）</p>
+        <p>2. 模拟支付确认（paid = true）</p>
+        <p>3. 模拟后台开通（opened = true）</p>
+        <p>4. 点击"尝试查看结果"按钮跳转</p>
+        <p>5. 验证显示真实引擎结果</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>1. 生成测试数据</h2>
+        
+        <div class="input-group">
+            <label for="testId">测试编号：</label>
+            <input type="text" id="testId" value="LAA24001">
+        </div>
+        
+        <button onclick="generateTestData()">生成测试数据</button>
+        <button onclick="checkCurrentStatus()">检查当前状态</button>
+        
+        <div id="statusDisplay" style="margin-top: 15px;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 模拟支付和开通流程</h2>
+        
+        <div class="status-controls">
+            <button onclick="markAsPaid()">标记为已支付</button>
+            <button onclick="markAsOpened()">标记为已开通</button>
+            <button onclick="markAsActivated()">标记为已激活</button>
+            <button onclick="resetStatus()">重置状态</button>
+        </div>
+        
+        <p style="margin-top: 15px;">
+            <strong>状态说明：</strong>
+            <span class="status-badge status-pending">pending</span> - 待支付
+            <span class="status-badge status-paid">paid</span> - 已支付
+            <span class="status-badge status-opened">opened</span> - 已开通
+            <span class="status-badge status-activated">activated</span> - 已激活
+        </p>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 测试"尝试查看结果"按钮</h2>
+        
+        <button onclick="testTryViewButton()">测试按钮跳转逻辑</button>
+        <button onclick="openAdvancedUnlock()">打开解锁页面</button>
+        <button onclick="openPaymentPage()">打开支付页面</button>
+        <button onclick="openResultViewer()">打开结果页面</button>
+    </div>
+    
+    <div id="resultContainer" class="result" style="display: none;">
+        <h3>测试结果：</h3>
+        <div id="testResult"></div>
+    </div>
+    
+    <script src="js/test-id.js"></script>
+    <script src="js/data-manager.js"></script>
+    
+    <script>
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('支付流程测试页面已加载');
+            checkCurrentStatus();
+        });
+        
+        // 生成测试数据
+        function generateTestData() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            
+            if (!/^LAA\d{5}$/.test(testId)) {
+                showResult('❌ 测试编号格式不正确，应为 LAA 后跟5位数字');
+                return;
+            }
+            
+            // 创建测试记录
+            const record = {
+                id: testId,
+                createdAt: new Date().toISOString(),
+                status: 'pending',
+                paid: false,
+                opened: false,
+                paymentMethod: null,
+                paymentTime: null,
+                activationTime: null,
+                resultType: null,
+                notes: '',
+                userData: {
+                    truthTendency: "混合倾向",
+                    mainProblemDirection: "动态控制方向",
+                    sideHint: "右侧更明显",
+                    complexityHint: "一般初筛",
+                    basic_answers: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
+                    advanced_answers: [
+                        "微笑或说话时更明显",
+                        "某一侧表情或发力更常用",
+                        "静态还好，但一动起来就更明显",
+                        "为什么两边位置/高低/线条方向不一样"
+                    ],
+                    basic_completed_at: new Date().toISOString(),
+                    advanced_completed_at: new Date().toISOString()
+                }
+            };
+            
+            // 保存到TestIDManager
+            window.TestIDManager.createTestRecord(testId, record);
+            
+            showResult(`✅ 测试数据生成成功！\n\n` +
+                      `测试编号：${testId}\n` +
+                      `状态：${record.status}\n` +
+                      `支付状态：${record.paid ? '已支付' : '未支付'}\n` +
+                      `开通状态：${record.opened ? '已开通' : '未开通'}\n\n` +
+                      `答题数据已保存，包含4个进阶问题答案。`);
+            
+            checkCurrentStatus();
+        }
+        
+        // 检查当前状态
+        function checkCurrentStatus() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            
+            const status = window.checkTestIdStatus(testId);
+            const record = window.TestIDManager.getTestRecord(testId);
+            
+            let html = `<h3>当前状态：${testId}</h3>`;
+            
+            if (!status.exists) {
+                html += `<p>❌ 测试编号不存在</p>`;
+            } else {
+                html += `<p>`;
+                html += `<span class="status-badge ${getStatusClass(status.status)}">${status.status}</span>`;
+                if (status.paid) html += `<span class="status-badge status-paid">paid</span>`;
+                if (status.opened) html += `<span class="status-badge status-opened">opened</span>`;
+                if (status.activated) html += `<span class="status-badge status-activated">activated</span>`;
+                html += `</p>`;
+                
+                html += `<p><strong>状态详情：</strong> ${status.message}</p>`;
+                
+                if (record && record.userData) {
+                    const hasBasicAnswers = record.userData.basic_answers && record.userData.basic_answers.length > 0;
+                    const hasAdvancedAnswers = record.userData.advanced_answers && record.userData.advanced_answers.length > 0;
+                    
+                    html += `<p><strong>答题数据：</strong>`;
+                    html += `基础问卷：${hasBasicAnswers ? '✅ 已完成' : '❌ 未完成'}`;
+                    html += ` | 进阶问卷：${hasAdvancedAnswers ? '✅ 已完成' : '❌ 未完成'}`;
+                    html += `</p>`;
+                }
+            }
+            
+            document.getElementById('statusDisplay').innerHTML = html;
+        }
+        
+        // 获取状态CSS类
+        function getStatusClass(status) {
+            switch(status) {
+                case 'pending': return 'status-pending';
+                case 'paid': return 'status-paid';
+                case 'opened': return 'status-opened';
+                case 'activated': return 'status-activated';
+                default: return 'status-pending';
+            }
+        }
+        
+        // 标记为已支付
+        function markAsPaid() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            
+            const updates = {
+                paid: true,
+                paymentTime: new Date().toISOString(),
+                status: 'paid'
+            };
+            
+            if (window.TestIDManager.updateTestRecord(testId, updates)) {
+                showResult(`✅ 标记为已支付：${testId}\n支付时间：${updates.paymentTime}`);
+                checkCurrentStatus();
+            } else {
+                showResult(`❌ 更新失败，请先生成测试数据`);
+            }
+        }
+        
+        // 标记为已开通
+        function markAsOpened() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            
+            const updates = {
+                opened: true,
+                activationTime: new Date().toISOString(),
+                status: 'opened'
+            };
+            
+            if (window.TestIDManager.updateTestRecord(testId, updates)) {
+                showResult(`✅ 标记为已开通：${testId}\n开通时间：${updates.activationTime}`);
+                checkCurrentStatus();
+            } else {
+                showResult(`❌ 更新失败，请先生成测试数据`);
+            }
+        }
+        
+        // 标记为已激活
+        function markAsActivated() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            
+            const updates = {
+                paid: true,
+                opened: true,
+                status: 'activated',
+                activationTime: new Date().toISOString()
+            };
+            
+            if (window.TestIDManager.updateTestRecord(testId, updates)) {
+                showResult(`✅ 标记为已激活：${testId}\n所有状态已就绪`);
+                checkCurrentStatus();
+            } else {
+                showResult(`❌ 更新失败，请先生成测试数据`);
+            }
+        }
+        
+        // 重置状态
+        function resetStatus() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            
+            const updates = {
+                paid: false,
+                opened: false,
+                status: 'pending',
+                paymentTime: null,
+                activationTime: null
+            };
+            
+            if (window.TestIDManager.updateTestRecord(testId, updates)) {
+                showResult(`🔄 状态已重置：${testId}\n所有状态已清除`);
+                checkCurrentStatus();
+            } else {
+                showResult(`❌ 重置失败，请先生成测试数据`);
+            }
+        }
+        
+        // 测试"尝试查看结果"按钮逻辑
+        function testTryViewButton() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            
+            // 模拟按钮点击逻辑
+            try {
+                if (!window.checkTestIdStatus) {
+                    showResult("❌ 系统未初始化，请刷新页面重试");
+                    return;
+                }
+                
+                const status = window.checkTestIdStatus(testId);
+                
+                if (!status.exists) {
+                    showResult("❌ 自测码无效，请重新生成");
+                    return;
+                }
+                
+                if (!status.paid) {
+                    showResult("❌ 请完成支付后再查看结果");
+                    return;
+                }
+                
+                if (!status.opened) {
+                    showResult("❌ 请等待后台确认开通后查看结果");
+                    return;
+                }
+                
+                // 检查答题数据
+                const record = window.TestIDManager.getTestRecord(testId);
+                if (!record || !record.userData || !record.userData.advanced_answers) {
+                    showResult("❌ 未找到答题数据，请确认是否完成测试流程");
+                    return;
+                }
+                
+                showResult(`✅ 所有检查通过！\n\n` +
+                          `测试编号：${testId}\n` +
+                          `支付状态：${status.paid ? '✅ 已支付' : '❌ 未支付'}\n` +
+                          `开通状态：${status.opened ? '✅ 已开通' : '❌ 未开通'}\n` +
+                          `答题数据：${record.userData.advanced_answers.length}个进阶问题\n\n` +
+                          `可以跳转到：result-viewer.html?testId=${testId}`);
+                
+            } catch (error) {
+                console.error('测试按钮逻辑时出错:', error);
+                showResult("❌ 系统错误，请稍后重试");
+            }
+        }
+        
+        // 打开解锁页面
+        function openAdvancedUnlock() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            window.open(`advanced-unlock.html?testId=${testId}`, '_blank');
+        }
+        
+        // 打开支付页面
+        function openPaymentPage() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            window.open(`payment-page.html?testId=${testId}`, '_blank');
+        }
+        
+        // 打开结果页面
+        function openResultViewer() {
+            const testId = document.getElementById('testId').value.trim().toUpperCase();
+            window.open(`result-viewer.html?testId=${testId}`, '_blank');
+        }
+        
+        // 显示结果
+        function showResult(message) {
+            document.getElementById('testResult').textContent = message;
+            document.getElementById('resultContainer').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
