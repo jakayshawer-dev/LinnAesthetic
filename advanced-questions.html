@@ -48,103 +48,83 @@
         </div>
     </div>
 
+    <!-- 加载必要的JS文件 -->
+    <script src="js/data-manager.js"></script>
+    <script src="js/answer-hash-generator.js"></script>
+    <script src="js/test-id.js"></script>
+    <script src="js/second-layer-testid.js"></script>
+    
     <script>
-        // 第二层补充问题数据
+        // 第二层进阶问题数据
         const advancedQuestions = [
             {
                 id: 1,
-                title: "你最明显感觉左右不对称，是在什么情况下更容易看到？",
-                hint: "",
+                title: "你觉得你的大小脸问题在什么时候更明显？",
+                hint: "选择最符合你情况的描述",
                 options: [
-                    { id: "A", text: "静态拍照时更明显" },
-                    { id: "B", text: "微笑或说话时更明显" },
-                    { id: "C", text: "咀嚼或用力时更明显" },
-                    { id: "D", text: "每天看起来不太一样，不太稳定" }
+                    "微笑或说话时更明显",
+                    "某一侧表情或发力更常用",
+                    "静态还好，但一动起来就更明显",
+                    "为什么两边位置/高低/线条方向不一样"
                 ]
             },
             {
                 id: 2,
-                title: "你平时最明显、持续时间最长的一种偏侧使用习惯是？",
-                hint: "如果你觉得不止一种，请选择最长期、最明显的一项。",
+                title: "你更关注哪一侧的问题？",
+                hint: "选择你更在意或更明显的一侧",
                 options: [
-                    { id: "A", text: "单侧咀嚼比较明显" },
-                    { id: "B", text: "单侧托脸、侧睡或偏向一侧支撑比较明显" },
-                    { id: "C", text: "某一侧表情或发力更常用" },
-                    { id: "D", text: "没有明显感觉，或不确定" }
+                    "左侧更明显",
+                    "右侧更明显", 
+                    "两边都明显，但表现不同",
+                    "不确定，感觉整体不对称"
                 ]
             },
             {
                 id: 3,
-                title: "你的不对称感受，更接近下面哪一种？",
-                hint: "",
+                title: "这个问题对你的影响程度？",
+                hint: "选择对你生活的影响程度",
                 options: [
-                    { id: "A", text: "长期都比较稳定，位置和感觉差不多" },
-                    { id: "B", text: "最近越来越明显" },
-                    { id: "C", text: "有时觉得左边明显，有时又觉得右边明显" },
-                    { id: "D", text: "静态还好，但一动起来就更明显" }
+                    "只是外观上注意到，不影响生活",
+                    "拍照时会注意，会刻意调整角度",
+                    "社交时会不自信，会刻意掩饰",
+                    "已经影响到心理状态，想寻求改善"
                 ]
             },
             {
                 id: 4,
-                title: "你现在最想优先弄清楚的是哪一类问题？",
-                hint: "",
+                title: "你希望通过评估获得什么？",
+                hint: "选择你最希望获得的结果",
                 options: [
-                    { id: "A", text: "为什么一边脸看起来更大" },
-                    { id: "B", text: "为什么笑起来或说话时更不对称" },
-                    { id: "C", text: "为什么我总分不清到底是哪边有问题" },
-                    { id: "D", text: "我更想先知道问题主次和处理顺序" },
-                    { id: "E", text: "以上都有，但我更想先理清整体逻辑" }
+                    "了解问题的性质和原因",
+                    "知道改善的方向和方法",
+                    "获得专业的评估和建议",
+                    "找到适合的解决方案"
                 ]
             }
         ];
 
-        // 全局状态
+        // 当前状态
         let currentAdvancedQuestionIndex = 0;
         let advancedUserAnswers = new Array(advancedQuestions.length).fill(null);
 
-        // DOM元素
-        const advancedProgressFill = document.getElementById('advanced-progress-fill');
-        const advancedProgressText = document.getElementById('advanced-progress-text');
-        const advancedQuestionTitle = document.getElementById('advanced-question-title');
-        const advancedQuestionHint = document.getElementById('advanced-question-hint');
-        const advancedOptionsContainer = document.getElementById('advanced-options-container');
-        const advancedPrevBtn = document.getElementById('advanced-prev-btn');
-        const advancedNextBtn = document.getElementById('advanced-next-btn');
-
         // 初始化应用
         function initAdvancedApp() {
-            // 显示第一题
-            showAdvancedQuestion(currentAdvancedQuestionIndex);
-            
-            // 更新进度
+            showAdvancedQuestion(0);
             updateAdvancedProgress();
-            
-            // 绑定事件
-            advancedPrevBtn.addEventListener('click', showPreviousAdvancedQuestion);
-            advancedNextBtn.addEventListener('click', showNextAdvancedQuestion);
-            
-            // 初始按钮状态
             updateAdvancedButtonStates();
         }
 
-        // 显示问题
+        // 显示指定问题
         function showAdvancedQuestion(index) {
+            currentAdvancedQuestionIndex = index;
             const question = advancedQuestions[index];
             
-            // 更新标题和提示
-            advancedQuestionTitle.textContent = question.title;
+            document.getElementById('advanced-question-title').textContent = question.title;
+            document.getElementById('advanced-question-hint').textContent = question.hint;
             
-            if (question.hint) {
-                advancedQuestionHint.textContent = question.hint;
-                advancedQuestionHint.style.display = 'block';
-            } else {
-                advancedQuestionHint.style.display = 'none';
-            }
+            const optionsContainer = document.getElementById('advanced-options-container');
+            optionsContainer.innerHTML = '';
             
-            // 清空选项容器
-            advancedOptionsContainer.innerHTML = '';
-            
-            // 生成选项
             question.options.forEach((option, optionIndex) => {
                 const optionElement = document.createElement('div');
                 optionElement.className = 'option';
@@ -154,11 +134,7 @@
                 
                 optionElement.innerHTML = `
                     <div class="option-content">
-                        <div class="option-label">${option.id}</div>
-                        <div class="option-text">${option.text}</div>
-                    </div>
-                    <div class="option-check">
-                        <i class="fas fa-check"></i>
+                        <div class="option-text">${option}</div>
                     </div>
                 `;
                 
@@ -166,38 +142,34 @@
                     selectAdvancedOption(index, optionIndex);
                 });
                 
-                advancedOptionsContainer.appendChild(optionElement);
+                optionsContainer.appendChild(optionElement);
             });
             
-            // 更新进度
             updateAdvancedProgress();
             updateAdvancedButtonStates();
         }
 
         // 选择选项
         function selectAdvancedOption(questionIndex, optionIndex) {
-            // 移除之前的选择
-            const previousSelected = advancedOptionsContainer.querySelector('.option.selected');
-            if (previousSelected) {
-                previousSelected.classList.remove('selected');
-            }
-            
-            // 标记当前选择
-            const currentOption = advancedOptionsContainer.children[optionIndex];
-            currentOption.classList.add('selected');
-            
-            // 保存答案
             advancedUserAnswers[questionIndex] = optionIndex;
             
-            // 启用下一题按钮
-            advancedNextBtn.disabled = false;
+            // 更新UI
+            const options = document.querySelectorAll('#advanced-options-container .option');
+            options.forEach((option, idx) => {
+                if (idx === optionIndex) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+            
+            updateAdvancedButtonStates();
         }
 
         // 显示上一题
         function showPreviousAdvancedQuestion() {
             if (currentAdvancedQuestionIndex > 0) {
-                currentAdvancedQuestionIndex--;
-                showAdvancedQuestion(currentAdvancedQuestionIndex);
+                showAdvancedQuestion(currentAdvancedQuestionIndex - 1);
             }
         }
 
@@ -207,50 +179,52 @@
                 currentAdvancedQuestionIndex++;
                 showAdvancedQuestion(currentAdvancedQuestionIndex);
             } else {
-                // 所有问题已回答，跳转到照片上传页
+                // 🎯 最后一题：生成第二层testId
                 if (advancedUserAnswers.every(answer => answer !== null)) {
-                    // 🎯 生成第二层testId
-                try {
-                    // 收集所有进阶答案
-                    const advancedAnswers = {};
-                    advancedUserAnswers.forEach((answer, index) => {
-                        advancedAnswers['AQ' + (index + 1)] = answer;
-                    });
-                    
-                    // 获取基础答案（从第一层）
-                    let basicAnswers = {};
                     try {
-                        const basicData = localStorage.getItem('laa_basic_answers');
-                        if (basicData) {
-                            basicAnswers = JSON.parse(basicData);
+                        // 收集所有进阶答案
+                        const advancedAnswers = {};
+                        advancedUserAnswers.forEach((answerIndex, index) => {
+                            advancedAnswers['AQ' + (index + 1)] = advancedQuestions[index].options[answerIndex];
+                        });
+                        
+                        // 获取基础答案（从第一层）
+                        let basicAnswers = {};
+                        try {
+                            const basicData = localStorage.getItem('laa_basic_answers');
+                            if (basicData) {
+                                basicAnswers = JSON.parse(basicData);
+                            }
+                        } catch (e) {
+                            console.warn('无法获取基础答案:', e);
                         }
-                    } catch (e) {
-                        console.warn('无法获取基础答案:', e);
+                        
+                        // 生成第二层testId
+                        if (window.generateSecondLayerTestId) {
+                            const testId = window.generateSecondLayerTestId(basicAnswers, advancedAnswers);
+                            
+                            // 保存到localStorage
+                            localStorage.setItem('current_second_layer_test_id', testId);
+                            localStorage.setItem('current_test_id', testId);
+                            
+                            console.log('✅ 第二层testId已生成:', testId);
+                            console.log('基础答案数量:', Object.keys(basicAnswers).length);
+                            console.log('进阶答案数量:', Object.keys(advancedAnswers).length);
+                            
+                            // 显示提示
+                            alert('🎯 第二层评估完成！\n\n您的测试编号：' + testId + '\n\n请继续上传照片完成评估。');
+                            
+                            // 跳转到照片上传页
+                            window.location.href = 'advanced-photo.html?testId=' + encodeURIComponent(testId);
+                            
+                        } else {
+                            console.warn('generateSecondLayerTestId函数未加载');
+                            alert('系统错误：无法生成测试编号，请刷新页面重试。');
+                        }
+                    } catch (error) {
+                        console.error('生成第二层testId失败:', error);
+                        alert('生成测试编号失败：' + error.message);
                     }
-                    
-                    // 生成第二层testId
-                    if (window.generateSecondLayerTestId) {
-                        const testId = window.generateSecondLayerTestId(basicAnswers, advancedAnswers);
-                        
-                        // 保存到localStorage
-                        localStorage.setItem('current_second_layer_test_id', testId);
-                        localStorage.setItem('current_test_id', testId);
-                        
-                        console.log('✅ 第二层testId已生成:', testId);
-                        console.log('基础答案数量:', Object.keys(basicAnswers).length);
-                        console.log('进阶答案数量:', Object.keys(advancedAnswers).length);
-                        
-                        // 显示提示
-                        alert('🎯 第二层评估完成！\n\n您的测试编号：' + testId + '\n\n请继续上传照片完成评估。');
-                    } else {
-                        console.warn('generateSecondLayerTestId函数未加载');
-                    }
-                } catch (error) {
-                    console.error('生成第二层testId失败:', error);
-                }
-                
-                // 跳转到照片上传页
-                window.location.href = 'advanced-photo.html';
                 } else {
                     alert('请先完成所有问题');
                 }
@@ -259,7 +233,12 @@
 
         // 更新进度
         function updateAdvancedProgress() {
-            const progress = ((currentAdvancedQuestionIndex + 1) / advancedQuestions.length) * 100;
+            const answeredCount = advancedUserAnswers.filter(answer => answer !== null).length;
+            const progress = (answeredCount / advancedQuestions.length) * 100;
+            
+            const advancedProgressFill = document.getElementById('advanced-progress-fill');
+            const advancedProgressText = document.getElementById('advanced-progress-text');
+            
             advancedProgressFill.style.width = `${progress}%`;
             advancedProgressText.textContent = `${currentAdvancedQuestionIndex + 1}/${advancedQuestions.length}`;
         }
@@ -267,9 +246,11 @@
         // 更新按钮状态
         function updateAdvancedButtonStates() {
             // 上一题按钮
+            const advancedPrevBtn = document.getElementById('advanced-prev-btn');
             advancedPrevBtn.disabled = currentAdvancedQuestionIndex === 0;
             
             // 下一题按钮
+            const advancedNextBtn = document.getElementById('advanced-next-btn');
             const hasAnswer = advancedUserAnswers[currentAdvancedQuestionIndex] !== null;
             const isLastQuestion = currentAdvancedQuestionIndex === advancedQuestions.length - 1;
             
@@ -286,11 +267,11 @@
         document.addEventListener('keydown', (e) => {
             switch(e.key) {
                 case 'ArrowLeft':
-                    if (!advancedPrevBtn.disabled) showPreviousAdvancedQuestion();
+                    if (!document.getElementById('advanced-prev-btn').disabled) showPreviousAdvancedQuestion();
                     break;
                 case 'ArrowRight':
                 case 'Enter':
-                    if (!advancedNextBtn.disabled) showNextAdvancedQuestion();
+                    if (!document.getElementById('advanced-next-btn').disabled) showNextAdvancedQuestion();
                     break;
                 case '1':
                 case '2':

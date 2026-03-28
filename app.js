@@ -309,46 +309,11 @@ function showAdvancedAssessment() {
     }
 }
 
-// 生成基础测试编号（基于答案）
+// 生成基础测试编号（已弃用 - testId现在在第二层生成）
+// 保留函数是为了兼容性，但不再使用
 function generateBasicTestId() {
-    try {
-        // 尝试从答案生成测试编号
-        if (window.AnswerHash) {
-            const answers = window.AnswerHash.getBasicAnswers();
-            if (Object.keys(answers).length > 0) {
-                const testId = window.AnswerHash.generateTestIdFromAnswers(answers);
-                if (testId) {
-                    console.log('基于答案生成测试编号:', testId);
-                    return testId;
-                }
-            }
-        }
-        
-        // 如果无法从答案生成，使用旧逻辑
-        console.warn('无法从答案生成测试编号，使用顺序编号');
-        let lastId = localStorage.getItem('last_basic_test_id');
-        if (!lastId) {
-            lastId = '24000'; // 起始编号
-        }
-        
-        const newIdNum = parseInt(lastId) + 1;
-        const newId = 'LAA' + newIdNum;
-        
-        localStorage.setItem('last_basic_test_id', newIdNum.toString());
-        
-        return newId;
-    } catch (error) {
-        console.error('生成测试编号错误:', error);
-        
-        // 错误恢复：使用简单编号
-        let lastId = localStorage.getItem('last_basic_test_id') || '24000';
-        const newIdNum = parseInt(lastId) + 1;
-        const newId = 'LAA' + newIdNum;
-        
-        localStorage.setItem('last_basic_test_id', newIdNum.toString());
-        
-        return newId;
-    }
+    console.warn('⚠️ generateBasicTestId已弃用：testId现在在第二层生成');
+    return 'DEPRECATED';
 }
 
 // 直接跳转到淘宝
