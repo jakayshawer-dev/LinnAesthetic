@@ -1,326 +1,134 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>LAA 进阶评估</title>
- <style>
- * { margin: 0; padding: 0; box-sizing: border-box; }
- body {
- font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
- background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
- min-height: 100vh;
- padding: 20px;
- }
- .container { max-width: 600px; margin: 0 auto; }
- .header { text-align: center; color: white; margin-bottom: 30px; }
- .header h1 { font-size: 24px; margin-bottom: 10px; }
- .progress-bar {
- background: rgba(255,255,255,0.2);
- height: 8px; border-radius: 4px;
- margin-bottom: 30px; overflow: hidden;
- }
- .progress-fill { background: white; height: 100%; width: 25%; border-radius: 4px; transition: width 0.3s ease; }
- .question-card {
- background: white; border-radius: 16px;
- padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
- }
- .question-number { color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 10px; }
- .question-title { font-size: 20px; color: #333; margin-bottom: 15px; line-height: 1.5; }
- .question-subtitle { color: #666; font-size: 14px; margin-bottom: 25px; line-height: 1.6; }
- .options { display: flex; flex-direction: column; gap: 12px; }
- .option {
- display: flex; align-items: center;
- padding: 16px 20px; border: 2px solid #e0e0e0;
- border-radius: 12px; cursor: pointer;
- transition: all 0.2s ease; background: white;
- }
- .option:hover { border-color: #667eea; background: #f8f9ff; }
- .option.selected { border-color: #667eea; background: #f0f2ff; }
- .option-indicator {
- width: 28px; height: 28px; border: 2px solid #ddd;
- border-radius: 50%; display: flex; align-items: center; justify-content: center;
- margin-right: 15px; font-weight: 600; color: #666; font-size: 14px; flex-shrink: 0;
- }
- .option.selected .option-indicator { background: #667eea; border-color: #667eea; color: white; }
- .option-text { flex: 1; font-size: 15px; color: #333; line-height: 1.5; }
- .option.selected .option-text { color: #667eea; font-weight: 500; }
- .nav-buttons { display: flex; justify-content: space-between; margin-top: 30px; }
- .btn {
- padding: 14px 30px; border: none; border-radius: 10px;
- font-size: 15px; cursor: pointer; transition: all 0.2s ease; font-weight: 500;
- }
- .btn-secondary { background: #f0f0f0; color: #666; }
- .btn-secondary:hover { background: #e0e0e0; }
- .btn-primary {
- background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
- color: white;
- }
- .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
- .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
- .hidden { display: none !important; }
- </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>LAA · 进阶评估</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #f5f7fb;
+      color: #1f2937;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                   "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    }
+    body { min-height: 100vh; }
+    .page { width: 100%; max-width: 520px; margin: 0 auto; padding: 16px 16px 28px; }
+    .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .ghost-btn, .primary-btn { appearance: none; border: none; border-radius: 14px; min-height: 46px; padding: 0 16px; font-size: 15px; cursor: pointer; }
+    .ghost-btn { background: #fff; color: #374151; border: 1px solid #dbe3ef; flex: 0 0 auto; }
+    .ghost-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .progress-area { flex: 1; }
+    .progress-text { font-size: 13px; color: #6b7280; margin-bottom: 6px; }
+    .progress-bar { width: 100%; height: 8px; border-radius: 999px; background: #e5e7eb; overflow: hidden; }
+    .progress-fill { height: 100%; width: 25%; background: linear-gradient(90deg, #4f46e5, #3b82f6); transition: width 0.2s ease; }
+    .card { background: #fff; border-radius: 20px; padding: 20px 16px 18px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); }
+    .eyebrow { font-size: 12px; color: #6366f1; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 10px; }
+    .title { font-size: 22px; line-height: 1.4; margin: 0 0 10px; font-weight: 700; color: #111827; }
+    .desc { margin: 0 0 18px; font-size: 14px; line-height: 1.75; color: #6b7280; }
+    .tip { margin: 0 0 18px; padding: 10px 12px; background: #eef2ff; color: #4338ca; border-radius: 12px; font-size: 13px; line-height: 1.6; }
+    .options { display: grid; gap: 12px; }
+    .option-btn { width: 100%; text-align: left; background: #fff; border: 1.5px solid #dbe3ef; border-radius: 16px; padding: 14px 14px; cursor: pointer; transition: all 0.18s ease; display: flex; align-items: flex-start; gap: 12px; }
+    .option-btn:hover { border-color: #a5b4fc; transform: translateY(-1px); }
+    .option-btn.selected { border-color: #4f46e5; background: #eef2ff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08); }
+    .option-badge { flex: 0 0 28px; width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center; font-size: 13px; font-weight: 700; background: #f3f4f6; color: #374151; margin-top: 1px; }
+    .option-btn.selected .option-badge { background: #4f46e5; color: #fff; }
+    .option-text { font-size: 15px; line-height: 1.7; color: #111827; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .primary-btn { background: #4f46e5; color: #fff; font-weight: 600; }
+    .primary-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .footer-note { text-align: center; color: #9ca3af; font-size: 12px; margin-top: 14px; line-height: 1.6; }
+  </style>
 </head>
 <body>
- <div class="container">
- <div class="header">
- <h1>LAA · 进阶评估</h1>
- <p>补充4个问题，让评估更准确</p>
- </div>
- <div class="progress-bar">
- <div class="progress-fill" id="progress-fill"></div>
- </div>
- <div class="question-card">
- <div class="question-number" id="question-number">问题 1/4</div>
- <h2 class="question-title" id="question-title">加载中...</h2>
- <p class="question-subtitle" id="question-subtitle"></p>
- <div class="options" id="options-container"></div>
- <div class="nav-buttons">
- <button class="btn btn-secondary" id="prev-btn" style="visibility: hidden;">上一题</button>
- <button class="btn btn-primary" id="next-btn" disabled>下一题</button>
- </div>
- </div>
- </div>
- <script>
- const advancedQuestions = [
- {
- id: 'Q1',
- title: '你最明显感觉左右不对称，是在什么情况下更容易看到？',
- subtitle: '选择最符合你日常观察的情况',
- options: [
- { text: 'A. 静态拍照时更明显', value: 'A' },
- { text: 'B. 微笑或说话时更明显', value: 'B' },
- { text: 'C. 咀嚼或用力时更明显', value: 'C' },
- { text: 'D. 每天看起来不太一样，不太稳定', value: 'D' }
- ]
- },
- {
- id: 'Q2',
- title: '你平时最明显、持续时间最长的一种偏侧使用习惯是？',
- subtitle: '选择你最明显、最长期的习惯',
- options: [
- { text: 'A. 单侧咀嚼（吃东西总用一边）', value: 'A' },
- { text: 'B. 固定侧睡（总睡同一侧）', value: 'B' },
- { text: 'C. 托腮或歪头（总用同一只手托腮或头歪向一边）', value: 'C' },
- { text: 'D. 没有明显偏侧习惯', value: 'D' }
- ]
- },
- {
- id: 'Q3',
- title: '你觉得哪一侧的「控制感」更差？',
- subtitle: '比如微笑时启动慢、鼓气容易漏、闭眼不够全等',
- options: [
- { text: 'A. 左侧控制更差', value: 'A' },
- { text: 'B. 右侧控制更差', value: 'B' },
- { text: 'C. 两侧差不多，没有明显控制差异', value: 'C' },
- { text: 'D. 不确定或没注意过', value: 'D' }
- ]
- },
- {
- id: 'Q4',
- title: '你是否有以下情况？',
- subtitle: '可多选（最多2项）',
- options: [
- { text: 'A. 咬合不顺或下巴轨迹偏斜', value: 'A' },
- { text: 'B. 颈部一侧总更紧或活动受限', value: 'B' },
- { text: 'C. 肩膀一高一低或头总歪向一边', value: 'C' },
- { text: 'D. 以上都没有', value: 'D' }
- ]
- }
- ];
+  <div class="page">
+    <div class="topbar">
+      <button id="prevBtnTop" class="ghost-btn" type="button">上一题</button>
+      <div class="progress-area">
+        <div id="progressText" class="progress-text">问题 1/4</div>
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+      </div>
+    </div>
 
- // 应用状态
- let currentQuestionIndex = 0;
- let userAnswers = new Array(advancedQuestions.length).fill(null);
- 
- // DOM元素
- const questionNumberEl = document.getElementById('question-number');
- const questionTitleEl = document.getElementById('question-title');
- const questionSubtitleEl = document.getElementById('question-subtitle');
- const optionsContainer = document.getElementById('options-container');
- const prevBtn = document.getElementById('prev-btn');
- const nextBtn = document.getElementById('next-btn');
- const progressFill = document.getElementById('progress-fill');
- 
- // 🚨 关键修复：防止页面点击跳转
- document.addEventListener('click', function(e) {
- // 如果点击的不是选项、按钮或链接，阻止默认行为
- const isOption = e.target.closest('.option');
- const isButton = e.target.closest('button');
- const isLink = e.target.closest('a');
- 
- if (!isOption && !isButton && !isLink) {
- console.log('阻止页面点击跳转');
- e.preventDefault();
- e.stopPropagation();
- }
- }, true); // 使用捕获阶段
- 
- // 🚨 关键修复：防止触摸事件导致跳转
- document.addEventListener('touchstart', function(e) {
- const isOption = e.target.closest('.option');
- const isButton = e.target.closest('button');
- const isLink = e.target.closest('a');
- 
- if (!isOption && !isButton && !isLink) {
- console.log('阻止触摸事件跳转');
- e.preventDefault();
- e.stopPropagation();
- }
- }, { passive: false, capture: true });
- 
- // 初始化
- function init() {
- console.log('第二层测试初始化');
- showQuestion(0);
- }
- 
- // 显示题目
- function showQuestion(index) {
- if (index < 0 || index >= advancedQuestions.length) return;
- 
- currentQuestionIndex = index;
- const question = advancedQuestions[index];
- 
- // 更新进度
- const progressPercent = ((index + 1) / advancedQuestions.length) * 100;
- progressFill.style.width = `${progressPercent}%`;
- questionNumberEl.textContent = `问题 ${index + 1}/4`;
- questionTitleEl.textContent = question.title;
- questionSubtitleEl.textContent = question.subtitle || '';
- 
- // 清空选项
- optionsContainer.innerHTML = '';
- 
- // 创建选项
- question.options.forEach((option, optionIndex) => {
- const optionEl = document.createElement('div');
- optionEl.className = 'option';
- if (userAnswers[index] === option.value) {
- optionEl.classList.add('selected');
- }
- 
- optionEl.innerHTML = `
- <div class="option-indicator">${String.fromCharCode(65 + optionIndex)}</div>
- <div class="option-text">${option.text}</div>
- `;
- 
- // 🚨 关键修复：添加点击事件，阻止事件冒泡
- optionEl.addEventListener('click', function(e) {
- e.stopPropagation(); // 阻止事件冒泡
- selectOption(index, option.value, optionEl);
- });
- 
- optionsContainer.appendChild(optionEl);
- });
- 
- // 更新按钮状态
- updateButtonStates();
- }
- 
- // 选择选项
- function selectOption(questionIndex, value, optionElement) {
- console.log(`选择第 ${questionIndex + 1} 题选项: ${value}`);
- 
- userAnswers[questionIndex] = value;
- 
- // 更新UI - 移除其他选项的选中状态
- const allOptions = optionsContainer.querySelectorAll('.option');
- allOptions.forEach(opt => {
- opt.classList.remove('selected');
- });
- 
- // 高亮选中的选项
- optionElement.classList.add('selected');
- 
- // 启用下一题按钮
- updateButtonStates();
- }
- 
- // 更新按钮状态
- function updateButtonStates() {
- // 上一题按钮
- prevBtn.style.visibility = currentQuestionIndex === 0 ? 'hidden' : 'visible';
- 
- // 下一题按钮
- const hasAnswer = userAnswers[currentQuestionIndex] !== null;
- const isLastQuestion = currentQuestionIndex === advancedQuestions.length - 1;
- 
- if (isLastQuestion) {
- nextBtn.textContent = hasAnswer ? '完成评估' : '请先选择答案';
- nextBtn.disabled = !hasAnswer;
- } else {
- nextBtn.textContent = '下一题';
- nextBtn.disabled = !hasAnswer;
- }
- }
- 
- // 上一题
- prevBtn.addEventListener('click', function() {
- if (currentQuestionIndex > 0) {
- showQuestion(currentQuestionIndex - 1);
- }
- });
- 
- // 下一题/完成
- nextBtn.addEventListener('click', function() {
- if (!userAnswers[currentQuestionIndex]) {
- alert('请先选择一个答案');
- return;
- }
- 
- if (currentQuestionIndex < advancedQuestions.length - 1) {
- showQuestion(currentQuestionIndex + 1);
- } else {
- completeAssessment();
- }
- });
- 
- // 完成评估
- function completeAssessment() {
- console.log('完成第二层评估，答案:', userAnswers);
- 
- // 保存答案到localStorage
- try {
- localStorage.setItem('laa_advanced_answers', JSON.stringify(userAnswers));
- console.log('第二层答案已保存');
- 
- // 跳转到解锁页面
- window.location.href = 'advanced-unlock.html';
- } catch (error) {
- console.error('保存答案失败:', error);
- alert('保存失败，请重试');
- }
- }
- 
- // 键盘支持
- document.addEventListener('keydown', function(e) {
- if (e.key === 'ArrowLeft' && currentQuestionIndex > 0) {
- showQuestion(currentQuestionIndex - 1);
- } else if (e.key === 'ArrowRight' || e.key === 'Enter') {
- if (nextBtn.disabled) {
- alert('请先选择一个答案');
- } else {
- nextBtn.click();
- }
- } else if (e.key >= '1' && e.key <= '4') {
- const optionIndex = parseInt(e.key) - 1;
- const options = optionsContainer.querySelectorAll('.option');
- if (optionIndex < options.length) {
- options[optionIndex].click();
- }
- }
- });
- 
- // 页面加载完成后初始化
- document.addEventListener('DOMContentLoaded', init);
- 
- // 调试功能
- window.debugAdvanced = function() {
- console.log('第二层状态:');
- console.log('当前问题:', currentQuestionIndex + 1);
- console.log('答案:', userAnswers);
- };
- </script>
+    <div class="card">
+      <div class="eyebrow">LAA · 进阶评估</div>
+      <h1 id="questionTitle" class="title"></h1>
+      <p id="questionDesc" class="desc"></p>
+      <p class="tip">点击选项只会选中，不会自动跳题。请点击"下一题"继续。</p>
+      <div id="options" class="options"></div>
+    </div>
+
+    <div class="actions">
+      <button id="prevBtnBottom" class="ghost-btn" type="button">上一题</button>
+      <button id="nextBtn" class="primary-btn" type="button" disabled>下一题</button>
+    </div>
+
+    <div class="footer-note">
+      补充这 4 个问题只用于进一步细化判断，不会推翻第一层免费初筛结论。
+    </div>
+  </div>
+
+  <script>
+    const NEXT_PAGE = 'advanced-unlock.html';
+    const STORAGE_KEY = 'laa_advanced_answers_v1';
+
+    const QUESTIONS = [
+      { id: 'Q1', title: '你最明显感觉左右不对称，是在什么情况下更容易看到？', desc: '这一题用来判断你的问题更偏静态、动态、发力，还是波动不稳。', options: [ { label: 'A', text: '静态拍照时更明显', value: 'static_photo' }, { label: 'B', text: '微笑或说话时更明显', value: 'smile_or_talk' }, { label: 'C', text: '咀嚼或用力时更明显', value: 'chew_or_force' }, { label: 'D', text: '每天看起来不太一样，不太稳定', value: 'unstable_day_to_day' } ] },
+      { id: 'Q2', title: '你平时最明显、持续时间最长的一种偏侧使用习惯是？', desc: '这一题用来判断更可能参与的是单侧咀嚼、单侧支撑，还是表情发力偏侧。', options: [ { label: 'A', text: '单侧咀嚼比较明显', value: 'one_side_chew' }, { label: 'B', text: '单侧托脸、侧睡或偏向一侧支撑比较明显', value: 'one_side_support' }, { label: 'C', text: '某一侧表情或发力更常用', value: 'one_side_expression' }, { label: 'D', text: '没有明显感觉，或不确定', value: 'uncertain' } ] },
+      { id: 'Q3', title: '你的不对称感受，更接近下面哪一种？', desc: '这一题用来判断你的表现更偏长期稳定、近期加重、左右波动，还是动态放大。', options: [ { label: 'A', text: '长期都比较稳定，位置和感觉差不多', value: 'stable_long_term' }, { label: 'B', text: '最近越来越明显', value: 'getting_worse_recently' }, { label: 'C', text: '有时觉得左边明显，有时又觉得右边明显', value: 'left_right_fluctuate' }, { label: 'D', text: '静态还好，但一动起来就更明显', value: 'dynamic_amplified' } ] },
+      { id: 'Q4', title: '你现在最想优先弄清楚的是哪一类问题？', desc: '这一题主要用来调整后续结果页的重心和解释顺序，不会强行改变你的分类。', options: [ { label: 'A', text: '为什么一边脸看起来更大', value: 'why_bigger' }, { label: 'B', text: '为什么笑起来或说话时更不对称', value: 'why_dynamic_asymmetry' }, { label: 'C', text: '为什么我总分不清到底是哪边有问题', value: 'why_cannot_tell_side' }, { label: 'D', text: '我更想先知道问题主次和处理顺序', value: 'priority_and_order' }, { label: 'E', text: '以上都有，但我更想先理清整体逻辑', value: 'overall_logic' } ] }
+    ];
+
+    let currentIndex = 0;
+    let answers = loadAnswers();
+
+    const progressText = document.getElementById('progressText');
+    const progressFill = document.getElementById('progressFill');
+    const questionTitle = document.getElementById('questionTitle');
+    const questionDesc = document.getElementById('questionDesc');
+    const optionsWrap = document.getElementById('options');
+    const prevBtnTop = document.getElementById('prevBtnTop');
+    const prevBtnBottom = document.getElementById('prevBtnBottom');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function loadAnswers() { try { const raw = localStorage.getItem(STORAGE_KEY); if (!raw) return {}; const parsed = JSON.parse(raw); return typeof parsed === 'object' && parsed ? parsed : {}; } catch (e) { console.warn('读取第二层答案失败，已重置。', e); return {}; } }
+    function saveAnswers() { localStorage.setItem(STORAGE_KEY, JSON.stringify(answers)); }
+
+    function render() {
+      const q = QUESTIONS[currentIndex];
+      const selectedValue = answers[q.id]?.value || null;
+      progressText.textContent = `问题 ${currentIndex + 1}/${QUESTIONS.length}`;
+      progressFill.style.width = `${((currentIndex + 1) / QUESTIONS.length) * 100}%`;
+      questionTitle.textContent = q.title;
+      questionDesc.textContent = q.desc;
+      optionsWrap.innerHTML = '';
+      q.options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn';
+        if (selectedValue === opt.value) btn.classList.add('selected');
+        btn.innerHTML = `<span class="option-badge">${opt.label}</span><span class="option-text">${opt.text}</span>`;
+        btn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); answers[q.id] = { questionId: q.id, questionTitle: q.title, label: opt.label, text: opt.text, value: opt.value }; saveAnswers(); render(); });
+        optionsWrap.appendChild(btn);
+      });
+      const hasAnswer = !!answers[q.id];
+      prevBtnTop.disabled = currentIndex === 0;
+      prevBtnBottom.disabled = currentIndex === 0;
+      nextBtn.disabled = !hasAnswer;
+      nextBtn.textContent = currentIndex === QUESTIONS.length - 1 ? '完成并进入下一步' : '下一题';
+    }
+
+    function goPrev() { if (currentIndex === 0) return; currentIndex -= 1; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function goNext() { const q = QUESTIONS[currentIndex]; if (!answers[q.id]) { alert('请先选择一个答案'); return; } if (currentIndex < QUESTIONS.length - 1) { currentIndex += 1; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; } const payload = { version: 'second-layer-v1', completedAt: new Date().toISOString(), answers, answerOrder: QUESTIONS.map(q => answers[q.id] || null) }; localStorage.setItem('laa_second_layer_payload', JSON.stringify(payload)); window.location.href = NEXT_PAGE; }
+
+    prevBtnTop.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); goPrev(); });
+    prevBtnBottom.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); goPrev(); });
+    nextBtn.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); goNext(); });
+    render();
+  </script>
 </body>
 </html>
