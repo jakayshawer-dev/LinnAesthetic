@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试：开始测试按钮问题</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+        pre { background: #333; color: #fff; padding: 15px; border-radius: 4px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>调试：开始测试按钮问题</h1>
+    
+    <div>
+        <h2>问题：点击"开始测试"按钮没有跳转</h2>
+        <p>可能的原因：</p>
+        <ol>
+            <li>JS文件加载失败</li>
+            <li>按钮事件绑定失败</li>
+            <li>showPage函数有问题</li>
+            <li>页面元素不存在</li>
+        </ol>
+    </div>
+    
+    <div>
+        <h2>测试1：检查JS文件加载</h2>
+        <button onclick="checkJSFiles()">检查JS文件</button>
+        <div id="js-status"></div>
+    </div>
+    
+    <div>
+        <h2>测试2：检查按钮和页面元素</h2>
+        <button onclick="checkElements()">检查元素</button>
+        <div id="element-status"></div>
+    </div>
+    
+    <div>
+        <h2>测试3：模拟按钮点击</h2>
+        <button onclick="simulateButtonClick()">模拟点击</button>
+        <div id="click-status"></div>
+    </div>
+    
+    <div>
+        <h2>测试4：检查控制台错误</h2>
+        <button onclick="checkConsole()">检查控制台</button>
+        <div id="console-status"></div>
+    </div>
+    
+    <script src="questions.js"></script>
+    <script src="scoring.js"></script>
+    <script src="results.js"></script>
+    <script src="js/answer-hash-generator.js"></script>
+    <script src="js/test-id.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        // 捕获控制台错误
+        const originalConsoleError = console.error;
+        const errors = [];
+        console.error = function(...args) {
+            errors.push(args.join(' '));
+            originalConsoleError.apply(console, args);
+        };
+        
+        // 测试1：检查JS文件加载
+        function checkJSFiles() {
+            const status = document.getElementById('js-status');
+            let html = '<h3>JS文件加载状态：</h3>';
+            
+            const files = [
+                { name: 'questions.js', check: () => typeof questions !== 'undefined' },
+                { name: 'scoring.js', check: () => typeof calculateScores !== 'undefined' },
+                { name: 'results.js', check: () => typeof calculateResults !== 'undefined' },
+                { name: 'app.js', check: () => typeof startTest !== 'undefined' },
+                { name: 'startTest函数', check: () => typeof startTest === 'function' },
+                { name: 'showPage函数', check: () => typeof showPage === 'function' }
+            ];
+            
+            files.forEach(file => {
+                const exists = file.check();
+                if (exists) {
+                    html += `<p class="success">✅ ${file.name}</p>`;
+                } else {
+                    html += `<p class="error">❌ ${file.name}</p>`;
+                }
+            });
+            
+            status.innerHTML = html;
+        }
+        
+        // 测试2：检查按钮和页面元素
+        function checkElements() {
+            const status = document.getElementById('element-status');
+            let html = '<h3>页面元素状态：</h3>';
+            
+            const elements = [
+                { id: 'start-btn', desc: '开始测试按钮' },
+                { id: 'home-page', desc: '首页' },
+                { id: 'question-page', desc: '题目页' },
+                { id: 'result-page', desc: '结果页' }
+            ];
+            
+            elements.forEach(element => {
+                const el = document.getElementById(element.id);
+                if (el) {
+                    html += `<p class="success">✅ ${element.desc} (id="${element.id}") 存在</p>`;
+                    
+                    // 检查样式
+                    if (element.id.includes('page')) {
+                        const display = window.getComputedStyle(el).display;
+                        html += `<p>显示状态: ${display}</p>`;
+                    }
+                } else {
+                    html += `<p class="error">❌ ${element.desc} (id="${element.id}") 不存在</p>`;
+                }
+            });
+            
+            // 检查按钮事件
+            const startBtn = document.getElementById('start-btn');
+            if (startBtn) {
+                const hasClickHandler = startBtn.onclick || 
+                    (startBtn._listeners && startBtn._listeners.click) ||
+                    (startBtn.addEventListener && startBtn.removeEventListener);
+                
+                html += `<p>按钮点击事件: ${hasClickHandler ? '✅ 已绑定' : '❌ 未绑定'}</p>`;
+            }
+            
+            status.innerHTML = html;
+        }
+        
+        // 测试3：模拟按钮点击
+        function simulateButtonClick() {
+            const status = document.getElementById('click-status');
+            status.innerHTML = '<h3>模拟按钮点击：</h3>';
+            
+            try {
+                // 检查startTest函数
+                if (typeof startTest !== 'function') {
+                    status.innerHTML += '<p class="error">❌ startTest函数不存在</p>';
+                    return;
+                }
+                
+                status.innerHTML += '<p class="success">✅ startTest函数存在</p>';
+                
+                // 检查showPage函数
+                if (typeof showPage !== 'function') {
+                    status.innerHTML += '<p class="error">❌ showPage函数不存在</p>';
+                    return;
+                }
+                
+                status.innerHTML += '<p class="success">✅ showPage函数存在</p>';
+                
+                // 模拟点击
+                status.innerHTML += '<p>执行startTest()函数...</p>';
+                
+                // 保存原始showPage函数
+                const originalShowPage = window.showPage;
+                let pageCalled = null;
+                
+                // 重写showPage来捕获调用
+                window.showPage = function(pageName) {
+                    pageCalled = pageName;
+                    status.innerHTML += `<p class="success">✅ showPage被调用，参数: "${pageName}"</p>`;
+                    
+                    // 恢复原始函数
+                    window.showPage = originalShowPage;
+                    
+                    // 模拟页面切换
+                    if (pageName === 'question') {
+                        status.innerHTML += '<p class="success">✅ 应该跳转到题目页</p>';
+                    }
+                };
+                
+                // 执行startTest
+                startTest();
+                
+                // 如果没有调用showPage，可能是其他问题
+                setTimeout(() => {
+                    if (!pageCalled) {
+                        status.innerHTML += '<p class="error">❌ startTest没有调用showPage</p>';
+                        
+                        // 检查是否有其他错误
+                        if (errors.length > 0) {
+                            status.innerHTML += '<p>控制台错误：</p>';
+                            errors.forEach(error => {
+                                status.innerHTML += `<p class="error">${error}</p>`;
+                            });
+                        }
+                    }
+                }, 100);
+                
+            } catch (error) {
+                status.innerHTML += `<p class="error">❌ 执行错误: ${error.message}</p>`;
+                status.innerHTML += `<pre>${error.stack}</pre>`;
+            }
+        }
+        
+        // 测试4：检查控制台错误
+        function checkConsole() {
+            const status = document.getElementById('console-status');
+            
+            if (errors.length > 0) {
+                status.innerHTML = '<h3>控制台错误：</h3>';
+                errors.forEach(error => {
+                    status.innerHTML += `<p class="error">${error}</p>`;
+                });
+            } else {
+                status.innerHTML = '<p class="success">✅ 没有控制台错误</p>';
+            }
+        }
+        
+        // 页面加载完成后自动检查
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('调试页面已加载');
+            
+            // 自动检查基本问题
+            setTimeout(() => {
+                checkJSFiles();
+                checkElements();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

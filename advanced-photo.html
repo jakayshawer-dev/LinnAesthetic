@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA 进阶评估 - 上传正面照</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 正面照上传页 -->
+        <div id="advanced-photo-page" class="page active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-camera"></i>
+                </div>
+                
+                <h1 class="main-title">上传自然正面照</h1>
+                <p class="subtitle">请上传 1 张自然正面照，用于辅助观察左右静态轮廓与表面表现</p>
+                
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="info-content">
+                        <p>照片仅作为评估参考，最终结果仍会结合你的答题信息综合判断。</p>
+                        <p class="info-highlight">照片越自然，结果越有参考价值。</p>
+                    </div>
+                </div>
+                
+                <!-- 拍照参考模板 -->
+                <div class="photo-reference">
+                    <h3><i class="fas fa-image"></i> 正面拍照参考模版</h3>
+                    <p class="reference-desc">请参考下图拍摄 1 张自然正面照。<br>保持头位自然放正，双眼平视镜头，表情放松，不要刻意微笑或做表情。</p>
+                    
+                    <!-- 正面拍照参考示意图 -->
+                    <div class="reference-image">
+                        <div class="photo-guide-diagram">
+                            <!-- 头部示意图 -->
+                            <div class="head-diagram">
+                                <div class="face-outline">
+                                    <!-- 面部轮廓 -->
+                                    <div class="face-shape"></div>
+                                    
+                                    <!-- 眼睛 -->
+                                    <div class="eye left-eye"></div>
+                                    <div class="eye right-eye"></div>
+                                    
+                                    <!-- 鼻子 -->
+                                    <div class="nose"></div>
+                                    
+                                    <!-- 嘴巴 -->
+                                    <div class="mouth"></div>
+                                    
+                                    <!-- 中线参考 -->
+                                    <div class="center-line"></div>
+                                    
+                                    <!-- 水平线参考 -->
+                                    <div class="horizontal-line"></div>
+                                </div>
+                                
+                                <!-- 肩膀示意 -->
+                                <div class="shoulders">
+                                    <div class="shoulder left-shoulder"></div>
+                                    <div class="shoulder right-shoulder"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- 示意图说明 -->
+                            <div class="diagram-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color center-line"></div>
+                                    <span>面部中线 - 保持居中</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color horizontal-line"></div>
+                                    <span>水平线 - 双眼平视</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color shoulders"></div>
+                                    <span>双肩水平 - 自然放松</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p class="diagram-note"><i class="fas fa-info-circle"></i> 示意图仅供参考，实际拍照时保持自然放松即可</p>
+                    </div>
+                    
+                    <div class="photo-tips">
+                        <h4><i class="fas fa-camera"></i> 拍照要点：</h4>
+                        
+                        <div class="tip-cards">
+                            <div class="tip-card">
+                                <div class="tip-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="tip-content">
+                                    <h5>姿势与角度</h5>
+                                    <ul>
+                                        <li>正面面对镜头，不要侧身</li>
+                                        <li>头位自然放正，不歪头不抬下巴</li>
+                                        <li>双眼平视镜头，不要向上或向下看</li>
+                                        <li>双肩保持水平，自然放松</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="tip-card">
+                                <div class="tip-icon">
+                                    <i class="fas fa-smile"></i>
+                                </div>
+                                <div class="tip-content">
+                                    <h5>表情与光线</h5>
+                                    <ul>
+                                        <li>表情自然放松，不要刻意微笑</li>
+                                        <li>嘴巴自然闭合，不要用力</li>
+                                        <li>选择均匀的自然光或室内光</li>
+                                        <li>避免单侧强光或阴影过重</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="tip-card">
+                                <div class="tip-icon">
+                                    <i class="fas fa-ban"></i>
+                                </div>
+                                <div class="tip-content">
+                                    <h5>需要避免的</h5>
+                                    <ul>
+                                        <li>不使用美颜、滤镜或特效</li>
+                                        <li>不使用广角镜头自拍（会变形）</li>
+                                        <li>不戴帽子、眼镜等遮挡物</li>
+                                        <li>头发不遮挡面部轮廓</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="photo-distance-tip">
+                            <h5><i class="fas fa-ruler"></i> 拍摄距离建议</h5>
+                            <p>建议使用后置摄像头，让他人帮忙拍摄，或使用手机支架。</p>
+                            <p>拍摄距离约 1-1.5 米，确保面部在画面中央，露出完整头部和肩膀。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 照片上传区 -->
+                <div class="upload-section">
+                    <h3><i class="fas fa-cloud-upload-alt"></i> 上传照片</h3>
+                    
+                    <div class="upload-area" id="upload-area">
+                        <div class="upload-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <p class="upload-text">点击选择照片或拖拽到此处</p>
+                        <p class="upload-subtext">支持 JPG、PNG 格式，最大 5MB</p>
+                        <input type="file" id="photo-input" accept="image/*" style="display: none;">
+                    </div>
+                    
+                    <!-- 照片预览 -->
+                    <div class="photo-preview" id="photo-preview" style="display: none;">
+                        <div class="preview-container">
+                            <img id="preview-image" src="" alt="预览照片">
+                            <button class="remove-photo" id="remove-photo">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <p class="preview-text">已选择照片</p>
+                    </div>
+                    
+                    <div class="upload-note">
+                        <p><i class="fas fa-exclamation-circle"></i> 上传后照片仅用于本次评估分析，不会用于其他用途。</p>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="continue-btn" class="btn-primary" disabled>
+                        <i class="fas fa-arrow-right"></i> 继续下一步
+                    </button>
+                    <button id="back-to-questions-btn" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> 返回上一页
+                    </button>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA · 进阶评估
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const uploadArea = document.getElementById('upload-area');
+        const photoInput = document.getElementById('photo-input');
+        const photoPreview = document.getElementById('photo-preview');
+        const previewImage = document.getElementById('preview-image');
+        const removePhotoBtn = document.getElementById('remove-photo');
+        const continueBtn = document.getElementById('continue-btn');
+        const backToQuestionsBtn = document.getElementById('back-to-questions-btn');
+
+        // 初始化应用
+        function initPhotoApp() {
+            // 绑定事件
+            uploadArea.addEventListener('click', () => {
+                photoInput.click();
+            });
+            
+            photoInput.addEventListener('change', handlePhotoSelect);
+            removePhotoBtn.addEventListener('click', removePhoto);
+            continueBtn.addEventListener('click', goToPaymentPage);
+            backToQuestionsBtn.addEventListener('click', goBackToQuestions);
+            
+            // 拖拽上传支持
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '#e8f4fd';
+                uploadArea.style.borderColor = '#2196f3';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.background = '';
+                uploadArea.style.borderColor = '';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '';
+                uploadArea.style.borderColor = '';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type.startsWith('image/')) {
+                        handleFile(file);
+                    } else {
+                        alert('请选择图片文件（JPG、PNG格式）');
+                    }
+                }
+            });
+        }
+
+        // 处理照片选择
+        function handlePhotoSelect(e) {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                handleFile(file);
+            }
+        }
+
+        // 处理文件
+        function handleFile(file) {
+            // 检查文件大小（最大5MB）
+            if (file.size > 5 * 1024 * 1024) {
+                alert('文件大小不能超过5MB');
+                return;
+            }
+            
+            // 检查文件类型
+            if (!file.type.startsWith('image/')) {
+                alert('请选择图片文件（JPG、PNG格式）');
+                return;
+            }
+            
+            // 显示预览
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                photoPreview.style.display = 'block';
+                uploadArea.style.display = 'none';
+                continueBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 移除照片
+        function removePhoto() {
+            photoInput.value = '';
+            photoPreview.style.display = 'none';
+            uploadArea.style.display = 'block';
+            continueBtn.disabled = true;
+        }
+
+        // 跳转到付款页
+        function goToPaymentPage() {
+            // 跳转到结果解锁/淘宝支付页
+            window.location.href = 'payment-page.html';
+        }
+
+        // 返回上一页
+        function goBackToQuestions() {
+            window.history.back();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initPhotoApp);
+    </script>
+</body>
+</html>

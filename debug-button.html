@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>按钮跳转调试</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .test-section { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        pre { background: #333; color: #fff; padding: 15px; border-radius: 4px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>按钮跳转调试页面</h1>
+    
+    <div class="test-section">
+        <h2>1. 检查TestIDManager加载</h2>
+        <button onclick="checkTestIDManager()">检查TestIDManager</button>
+        <div id="testid-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 检查localStorage数据</h2>
+        <button onclick="checkLocalStorage()">检查localStorage</button>
+        <div id="storage-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 模拟按钮点击</h2>
+        <button onclick="simulateButtonClick()">模拟按钮点击</button>
+        <div id="button-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 生成测试数据</h2>
+        <button onclick="generateTestData()">生成测试数据</button>
+        <button onclick="markAsPaid()">标记为已支付</button>
+        <button onclick="markAsOpened()">标记为已开通</button>
+        <div id="data-status"></div>
+    </div>
+    
+    <script src="js/test-id.js"></script>
+    <script>
+        function checkTestIDManager() {
+            const status = document.getElementById('testid-status');
+            let html = '<h3>TestIDManager状态：</h3>';
+            
+            if (window.TestIDManager) {
+                html += '<p style="color: green;">✅ TestIDManager已加载</p>';
+                html += '<p>方法检查：</p>';
+                html += '<ul>';
+                
+                const methods = ['getTestRecord', 'updateTestRecord', 'checkTestStatus', 'generateNewTestId'];
+                methods.forEach(method => {
+                    if (typeof window.TestIDManager[method] === 'function') {
+                        html += `<li>✅ ${method}</li>`;
+                    } else {
+                        html += `<li style="color: red;">❌ ${method}</li>`;
+                    }
+                });
+                html += '</ul>';
+                
+                // 测试checkTestStatus
+                try {
+                    const testStatus = window.checkTestIdStatus('LAA24001');
+                    html += `<p>checkTestIdStatus测试：${JSON.stringify(testStatus)}</p>`;
+                } catch (e) {
+                    html += `<p style="color: red;">checkTestIdStatus错误：${e.message}</p>`;
+                }
+            } else {
+                html += '<p style="color: red;">❌ TestIDManager未加载</p>';
+            }
+            
+            status.innerHTML = html;
+        }
+        
+        function checkLocalStorage() {
+            const status = document.getElementById('storage-status');
+            let html = '<h3>localStorage状态：</h3>';
+            
+            const keys = ['current_basic_test_id', 'laa_test_ids'];
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                html += `<p><strong>${key}:</strong> ${value || '未设置'}</p>`;
+            });
+            
+            // 检查TestIDManager数据
+            if (window.TestIDManager) {
+                try {
+                    const data = window.TestIDManager.getStorageData();
+                    html += `<p><strong>TestIDManager数据:</strong> ${JSON.stringify(data).substring(0, 200)}...</p>`;
+                } catch (e) {
+                    html += `<p style="color: red;">获取TestIDManager数据错误：${e.message}</p>`;
+                }
+            }
+            
+            status.innerHTML = html;
+        }
+        
+        function simulateButtonClick() {
+            const result = document.getElementById('button-result');
+            result.innerHTML = '<h3>模拟按钮点击结果：</h3>';
+            
+            // 直接调用showAdvancedAssessment
+            try {
+                if (typeof showAdvancedAssessment === 'function') {
+                    result.innerHTML += '<p>✅ showAdvancedAssessment函数存在</p>';
+                    
+                    // 先保存当前URL
+                    const originalLocation = window.location.href;
+                    
+                    // 重写location.href来捕获跳转
+                    let redirectUrl = null;
+                    Object.defineProperty(window, 'location', {
+                        get: () => ({ href: originalLocation }),
+                        set: (value) => {
+                            redirectUrl = value;
+                            result.innerHTML += `<p style="color: green;">✅ 跳转目标：${value}</p>`;
+                            result.innerHTML += `<p>实际应该跳转到：<a href="${value}" target="_blank">${value}</a></p>`;
+                        }
+                    });
+                    
+                    // 调用函数
+                    showAdvancedAssessment();
+                    
+                    // 恢复location
+                    delete window.location;
+                    window.location = { href: originalLocation };
+                    
+                    if (!redirectUrl) {
+                        result.innerHTML += '<p style="color: orange;">⚠️ 没有发生跳转</p>';
+                    }
+                } else {
+                    result.innerHTML += '<p style="color: red;">❌ showAdvancedAssessment函数不存在</p>';
+                }
+            } catch (e) {
+                result.innerHTML += `<p style="color: red;">❌ 错误：${e.message}</p>`;
+                console.error(e);
+            }
+        }
+        
+        function generateTestData() {
+            const status = document.getElementById('data-status');
+            
+            try {
+                // 生成测试编号
+                const testId = window.TestIDManager.generateNewTestId();
+                localStorage.setItem('current_basic_test_id', testId);
+                
+                // 创建测试记录
+                const record = {
+                    id: testId,
+                    createdAt: new Date().toISOString(),
+                    status: 'pending',
+                    paid: false,
+                    opened: false,
+                    userData: {
+                        basic_answers: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
+                        advanced_answers: null
+                    }
+                };
+                
+                window.TestIDManager.createTestRecord(testId, record);
+                
+                status.innerHTML = `
+                    <p style="color: green;">✅ 测试数据已生成</p>
+                    <p>测试编号：${testId}</p>
+                    <p>状态：未支付 (paid=false, opened=false)</p>
+                    <p>答题数据：12个基础问题</p>
+                `;
+            } catch (e) {
+                status.innerHTML = `<p style="color: red;">❌ 生成数据错误：${e.message}</p>`;
+            }
+        }
+        
+        function markAsPaid() {
+            const status = document.getElementById('data-status');
+            const testId = localStorage.getItem('current_basic_test_id');
+            
+            if (!testId) {
+                status.innerHTML = '<p style="color: red;">❌ 请先生成测试数据</p>';
+                return;
+            }
+            
+            try {
+                window.TestIDManager.updateTestRecord(testId, {
+                    paid: true,
+                    paymentTime: new Date().toISOString(),
+                    status: 'paid'
+                });
+                
+                status.innerHTML = `
+                    <p style="color: green;">✅ 已标记为已支付</p>
+                    <p>测试编号：${testId}</p>
+                    <p>状态：已支付未开通 (paid=true, opened=false)</p>
+                `;
+            } catch (e) {
+                status.innerHTML = `<p style="color: red;">❌ 标记支付错误：${e.message}</p>`;
+            }
+        }
+        
+        function markAsOpened() {
+            const status = document.getElementById('data-status');
+            const testId = localStorage.getItem('current_basic_test_id');
+            
+            if (!testId) {
+                status.innerHTML = '<p style="color: red;">❌ 请先生成测试数据</p>';
+                return;
+            }
+            
+            try {
+                window.TestIDManager.updateTestRecord(testId, {
+                    opened: true,
+                    activationTime: new Date().toISOString(),
+                    status: 'activated'
+                });
+                
+                status.innerHTML = `
+                    <p style="color: green;">✅ 已标记为已开通</p>
+                    <p>测试编号：${testId}</p>
+                    <p>状态：已支付已开通 (paid=true, opened=true)</p>
+                `;
+            } catch (e) {
+                status.innerHTML = `<p style="color: red;">❌ 标记开通错误：${e.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

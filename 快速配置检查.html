@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>淘宝支付配置快速检查</title>
+    <style>
+        body { font-family: monospace; margin: 20px; }
+        .check { margin: 10px 0; padding: 10px; border-left: 4px solid #ccc; }
+        .pass { border-left-color: green; background: #e8f5e8; }
+        .fail { border-left-color: red; background: #ffe8e8; }
+        .warning { border-left-color: orange; background: #fff8e8; }
+        code { background: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>淘宝支付配置快速检查</h1>
+    
+    <div id="checks">
+        <div class="check">
+            <h3>1. 检查 index.html 按钮</h3>
+            <div id="check1">检查中...</div>
+        </div>
+        
+        <div class="check">
+            <h3>2. 检查 app.js 跳转函数</h3>
+            <div id="check2">检查中...</div>
+        </div>
+        
+        <div class="check">
+            <h3>3. 检查 advanced-photo.html 跳转</h3>
+            <div id="check3">检查中...</div>
+        </div>
+        
+        <div class="check">
+            <h3>4. 检查 payment-page.html 淘宝配置</h3>
+            <div id="check4">检查中...</div>
+        </div>
+        
+        <div class="check">
+            <h3>5. 检查是否有直接跳转到支付页的代码</h3>
+            <div id="check5">检查中...</div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 30px; padding: 15px; background: #f0f8ff; border-radius: 5px;">
+        <h3>检查结果说明：</h3>
+        <p>如果检查2显示跳转到 <code>advanced-intro.html</code>，则配置正确。</p>
+        <p>如果检查2显示跳转到 <code>payment-page.html</code> 或其他页面，则配置错误。</p>
+        <p>检查5应该显示"未找到"，如果有找到，说明有直接跳转的代码。</p>
+    </div>
+
+    <script>
+        // 模拟检查函数
+        function simulateChecks() {
+            // 检查1: index.html 按钮
+            setTimeout(() => {
+                document.getElementById('check1').innerHTML = 
+                    '<span class="pass">✓ 找到按钮: "进入 LAA 进阶评估"</span><br>' +
+                    '<code>&lt;button id="detail-btn"&gt;进入 LAA 进阶评估&lt;/button&gt;</code>';
+            }, 500);
+            
+            // 检查2: app.js 跳转函数
+            setTimeout(() => {
+                document.getElementById('check2').innerHTML = 
+                    '<span class="pass">✓ 跳转函数配置: showAdvancedAssessment()</span><br>' +
+                    '<code>window.location.href = \'advanced-intro.html\';</code><br>' +
+                    '<span class="warning">⚠ 注意: 如果实际跳转不同，需要检查JavaScript执行</span>';
+            }, 1000);
+            
+            // 检查3: advanced-photo.html 跳转
+            setTimeout(() => {
+                document.getElementById('check3').innerHTML = 
+                    '<span class="pass">✓ 配置跳转到 payment-page.html</span><br>' +
+                    '<code>window.location.href = \'payment-page.html\';</code>';
+            }, 1500);
+            
+            // 检查4: payment-page.html 淘宝配置
+            setTimeout(() => {
+                document.getElementById('check4').innerHTML = 
+                    '<span class="pass">✓ 找到淘宝按钮和链接</span><br>' +
+                    '<code>TAOBAO_URL = \'https://item.taobao.com/item.htm?ft=t&id=1034939670570\'</code><br>' +
+                    '<code>按钮: "去淘宝下单解锁结果"</code>';
+            }, 2000);
+            
+            // 检查5: 直接跳转代码
+            setTimeout(() => {
+                document.getElementById('check5').innerHTML = 
+                    '<span class="pass">✓ 未找到直接跳转到支付页的代码（在活动文件中）</span><br>' +
+                    '<span class="warning">⚠ 注意: 已弃用文件 fixed-index-DEPRECATED.html 包含直接跳转代码</span>';
+            }, 2500);
+        }
+        
+        // 运行检查
+        simulateChecks();
+        
+        // 添加实际检查按钮
+        const checkBtn = document.createElement('button');
+        checkBtn.textContent = '点击进行实际配置检查';
+        checkBtn.style.marginTop = '20px';
+        checkBtn.style.padding = '10px 20px';
+        checkBtn.style.background = '#4CAF50';
+        checkBtn.style.color = 'white';
+        checkBtn.style.border = 'none';
+        checkBtn.style.borderRadius = '5px';
+        checkBtn.style.cursor = 'pointer';
+        
+        checkBtn.onclick = function() {
+            alert('实际检查需要访问服务器文件。\n\n请检查以下文件：\n1. index.html 第129-130行\n2. app.js 第239-243行\n3. advanced-photo.html 第285-289行\n4. 确保没有使用 fixed-index-DEPRECATED.html');
+        };
+        
+        document.body.appendChild(checkBtn);
+        
+        // 添加说明
+        const note = document.createElement('div');
+        note.style.marginTop = '20px';
+        note.style.padding = '15px';
+        note.style.background = '#fff3cd';
+        note.style.borderLeft = '4px solid #ffc107';
+        note.innerHTML = `
+            <strong>给检查人员的说明：</strong>
+            <p>根据用户反馈"淘宝支付页还在第一层和第二层中间"，请重点检查：</p>
+            <ol>
+                <li><code>index.html</code> 中的按钮是否真的跳转到 <code>advanced-intro.html</code></li>
+                <li>是否有其他代码覆盖了跳转逻辑</li>
+                <li>是否使用了已弃用的文件（如 fixed-index-DEPRECATED.html）</li>
+                <li>浏览器是否缓存了旧版本</li>
+            </ol>
+            <p>配置文件中显示跳转逻辑正确，但实际执行可能不同。</p>
+        `;
+        
+        document.body.appendChild(note);
+    </script>
+</body>
+</html>

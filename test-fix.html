@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TestId生成测试</title>
+</head>
+<body>
+    <h1>TestId生成测试</h1>
+    <div id="output"></div>
+    
+    <script src="js/answer-hash-generator.js"></script>
+    <script src="js/test-id.js"></script>
+    <script>
+        const output = document.getElementById('output');
+        
+        // 测试1：生成基于答案的testId
+        const answers1 = {
+            Q1: "A", Q2: "B", Q3: "C", Q4: "D",
+            Q5: "A", Q6: "B", Q7: "C", Q8: "D",
+            Q9: "A", Q10: "B", Q11: "C", Q12: "D",
+            Q13: "A", Q14: "B", Q15: "C", Q16: "D"
+        };
+        
+        const answers2 = {
+            Q1: "A", Q2: "B", Q3: "C", Q4: "D",
+            Q5: "A", Q6: "B", Q7: "C", Q8: "D",
+            Q9: "A", Q10: "B", Q11: "C", Q12: "D",
+            Q13: "A", Q14: "B", Q15: "C", Q16: "D"
+        };
+        
+        output.innerHTML += '<h2>测试1：相同答案生成相同testId</h2>';
+        
+        try {
+            const testId1 = window.TestIDManager.generateNewTestId(answers1);
+            output.innerHTML += `<p>✅ 第一次生成: ${testId1}</p>`;
+            
+            const testId2 = window.TestIDManager.generateNewTestId(answers2);
+            output.innerHTML += `<p>✅ 第二次生成: ${testId2}</p>`;
+            
+            if (testId1 === testId2) {
+                output.innerHTML += '<p style="color: green;">✅ 成功：相同答案生成相同testId</p>';
+            } else {
+                output.innerHTML += '<p style="color: red;">❌ 失败：相同答案生成不同testId</p>';
+            }
+            
+            // 检查记录
+            const record = window.TestIDManager.getTestRecord(testId1);
+            if (record && record.userData && record.userData.answers) {
+                const answerCount = Object.keys(record.userData.answers).length;
+                output.innerHTML += `<p>✅ 记录保存成功，包含 ${answerCount} 个答案</p>`;
+            }
+            
+        } catch (error) {
+            output.innerHTML += `<p style="color: red;">❌ 错误: ${error.message}</p>`;
+        }
+        
+        // 测试2：不同答案生成不同testId
+        output.innerHTML += '<h2>测试2：不同答案生成不同testId</h2>';
+        
+        const answers3 = {...answers1, Q16: "E"}; // 修改一个答案
+        
+        try {
+            const testId3 = window.TestIDManager.generateNewTestId(answers3);
+            output.innerHTML += `<p>✅ 不同答案生成: ${testId3}</p>`;
+            
+            if (testId3 !== testId1) {
+                output.innerHTML += '<p style="color: green;">✅ 成功：不同答案生成不同testId</p>';
+            } else {
+                output.innerHTML += '<p style="color: red;">❌ 失败：不同答案生成相同testId</p>';
+            }
+            
+        } catch (error) {
+            output.innerHTML += `<p style="color: red;">❌ 错误: ${error.message}</p>`;
+        }
+        
+        // 测试3：检查后台数据
+        output.innerHTML += '<h2>测试3：检查后台数据</h2>';
+        
+        try {
+            const data = window.TestIDManager.getStorageData();
+            const recordCount = Object.keys(data.testRecords).length;
+            output.innerHTML += `<p>✅ TestIDManager中有 ${recordCount} 条记录</p>`;
+            
+            // 标记为已支付
+            window.TestIDManager.updateTestRecord(testId1, {
+                paid: true,
+                paymentTime: new Date().toISOString()
+            });
+            output.innerHTML += '<p>✅ 标记为已支付</p>';
+            
+            // 检查状态
+            const status = window.checkTestIdStatus(testId1);
+            output.innerHTML += `<p>状态检查: ${JSON.stringify(status)}</p>`;
+            
+        } catch (error) {
+            output.innerHTML += `<p style="color: red;">❌ 错误: ${error.message}</p>`;
+        }
+    </script>
+</body>
+</html>

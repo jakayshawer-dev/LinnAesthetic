@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAA测试 - 可靠二维码</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .logo {
+            margin-bottom: 20px;
+        }
+        
+        .logo h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .qrcode-section {
+            margin: 30px 0;
+        }
+        
+        .qrcode-container {
+            display: inline-block;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .qrcode {
+            width: 200px;
+            height: 200px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qrcode img {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+        
+        .url-box {
+            background: #e8f4fd;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+            cursor: pointer;
+            transition: all 0.3s;
+            word-break: break-all;
+        }
+        
+        .url-box:hover {
+            background: #d1ecf1;
+            transform: translateY(-2px);
+        }
+        
+        .url-box strong {
+            color: #0c5460;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .url-box small {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        .instructions {
+            background: #fff8e1;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #856404;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            margin: 0;
+            color: #856404;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .warning {
+            background: #f8d7da;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+            font-size: 14px;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #28a745;
+            color: #155724;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .test-links {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .test-link {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #4a6fa5;
+            font-weight: 500;
+            border: 2px solid #e0e6ff;
+            transition: all 0.3s;
+        }
+        
+        .test-link:hover {
+            background: #e0e6ff;
+            transform: translateY(-2px);
+        }
+        
+        .qr-options {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .qr-options h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #4a6fa5;
+        }
+        
+        @media (max-width: 480px) {
+            .card {
+                padding: 25px 20px;
+            }
+            
+            .qrcode {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .test-links {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">
+            <h1>LAA 大小脸评估</h1>
+            <p>微信测试二维码（可靠版本）</p>
+        </div>
+        
+        <div class="qrcode-section">
+            <div class="qrcode-container">
+                <div class="qrcode" id="qrcode">
+                    <!-- 二维码将在这里显示 -->
+                    正在生成二维码...
+                </div>
+            </div>
+            
+            <div class="url-box" id="urlBox">
+                点击复制测试链接
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📱 微信测试步骤：</h3>
+            <ol>
+                <li>打开微信，点击右上角"+"号</li>
+                <li>选择"扫一扫"功能</li>
+                <li>对准上方二维码扫描</li>
+                <li>点击"访问网页"或"在浏览器打开"</li>
+                <li>开始测试评估</li>
+            </ol>
+        </div>
+        
+        <div class="warning">
+            ⚠️ <strong>公网测试：</strong>此链接为GitHub Pages公网链接，任何人都可以访问！
+        </div>
+        
+        <div class="success" id="successMessage">
+            ✅ 链接已复制到剪贴板！
+        </div>
+        
+        <div class="qr-options">
+            <h4>💡 如果二维码扫描失败：</h4>
+            <p>1. 点击上方链接框复制链接</p>
+            <p>2. 在微信中粘贴链接打开</p>
+            <p>3. 或使用下方直接链接</p>
+        </div>
+        
+        <div class="test-links">
+            <a href="index.html" class="test-link" id="mainLink">主测试页面</a>
+            <a href="preview.html" class="test-link" id="previewLink">效果预览</a>
+            <a href="test-modifications.html" class="test-link" id="instructionsLink">使用说明</a>
+        </div>
+    </div>
+
+    <script>
+        // 获取当前页面的基础URL
+        function getBaseUrl() {
+            const currentUrl = window.location.href;
+            const url = new URL(currentUrl);
+            const pathParts = url.pathname.split('/').slice(0, -1); // 移除当前文件名
+            const directoryPath = pathParts.join('/') || '/';
+            
+            return `${url.protocol}//${url.hostname}${directoryPath}`;
+        }
+        
+        // 生成二维码 - 使用多个备用方案
+        function generateQRCode() {
+            const baseUrl = getBaseUrl();
+            const testUrl = `${baseUrl}index.html`;
+            
+            console.log('🔗 基础URL:', baseUrl);
+            console.log('📱 测试链接:', testUrl);
+            
+            // 显示URL
+            document.getElementById('urlBox').innerHTML = `
+                <strong>测试链接：</strong><br>
+                ${testUrl}<br>
+                <small style="color: #6c757d;">点击复制链接</small>
+            `;
+            
+            const qrcodeElement = document.getElementById('qrcode');
+            
+            // 方案1：使用可靠的二维码服务
+            const qrcodeUrl1 = `https://quickchart.io/qr?text=${encodeURIComponent(testUrl)}&size=200&margin=1&dark=2c3e50&light=ffffff`;
+            
+            // 方案2：备用二维码服务
+            const qrcodeUrl2 = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(testUrl)}&color=2c3e50&bgcolor=ffffff&margin=10`;
+            
+            // 方案3：Google Charts API（最可靠）
+            const qrcodeUrl3 = `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=${encodeURIComponent(testUrl)}&choe=UTF-8`;
+            
+            // 创建图片元素，尝试多个源
+            const img = document.createElement('img');
+            img.alt = "LAA测试二维码";
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.borderRadius = '8px';
+            
+            // 设置多个源，浏览器会自动尝试
+            img.src = qrcodeUrl1;
+            
+            // 如果第一个失败，尝试第二个
+            img.onerror = function() {
+                console.log('⚠️ 第一个二维码源失败，尝试第二个...');
+                this.src = qrcodeUrl2;
+                this.onerror = function() {
+                    console.log('⚠️ 第二个二维码源失败，尝试第三个...');
+                    this.src = qrcodeUrl3;
+                    this.onerror = function() {
+                        console.log('❌ 所有二维码源都失败，显示文本');
+                        qrcodeElement.innerHTML = `
+                            <div style="
+                                width: 100%;
+                                height: 100%;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                background: white;
+                                border-radius: 8px;
+                                padding: 15px;
+                                text-align: center;
+                            ">
+                                <div style="color: #dc3545; font-size: 14px; margin-bottom: 10px;">
+                                    ⚠️ 二维码生成失败
+                                </div>
+                                <div style="font-size: 12px; color: #6c757d;">
+                                    请手动复制链接
+                                </div>
+                            </div>
+                        `;
+                    };
+                };
+            };
+            
+            img.onload = function() {
+                console.log('✅ 二维码加载成功');
+            };
+            
+            qrcodeElement.innerHTML = '';
+            qrcodeElement.appendChild(img);
+            
+            // 更新所有链接
+            document.getElementById('mainLink').href = testUrl;
+            document.getElementById('previewLink').href = `${baseUrl}preview.html`;
+            document.getElementById('instructionsLink').href = `${baseUrl}test-modifications.html`;
+            
+            console.log('✅ 二维码生成完成！');
+        }
+        
+        // 复制链接到剪贴板
+        document.getElementById('urlBox').addEventListener('click', function() {
+            const baseUrl = getBaseUrl();
+            const testUrl = `${baseUrl}index.html`;
+            
+            navigator.clipboard.writeText(testUrl).then(() => {
+                const successMsg = document.getElementById('successMessage');
+                successMsg.style.display = 'block';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+                console.log('✅ 链接已复制:', testUrl);
+            }).catch(err => {
+                console.error('❌ 复制失败:', err);
+                alert('复制失败，请手动复制链接：\n' + testUrl);
+            });
+        });
+        
+        // 页面加载完成后生成二维码
+        document.addEventListener('DOMContentLoaded', generateQRCode);
+        
+        // 添加键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'c') {
+                const baseUrl = getBaseUrl();
+                const testUrl = `${baseUrl}index.html`;
+                navigator.clipboard.writeText(testUrl);
+                console.log('📋 快捷键复制链接:', testUrl);
+            }
+        });
+        
+        // 添加重新生成按钮（长按二维码）
+        document.getElementById('qrcode').addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            if (confirm('重新生成二维码？')) {
+                generateQRCode();
+            }
+        });
+    </script>
+</body>
+</html>

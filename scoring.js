@@ -1,4 +1,4 @@
-// 评分规则配置
+// 评分规则配置 - 第一层12题MVP版本
 
 // 初始化分数对象
 function initializeScores() {
@@ -23,126 +23,138 @@ function initializeScores() {
     };
 }
 
-// 根据答案计算分数
-function calculateScores(answers) {
+// 根据答案索引计算分数
+function calculateScores(answerIndices) {
     const scores = initializeScores();
     
+    // 将索引转换为值
+    const answerValues = answerIndices.map((index, qIndex) => {
+        if (index === null) return null;
+        const option = questions[qIndex].options[index];
+        return typeof option === 'object' ? option.value : index.toString();
+    });
+    
+    console.log('答案值:', answerValues);
+    
     // Q1: 哪一侧脸整体看起来更「大」
-    if (answers[0] === 'left_bigger') {
+    if (answerValues[0] === 'left_bigger') {
         scores.leftScore += 2;
-    } else if (answers[0] === 'right_bigger') {
+    } else if (answerValues[0] === 'right_bigger') {
         scores.rightScore += 2;
     }
     
     // Q2: 哪一侧更「紧、硬、鼓」
-    if (answers[1] === 'left_tight') {
+    if (answerValues[1] === 'left_tight') {
         scores.leftScore += 2;
         scores.muscleScore += 2;
-    } else if (answers[1] === 'right_tight') {
+    } else if (answerValues[1] === 'right_tight') {
         scores.rightScore += 2;
         scores.muscleScore += 2;
     }
     
     // Q3: 哪一侧更像「被拉偏」
-    if (answers[2] === 'left_pulled') {
+    if (answerValues[2] === 'left_pulled') {
         scores.leftScore += 1;
         scores.fasciaScore += 2;
-    } else if (answers[2] === 'right_pulled') {
+    } else if (answerValues[2] === 'right_pulled') {
         scores.rightScore += 1;
         scores.fasciaScore += 2;
     }
     
     // Q4: 头摆正后差异减轻
-    if (answers[3] === 'significantly_reduced') {
+    if (answerValues[3] === 'significantly_reduced') {
         scores.falseScore += 2;
         scores.postureScore += 1;
-    } else if (answers[3] === 'slightly_reduced') {
+    } else if (answerValues[3] === 'slightly_reduced') {
         scores.falseScore += 1;
         scores.postureScore += 1;
-    } else if (answers[3] === 'no_change') {
+    } else if (answerValues[3] === 'no_change') {
         scores.trueScore += 2;
     }
     
     // Q5: 平躺后差异减轻
-    if (answers[4] === 'significantly_reduced_lying') {
+    if (answerValues[4] === 'significantly_reduced_lying') {
         scores.falseScore += 2;
-    } else if (answers[4] === 'slightly_reduced_lying') {
+    } else if (answerValues[4] === 'slightly_reduced_lying') {
         scores.falseScore += 1;
-    } else if (answers[4] === 'no_change_lying') {
+    } else if (answerValues[4] === 'no_change_lying') {
         scores.trueScore += 2;
     }
     
     // Q6: 微笑说话时差异更明显
-    if (answers[5] === 'significantly_more_obvious') {
+    if (answerValues[5] === 'significantly_more_obvious') {
         scores.dynamicScore += 3;
         scores.complexityScore += 2;
-    } else if (answers[5] === 'slightly_more_obvious') {
+    } else if (answerValues[5] === 'slightly_more_obvious') {
         scores.dynamicScore += 2;
         scores.complexityScore += 1;
     }
     
     // Q7: 更像哪种情况
-    if (answers[6] === 'type_a') {
+    if (answerValues[6] === 'type_a') {
         scores.muscleScore += 2;
-    } else if (answers[6] === 'type_b') {
+    } else if (answerValues[6] === 'type_b') {
         scores.fasciaScore += 2;
-    } else if (answers[6] === 'both_types') {
+    } else if (answerValues[6] === 'both_types') {
         scores.muscleScore += 1;
         scores.fasciaScore += 1;
         scores.complexityScore += 1;
     }
     
     // Q8: 长期单侧咀嚼
-    if (answers[7] === 'often_chew') {
+    if (answerValues[7] === 'often_chew') {
         scores.habitScore += 2;
         scores.muscleScore += 1;
         scores.complexityScore += 1;
-    } else if (answers[7] === 'sometimes_chew') {
+    } else if (answerValues[7] === 'sometimes_chew') {
         scores.habitScore += 1;
     }
     
     // Q9: 表情控制差异
-    if (answers[8] === 'obvious_control') {
+    if (answerValues[8] === 'obvious_control') {
         scores.dynamicScore += 3;
         scores.complexityScore += 2;
-    } else if (answers[8] === 'slight_control') {
+    } else if (answerValues[8] === 'slight_control') {
         scores.dynamicScore += 2;
         scores.complexityScore += 1;
     }
     
     // Q10: 长期固定姿势
-    if (answers[9] === 'often_posture') {
+    if (answerValues[9] === 'often_posture') {
         scores.falseScore += 1;
         scores.habitScore += 2;
         scores.postureScore += 1;
-    } else if (answers[9] === 'sometimes_posture') {
+    } else if (answerValues[9] === 'sometimes_posture') {
         scores.habitScore += 1;
         scores.postureScore += 1;
     }
     
     // Q11: 高低肩歪脖子
-    if (answers[10] === 'obvious_posture_issue') {
+    if (answerValues[10] === 'obvious_posture_issue') {
         scores.postureScore += 3;
         scores.falseScore += 1;
         scores.complexityScore += 1;
-    } else if (answers[10] === 'sometimes_posture_issue') {
+    } else if (answerValues[10] === 'sometimes_posture_issue') {
         scores.postureScore += 2;
     }
     
     // Q12: 旧伤史正畸史
-    if (answers[11] === 'obvious_history') {
+    if (answerValues[11] === 'obvious_history') {
         scores.complexityScore += 3;
         scores.trueScore += 1;
-    } else if (answers[11] === 'slight_history') {
+    } else if (answerValues[11] === 'slight_history') {
         scores.complexityScore += 1;
     }
     
+    console.log('计算后的分数:', scores);
     return scores;
 }
 
 // 根据分数计算结果
 function calculateResults(scores) {
     const results = {};
+    
+    console.log('开始计算结果，分数:', scores);
     
     // 1. 真假倾向
     if (scores.falseScore >= 4 && (scores.falseScore - scores.trueScore) >= 2) {
@@ -155,6 +167,8 @@ function calculateResults(scores) {
         results.tendency = "混合倾向";
         results.tendencyType = "mixed";
     }
+    
+    console.log('真假倾向:', results.tendency);
     
     // 2. 主问题方向
     const directionScores = [
@@ -176,6 +190,8 @@ function calculateResults(scores) {
     results.direction = directionScores[0].name;
     results.directionType = directionScores[0].name.replace(/方向$/, "").toLowerCase();
     
+    console.log('主问题方向:', results.direction);
+    
     // 3. 左右侧提示
     if (scores.leftScore >= 3 && scores.leftScore > scores.rightScore) {
         results.side = "左侧更明显";
@@ -188,6 +204,8 @@ function calculateResults(scores) {
         results.sideType = "unclear";
     }
     
+    console.log('左右侧提示:', results.side);
+    
     // 4. 复杂度提示
     if (scores.complexityScore >= 4 || 
         scores.dynamicScore >= 4 || 
@@ -199,9 +217,12 @@ function calculateResults(scores) {
         results.complexityType = "basic";
     }
     
+    console.log('复杂度提示:', results.complexity);
+    
     // 存储原始分数用于调试
     results.scores = scores;
     
+    console.log('最终结果:', results);
     return results;
 }
 

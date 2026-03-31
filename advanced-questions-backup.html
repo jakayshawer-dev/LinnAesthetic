@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA 进阶评估 - 补充问题</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 第二层补充问题页 -->
+        <div id="advanced-questions-page" class="page active">
+            <div class="container">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="advanced-progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="advanced-progress-text">1/4</div>
+                </div>
+                
+                <div class="system-identifier">
+                    LAA · 进阶评估
+                </div>
+                
+                <!-- 第1题 -->
+                <div class="question-item" style="display: block;">
+                    <h2 class="question-title">你觉得你的大小脸问题在什么时候更明显？</h2>
+                    <div class="question-hint">选择最符合你情况的描述</div>
+                    
+                    <div class="options-container">
+                        <div class="option-item" onclick="selectOption(this, 0, 'A')">
+                            <div class="option-content">
+                                <div class="option-text">微笑或说话时更明显</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 0, 'B')">
+                            <div class="option-content">
+                                <div class="option-text">某一侧表情或发力更常用</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 0, 'C')">
+                            <div class="option-content">
+                                <div class="option-text">静态还好，但一动起来就更明显</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 0, 'D')">
+                            <div class="option-content">
+                                <div class="option-text">为什么两边位置/高低/线条方向不一样</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 第2题 -->
+                <div class="question-item" style="display: none;">
+                    <h2 class="question-title">你更关注哪一侧的问题？</h2>
+                    <div class="question-hint">选择你更在意或更明显的一侧</div>
+                    
+                    <div class="options-container">
+                        <div class="option-item" onclick="selectOption(this, 1, 'A')">
+                            <div class="option-content">
+                                <div class="option-text">左侧更明显</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 1, 'B')">
+                            <div class="option-content">
+                                <div class="option-text">右侧更明显</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 1, 'C')">
+                            <div class="option-content">
+                                <div class="option-text">两边都明显，但表现不同</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 1, 'D')">
+                            <div class="option-content">
+                                <div class="option-text">不确定，感觉整体不对称</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 第3题 -->
+                <div class="question-item" style="display: none;">
+                    <h2 class="question-title">这个问题对你的影响程度？</h2>
+                    <div class="question-hint">选择对你生活的影响程度</div>
+                    
+                    <div class="options-container">
+                        <div class="option-item" onclick="selectOption(this, 2, 'A')">
+                            <div class="option-content">
+                                <div class="option-text">只是外观上注意到，不影响生活</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 2, 'B')">
+                            <div class="option-content">
+                                <div class="option-text">拍照时会注意，会刻意调整角度</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 2, 'C')">
+                            <div class="option-content">
+                                <div class="option-text">社交时会不自信，会刻意掩饰</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 2, 'D')">
+                            <div class="option-content">
+                                <div class="option-text">已经影响到心理状态，想寻求改善</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 第4题 -->
+                <div class="question-item" style="display: none;">
+                    <h2 class="question-title">你希望通过评估获得什么？</h2>
+                    <div class="question-hint">选择你最希望获得的结果</div>
+                    
+                    <div class="options-container">
+                        <div class="option-item" onclick="selectOption(this, 3, 'A')">
+                            <div class="option-content">
+                                <div class="option-text">了解问题的性质和原因</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 3, 'B')">
+                            <div class="option-content">
+                                <div class="option-text">知道改善的方向和方法</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 3, 'C')">
+                            <div class="option-content">
+                                <div class="option-text">获得专业的评估和建议</div>
+                            </div>
+                        </div>
+                        <div class="option-item" onclick="selectOption(this, 3, 'D')">
+                            <div class="option-content">
+                                <div class="option-text">找到适合的解决方案</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA · 进阶评估
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 1：引入依赖JS -->
+    <script src="js/data-manager.js"></script>
+    <script src="js/answer-hash-generator.js"></script>
+    <script src="js/test-id.js"></script>
+    <script src="js/second-layer-testid.js"></script>
+    
+    <!-- Step 2：加入完整问卷控制脚本（核心） -->
+    <script>
+        // ================================
+        // 第二层问卷控制逻辑（完整版本）
+        // ================================
+        
+        let currentQuestion = 0;
+        const advancedAnswers = {};
+        
+        // 获取所有问题
+        const questions = document.querySelectorAll('.question-item');
+        
+        // 初始化
+        function initAdvancedQuestions() {
+            showQuestion(0);
+            updateProgress();
+        }
+        
+        // 显示题目
+        function showQuestion(index) {
+            questions.forEach((q, i) => {
+                q.style.display = i === index ? 'block' : 'none';
+            });
+            updateProgress();
+        }
+        
+        // 点击选项
+        function selectOption(el, qIndex, value) {
+            console.log('选择第' + (qIndex + 1) + '题，选项:', value);
+            
+            // 记录答案
+            advancedAnswers[`AQ${qIndex + 1}`] = value;
+            
+            // UI高亮
+            const options = el.parentNode.querySelectorAll('.option-item');
+            options.forEach(opt => opt.classList.remove('active'));
+            el.classList.add('active');
+            
+            // 自动跳题
+            setTimeout(() => {
+                goToNextQuestion();
+            }, 300);
+        }
+        
+        // 下一题
+        function goToNextQuestion() {
+            if (currentQuestion < 3) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            } else {
+                finishAdvancedQuestions();
+            }
+        }
+        
+        // 完成 → 生成 testId
+        function finishAdvancedQuestions() {
+            console.log('完成第二层问卷，答案:', advancedAnswers);
+            
+            const basicAnswersStr = localStorage.getItem('laa_basic_answers');
+            
+            if (!basicAnswersStr) {
+                alert('基础数据丢失，请重新测试');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const basicAnswers = JSON.parse(basicAnswersStr);
+            
+            try {
+                // 检查是否所有答案都已收集
+                const allAnswersCollected = Object.keys(advancedAnswers).length === 4;
+                if (!allAnswersCollected) {
+                    alert('请完成所有问题');
+                    return;
+                }
+                
+                console.log('基础答案:', basicAnswers);
+                console.log('进阶答案:', advancedAnswers);
+                
+                const testId = window.generateSecondLayerTestId(
+                    basicAnswers,
+                    advancedAnswers
+                );
+                
+                // 保存 testId
+                localStorage.setItem('current_second_layer_test_id', testId);
+                localStorage.setItem('current_test_id', testId);
+                
+                console.log('✅ 生成testId:', testId);
+                
+                // 显示提示
+                alert('🎯 第二层评估完成！\n\n您的测试编号：' + testId + '\n\n请继续上传照片完成评估。');
+                
+                // 跳转照片页
+                window.location.href = 'advanced-photo.html?testId=' + encodeURIComponent(testId);
+                
+            } catch (err) {
+                console.error('生成testId失败:', err);
+                alert('生成测试编号失败，请重试：' + err.message);
+            }
+        }
+        
+        // 更新进度
+        function updateProgress() {
+            const progressFill = document.getElementById('advanced-progress-fill');
+            const progressText = document.getElementById('advanced-progress-text');
+            
+            if (progressFill && progressText) {
+                const progress = ((currentQuestion + 1) / 4) * 100;
+                progressFill.style.width = `${progress}%`;
+                progressText.textContent = `${currentQuestion + 1}/4`;
+            }
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', initAdvancedQuestions);
+    </script>
+</body>
+</html>

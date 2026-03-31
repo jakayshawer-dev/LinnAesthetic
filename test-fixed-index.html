@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA · 大小脸免费评估（修复版）</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 首页 -->
+        <div id="home-page" class="page active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h1 class="main-title">大小脸免费评估</h1>
+                <p class="subtitle">LAA · Linn Asymmetry Assessment</p>
+                <p class="test-info">12题，约1分钟，帮你先看真假倾向和主要方向</p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>专业评估</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-clock"></i>
+                        <span>快速完成测试</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>隐私保护</span>
+                    </div>
+                </div>
+                
+                <button id="start-btn" class="btn-primary">
+                    开始测试
+                </button>
+                
+                <div class="footer-note">
+                    <p>评估结果仅供参考，不构成医疗建议</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 题目页 -->
+        <div id="question-page" class="page">
+            <div class="container">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">1/12</div>
+                </div>
+                
+                <div class="system-identifier">
+                    LAA · 大小脸免费评估
+                </div>
+                
+                <div class="question-container">
+                    <h2 class="question-title" id="question-title"></h2>
+                    <div class="question-hint" id="observation"></div>
+                    
+                    <div class="options-container" id="options-container">
+                        <!-- 选项会动态生成 -->
+                    </div>
+                </div>
+                
+                <div class="navigation-buttons">
+                    <button id="prev-btn" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> 上一题
+                    </button>
+                    <button id="next-btn" class="btn-primary">
+                        下一题 <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA · 大小脸免费评估
+                </div>
+            </div>
+        </div>
+        
+        <!-- 结果页 -->
+        <div id="result-page" class="page">
+            <div class="container">
+                <div class="result-header">
+                    <h1 class="result-main-title">LAA 评估结果</h1>
+                    <p class="result-subtitle">以下是您的评估结果</p>
+                </div>
+                
+                <div class="result-summary">
+                    <h3><i class="fas fa-file-alt"></i> 结果说明</h3>
+                    <div class="summary-text" id="result-summary"></div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-section">
+                        <h3><i class="fas fa-balance-scale"></i> 真假倾向</h3>
+                        <div class="result-value" id="result-tendency"></div>
+                        <p class="result-desc" id="result-tendency-desc"></p>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3><i class="fas fa-compass"></i> 主问题方向</h3>
+                        <div class="result-value" id="result-direction"></div>
+                        <p class="result-desc" id="result-direction-desc"></p>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> 左右侧提示</h3>
+                        <div class="result-value" id="result-side"></div>
+                        <p class="result-desc" id="result-side-desc"></p>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="detail-btn" class="btn-primary">
+                        <i class="fas fa-eye"></i> 尝试查看进阶评估结果
+                    </button>
+                    <button id="retest-btn" class="btn-secondary">
+                        <i class="fas fa-redo"></i> 重新测试
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载修复后的JS文件 -->
+    <script src="questions.js"></script>
+    <script src="scoring.js"></script>
+    <script src="results.js"></script>
+    <script src="js/answer-hash-generator.js"></script>
+    <script src="js/test-id.js"></script>
+    <script>
+        // 临时加载修复后的app.js内容
+        // 这是修复后的app.js核心逻辑
+        
+        // 全局状态
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let currentScores = null;
+        let currentResults = null;
+        
+        // DOM元素
+        const homePage = document.getElementById('home-page');
+        const questionPage = document.getElementById('question-page');
+        const resultPage = document.getElementById('result-page');
+        const startBtn = document.getElementById('start-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const questionTitle = document.getElementById('question-title');
+        const observation = document.getElementById('observation');
+        const optionsContainer = document.getElementById('options-container');
+        
+        // 结果页元素
+        const resultTendency = document.getElementById('result-tendency');
+        const resultTendencyDesc = document.getElementById('result-tendency-desc');
+        const resultDirection = document.getElementById('result-direction');
+        const resultDirectionDesc = document.getElementById('result-direction-desc');
+        const resultSide = document.getElementById('result-side');
+        const resultSideDesc = document.getElementById('result-side-desc');
+        const resultSummary = document.getElementById('result-summary');
+        
+        // 初始化应用
+        function initApp() {
+            console.log('初始化应用...');
+            
+            // 绑定事件监听器
+            startBtn.addEventListener('click', startTest);
+            prevBtn.addEventListener('click', showPreviousQuestion);
+            nextBtn.addEventListener('click', showNextQuestion);
+            
+            // 安全地获取结果页按钮
+            const retestBtn = document.getElementById('retest-btn');
+            const detailBtn = document.getElementById('detail-btn');
+            
+            if (retestBtn) {
+                retestBtn.addEventListener('click', restartTest);
+                console.log('✅ retestBtn事件绑定成功');
+            }
+            
+            if (detailBtn) {
+                detailBtn.addEventListener('click', showAdvancedAssessment);
+                console.log('✅ detailBtn事件绑定成功');
+            }
+            
+            // 显示首页
+            showPage('home');
+            console.log('✅ 应用初始化完成');
+        }
+        
+        // 开始测试
+        function startTest() {
+            console.log('开始测试按钮被点击');
+            // 重置状态
+            currentQuestionIndex = 0;
+            userAnswers.fill(null);
+            currentScores = null;
+            currentResults = null;
+            
+            // 显示第一题
+            showQuestion(0);
+            showPage('question');
+        }
+        
+        // 显示指定页面
+        function showPage(pageName) {
+            console.log('显示页面:', pageName);
+            // 隐藏所有页面
+            homePage.classList.remove('active');
+            questionPage.classList.remove('active');
+            resultPage.classList.remove('active');
+            
+            // 显示目标页面
+            switch(pageName) {
+                case 'home':
+                    homePage.classList.add('active');
+                    break;
+                case 'question':
+                    questionPage.classList.add('active');
+                    break;
+                case 'result':
+                    resultPage.classList.add('active');
+                    break;
+            }
+        }
+        
+        // 显示指定题目
+        function showQuestion(index) {
+            if (index < 0 || index >= questions.length) return;
+            
+            currentQuestionIndex = index;
+            const question = questions[index];
+            
+            questionTitle.textContent = question.title;
+            observation.textContent = question.observation;
+            
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, optionIndex) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (userAnswers[index] === optionIndex) {
+                    optionElement.classList.add('selected');
+                }
+                
+                optionElement.innerHTML = `
+                    <div class="option-content">
+                        <div class="option-text">${option}</div>
+                    </div>
+                `;
+                
+                optionElement.addEventListener('click', () => {
+                    selectOption(index, optionIndex);
+                });
+                
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            updateProgress();
+            updateButtonStates();
+        }
+        
+        // 选择选项
+        function selectOption(questionIndex, optionIndex) {
+            userAnswers[questionIndex] = optionIndex;
+            
+            // 更新UI
+            const options = document.querySelectorAll('#options-container .option');
+            options.forEach((option, idx) => {
+                if (idx === optionIndex) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+            
+            updateButtonStates();
+        }
+        
+        // 显示上一题
+        function showPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
+            }
+        }
+        
+        // 显示下一题
+        function showNextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+            } else {
+                calculateAndShowResults();
+            }
+        }
+        
+        // 更新进度
+        function updateProgress() {
+            const answeredCount = userAnswers.filter(answer => answer !== null).length;
+            const progress = (answeredCount / questions.length) * 100;
+            
+            progressFill.style.width = `${progress}%`;
+            progressText.textContent = `${currentQuestionIndex + 1}/${questions.length}`;
+        }
+        
+        // 更新按钮状态
+        function updateButtonStates() {
+            // 上一题按钮
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            // 下一题按钮
+            const hasAnswer = userAnswers[currentQuestionIndex] !== null;
+            const isLastQuestion = currentQuestionIndex === questions.length - 1;
+            
+            if (isLastQuestion) {
+                nextBtn.innerHTML = '查看结果 <i class="fas fa-arrow-right"></i>';
+                nextBtn.disabled = !hasAnswer;
+            } else {
+                nextBtn.innerHTML = '下一题 <i class="fas fa-arrow-right"></i>';
+                nextBtn.disabled = !hasAnswer;
+            }
+        }
+        
+        // 计算并显示结果
+        function calculateAndShowResults() {
+            // 计算分数
+            currentScores = calculateScores(userAnswers);
+            
+            // 计算结果
+            currentResults = calculateResults(currentScores);
+            
+            // 🎯 注意：testId将在第二层（进阶评估）完成后生成
+            // 💾 保存基础答案到localStorage，供第二层使用
+            try {
+                const basicAnswers = {};
+                userAnswers.forEach((answer, index) => {
+                    basicAnswers['BQ' + (index + 1)] = questions[index].options[answer];
+                });
+                localStorage.setItem('laa_basic_answers', JSON.stringify(basicAnswers));
+                console.log('💾 基础答案已保存:', Object.keys(basicAnswers).length, '个答案');
+            } catch (e) {
+                console.warn('保存基础答案失败:', e);
+            }
+            
+            // 更新结果页
+            updateResultPage();
+            
+            // 显示结果页
+            showPage('result');
+        }
+        
+        // 更新结果页
+        function updateResultPage() {
+            // 获取详细描述
+            const descriptions = getDetailedDescriptions(currentResults, currentScores);
+            
+            // 更新真假倾向
+            resultTendency.textContent = currentResults.tendency;
+            resultTendencyDesc.textContent = descriptions.tendency;
+            
+            // 更新主问题方向
+            resultDirection.textContent = currentResults.direction;
+            resultDirectionDesc.textContent = descriptions.direction;
+            
+            // 更新左右侧提示
+            resultSide.textContent = currentResults.side;
+            resultSideDesc.textContent = descriptions.side;
+            
+            // 更新结果说明
+            resultSummary.textContent = descriptions.summary;
+        }
+        
+        // 重新测试
+        function restartTest() {
+            // 重置状态
+            currentQuestionIndex = 0;
+            userAnswers.fill(null);
+            currentScores = null;
+            currentResults = null;
+            
+            // 返回首页
+            showPage('home');
+        }
+        
+        // 进入第二层进阶评估
+        function showAdvancedAssessment() {
+            console.log('进入第二层进阶评估');
+            // 获取当前用户的测试编号（检查是否有第二层testId）
+            let testId = localStorage.getItem('current_second_layer_test_id');
+            
+            if (!testId) {
+                // 没有第二层testId，跳转到第二层说明页
+                console.log('🔄 没有第二层testId，跳转到第二层说明页');
+                alert('请先完成第二层进阶评估（4题+照片）');
+                // 在实际应用中这里应该跳转到 advanced-intro.html
+                return;
+            }
+            
+            alert('第二层功能测试通过！在实际应用中会跳转到相应页面。');
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initApp);
+        
+        // 添加触摸支持（移动端）
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].screenX;
+            const swipeThreshold = 50;
+            
+            if (touchStartX - touchEndX > swipeThreshold) {
+                // 向左滑动 - 下一题
+                if (!nextBtn.disabled) showNextQuestion();
+            } else if (touchEndX - touchStartX > swipeThreshold) {
+                // 向右滑动 - 上一题
+                if (!prevBtn.disabled) showPreviousQuestion();
+            }
+        });
+    </script>
+</body>
+</html>

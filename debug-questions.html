@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试：第一层12题选项问题</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .test-case { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>调试：第一层12题选项问题</h1>
+    
+    <div class="test-case">
+        <h2>测试1：检查questions.js加载</h2>
+        <button onclick="testQuestionsJS()">测试questions.js</button>
+        <div id="test1-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试2：检查questions数据</h2>
+        <button onclick="testQuestionsData()">测试questions数据</button>
+        <div id="test2-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试3：模拟showQuestion函数</h2>
+        <button onclick="testShowQuestion()">测试showQuestion</button>
+        <div id="test3-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>测试4：检查控制台错误</h2>
+        <button onclick="checkConsole()">检查控制台</button>
+        <div id="test4-result"></div>
+    </div>
+    
+    <script src="questions.js"></script>
+    <script src="scoring.js"></script>
+    <script src="results.js"></script>
+    <script src="js/answer-hash-generator.js"></script>
+    <script src="js/test-id.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        // 捕获控制台错误
+        const errors = [];
+        const originalError = console.error;
+        console.error = function(...args) {
+            errors.push(args.join(' '));
+            originalError.apply(console, args);
+        };
+        
+        // 测试1：检查questions.js加载
+        function testQuestionsJS() {
+            const result = document.getElementById('test1-result');
+            
+            if (typeof questions !== 'undefined') {
+                result.innerHTML = `<p class="success">✅ questions变量已加载</p>
+                                   <p>题目数量: ${questions.length}</p>`;
+            } else {
+                result.innerHTML = '<p class="error">❌ questions变量未定义</p>';
+            }
+        }
+        
+        // 测试2：检查questions数据
+        function testQuestionsData() {
+            const result = document.getElementById('test2-result');
+            
+            if (typeof questions !== 'undefined' && questions.length > 0) {
+                let html = `<p class="success">✅ questions数据正常</p>
+                           <p>题目总数: ${questions.length}</p>
+                           <p>第1题标题: ${questions[0].title}</p>
+                           <p>第1题选项数量: ${questions[0].options.length}</p>
+                           <p>第1题选项示例: ${questions[0].options[0]}</p>`;
+                
+                // 检查所有题目
+                let allValid = true;
+                for (let i = 0; i < questions.length; i++) {
+                    if (!questions[i].title || !questions[i].options || questions[i].options.length === 0) {
+                        allValid = false;
+                        html += `<p class="error">❌ 第${i+1}题数据不完整</p>`;
+                    }
+                }
+                
+                if (allValid) {
+                    html += '<p class="success">✅ 所有题目数据完整</p>';
+                }
+                
+                result.innerHTML = html;
+            } else {
+                result.innerHTML = '<p class="error">❌ questions数据异常</p>';
+            }
+        }
+        
+        // 测试3：模拟showQuestion函数
+        function testShowQuestion() {
+            const result = document.getElementById('test3-result');
+            
+            if (typeof showQuestion !== 'function') {
+                result.innerHTML = '<p class="error">❌ showQuestion函数未定义</p>';
+                return;
+            }
+            
+            // 创建一个模拟的DOM环境
+            const mockContainer = document.createElement('div');
+            mockContainer.id = 'mock-options-container';
+            document.body.appendChild(mockContainer);
+            
+            // 保存原始的元素
+            const originalOptionsContainer = document.getElementById('options-container');
+            const originalQuestionTitle = document.getElementById('question-title');
+            const originalObservation = document.getElementById('observation');
+            
+            // 创建模拟元素
+            const mockQuestionTitle = document.createElement('h2');
+            mockQuestionTitle.id = 'mock-question-title';
+            document.body.appendChild(mockQuestionTitle);
+            
+            const mockObservation = document.createElement('div');
+            mockObservation.id = 'mock-observation';
+            document.body.appendChild(mockObservation);
+            
+            try {
+                // 临时替换全局变量
+                window.optionsContainer = mockContainer;
+                window.questionTitle = mockQuestionTitle;
+                window.observation = mockObservation;
+                
+                // 调用showQuestion
+                showQuestion(0);
+                
+                // 检查结果
+                const options = mockContainer.querySelectorAll('.option');
+                
+                if (options.length > 0) {
+                    result.innerHTML = `<p class="success">✅ showQuestion函数工作正常</p>
+                                       <p>生成的选项数量: ${options.length}</p>
+                                       <p>题目标题: ${mockQuestionTitle.textContent}</p>
+                                       <p>观察提示: ${mockObservation.textContent}</p>`;
+                } else {
+                    result.innerHTML = `<p class="error">❌ showQuestion函数未生成选项</p>
+                                       <p>容器内容: ${mockContainer.innerHTML}</p>`;
+                }
+                
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ showQuestion执行错误: ${error.message}</p>
+                                   <pre>${error.stack}</pre>`;
+            } finally {
+                // 清理
+                mockContainer.remove();
+                mockQuestionTitle.remove();
+                mockObservation.remove();
+                
+                // 恢复原始变量
+                if (originalOptionsContainer) window.optionsContainer = originalOptionsContainer;
+                if (originalQuestionTitle) window.questionTitle = originalQuestionTitle;
+                if (originalObservation) window.observation = originalObservation;
+            }
+        }
+        
+        // 测试4：检查控制台错误
+        function checkConsole() {
+            const result = document.getElementById('test4-result');
+            
+            if (errors.length > 0) {
+                result.innerHTML = '<h3>控制台错误：</h3>';
+                errors.forEach(error => {
+                    result.innerHTML += `<p class="error">${error}</p>`;
+                });
+            } else {
+                result.innerHTML = '<p class="success">✅ 没有控制台错误</p>';
+            }
+        }
+        
+        // 页面加载时自动测试
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('调试页面已加载');
+            
+            setTimeout(() => {
+                testQuestionsJS();
+                testQuestionsData();
+                checkConsole();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

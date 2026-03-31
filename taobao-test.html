@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>淘宝跳转测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        .test-btn {
+            background: #FF4400;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        .test-btn:hover {
+            background: #FF5500;
+            transform: translateY(-2px);
+        }
+        .code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .log {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>淘宝跳转问题诊断</h1>
+    
+    <div class="test-section">
+        <h2>测试1：直接链接测试</h2>
+        <p>淘宝商品链接：<code id="taobao-url">https://item.taobao.com/item.htm?ft=t&id=1034939670570</code></p>
+        
+        <button class="test-btn" onclick="testDirectLink()">测试直接链接跳转</button>
+        <button class="test-btn" onclick="testWindowOpen()">测试 window.open()</button>
+        <button class="test-btn" onclick="testLocationHref()">测试 location.href</button>
+        
+        <div class="log" id="log1"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试2：模拟 payment-page.html 代码</h2>
+        <div class="code">
+const TAOBAO_URL = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
+const taobaoBtn = document.getElementById('taobao-btn');
+
+taobaoBtn.addEventListener('click', function() {
+    const cleanUrl = TAOBAO_URL.trim();
+    console.log('跳转到:', cleanUrl);
+    const newWindow = window.open(cleanUrl, '_blank');
+    
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        alert('跳转被拦截，请复制链接到浏览器打开：\n' + cleanUrl);
+        navigator.clipboard.writeText(cleanUrl).catch(err => {
+            console.error('复制失败:', err);
+        });
+    }
+});
+        </div>
+        
+        <button class="test-btn" id="taobao-btn">模拟淘宝按钮点击</button>
+        <button class="test-btn" onclick="testPaymentPageCode()">运行完整测试</button>
+        
+        <div class="log" id="log2"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试3：浏览器环境检查</h2>
+        <button class="test-btn" onclick="checkBrowserEnvironment()">检查浏览器环境</button>
+        <button class="test-btn" onclick="checkPopupBlockers()">检查弹窗拦截</button>
+        <button class="test-btn" onclick="clearCacheAndTest()">清除缓存并测试</button>
+        
+        <div class="log" id="log3"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试4：实际 payment-page.html 测试</h2>
+        <p>直接访问支付页面：</p>
+        <a href="https://jakayshawer-dev.github.io/LinnAesthetic/payment-page.html" target="_blank" style="color: #3498db; font-weight: bold;">
+            https://jakayshawer-dev.github.io/LinnAesthetic/payment-page.html
+        </a>
+        <p>然后点击淘宝按钮测试</p>
+    </div>
+
+    <script>
+        const TAOBAO_URL = 'https://item.taobao.com/item.htm?ft=t&id=1034939670570';
+        let logCount = 0;
+        
+        function log(sectionId, message) {
+            const logElement = document.getElementById(sectionId);
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}<br>`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        // 测试1：直接链接测试
+        function testDirectLink() {
+            log('log1', '测试直接链接跳转...');
+            window.open(TAOBAO_URL, '_blank');
+            log('log1', '已调用 window.open()');
+        }
+        
+        function testWindowOpen() {
+            log('log1', '测试 window.open()...');
+            const newWindow = window.open(TAOBAO_URL, '_blank');
+            if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                log('log1', '⚠️ 弹窗被拦截！');
+                alert('弹窗被拦截，请允许弹窗或复制链接手动打开');
+            } else {
+                log('log1', '✅ 弹窗成功打开');
+            }
+        }
+        
+        function testLocationHref() {
+            log('log1', '测试 location.href...');
+            window.location.href = TAOBAO_URL;
+        }
+        
+        // 测试2：模拟 payment-page.html 代码
+        document.getElementById('taobao-btn').addEventListener('click', function() {
+            log('log2', '模拟淘宝按钮点击...');
+            const cleanUrl = TAOBAO_URL.trim();
+            log('log2', `清理后的URL: "${cleanUrl}"`);
+            log('log2', `URL长度: ${cleanUrl.length} 字符`);
+            
+            const newWindow = window.open(cleanUrl, '_blank');
+            log('log2', '已调用 window.open()');
+            
+            if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                log('log2', '⚠️ 弹窗被拦截！');
+                alert('跳转被拦截，请复制链接到浏览器打开：\n' + cleanUrl);
+                navigator.clipboard.writeText(cleanUrl).then(() => {
+                    log('log2', '✅ 链接已复制到剪贴板');
+                }).catch(err => {
+                    log('log2', '❌ 复制失败: ' + err.message);
+                });
+            } else {
+                log('log2', '✅ 弹窗成功打开');
+            }
+        });
+        
+        function testPaymentPageCode() {
+            log('log2', '运行完整测试...');
+            // 模拟 payment-page.html 的完整逻辑
+            const cleanUrl = TAOBAO_URL.trim();
+            console.log('跳转到:', cleanUrl);
+            
+            const newWindow = window.open(cleanUrl, '_blank');
+            
+            if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                log('log2', '弹窗被拦截，显示提示...');
+                setTimeout(() => {
+                    alert('跳转被拦截，请复制链接到浏览器打开：\n' + cleanUrl);
+                    navigator.clipboard.writeText(cleanUrl).catch(err => {
+                        console.error('复制失败:', err);
+                    });
+                }, 100);
+            }
+        }
+        
+        // 测试3：浏览器环境检查
+        function checkBrowserEnvironment() {
+            log('log3', '=== 浏览器环境检查 ===');
+            log('log3', `用户代理: ${navigator.userAgent}`);
+            log('log3', `平台: ${navigator.platform}`);
+            log('log3', `在线状态: ${navigator.onLine ? '在线' : '离线'}`);
+            log('log3', `Cookie启用: ${navigator.cookieEnabled ? '是' : '否'}`);
+            log('log3', `JavaScript启用: 是`);
+            log('log3', `当前URL: ${window.location.href}`);
+            log('log3', `协议: ${window.location.protocol}`);
+        }
+        
+        function checkPopupBlockers() {
+            log('log3', '=== 弹窗拦截检查 ===');
+            const testWindow = window.open('', '_blank');
+            if (!testWindow || testWindow.closed || typeof testWindow.closed === 'undefined') {
+                log('log3', '❌ 检测到弹窗拦截！');
+                log('log3', '建议：关闭广告拦截插件，允许此站点的弹窗');
+            } else {
+                log('log3', '✅ 未检测到弹窗拦截');
+                testWindow.close();
+            }
+        }
+        
+        function clearCacheAndTest() {
+            log('log3', '清除缓存建议：');
+            log('log3', '1. 按 Ctrl+Shift+Delete (Windows/Linux)');
+            log('log3', '2. 或 Cmd+Shift+Delete (Mac)');
+            log('log3', '3. 选择"所有时间"，勾选"缓存图像和文件"');
+            log('log3', '4. 点击"清除数据"');
+            log('log3', '5. 重新加载页面测试');
+        }
+        
+        // 页面加载时自动检查
+        window.addEventListener('load', function() {
+            log('log1', '页面加载完成，可以开始测试');
+            log('log2', '模拟按钮已绑定事件');
+            checkBrowserEnvironment();
+        });
+        
+        // 监听控制台输出
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+            ).join(' ');
+            log('log2', `控制台: ${message}`);
+        };
+    </script>
+</body>
+</html>

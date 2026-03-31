@@ -136,10 +136,16 @@ function generateResultSummary(results, scores) {
     const sideText = resultTexts.side[results.sideType];
     summary.push(sideText.descriptions[0]);
     
-    // 4. 复杂度提示
-    summary.push("所以这份免费评估更适合帮你先看方向。若想进一步知道问题主次关系和处理顺序，还需要更细的评估分析。");
+    // 4. 复杂度提示（如果动态控制分高，优先使用动态提醒）
+    let complexityText;
+    if (scores.dynamicScore >= 4) {
+        complexityText = resultTexts.dynamicAlert.descriptions[0];
+    } else {
+        complexityText = resultTexts.complexity[results.complexityType].descriptions[0];
+    }
+    summary.push(complexityText);
     
-    return summary.join("\n\n");
+    return summary.join(" ");
 }
 
 // 获取详细描述

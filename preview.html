@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAA修改效果预览</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .preview-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .preview-section {
+            padding: 30px 25px;
+            border-bottom: 1px solid #e0e6ff;
+        }
+        
+        .preview-section:last-child {
+            border-bottom: none;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 15px;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .test-info {
+            text-align: center;
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+        }
+        
+        .system-identifier {
+            text-align: center;
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+            margin: 10px 0 20px;
+            letter-spacing: 1px;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .result-section {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e0e6ff;
+        }
+        
+        .result-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .result-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4a6fa5;
+            margin-bottom: 12px;
+        }
+        
+        .result-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .result-desc {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .result-summary {
+            background: #fff8e1;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .result-summary h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .summary-text {
+            font-size: 16px;
+            color: #856404;
+            line-height: 1.7;
+        }
+        
+        .summary-text p {
+            margin-bottom: 15px;
+        }
+        
+        .reminder {
+            background: #e8f4fd;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .reminder p {
+            font-size: 14px;
+            color: #0c5460;
+        }
+        
+        .btn-primary, .btn-secondary {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #4a6fa5;
+            border: 2px solid #e0e6ff;
+        }
+        
+        .note {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #155724;
+        }
+        
+        .modification-list {
+            background: #fff8e1;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .modification-list h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .modification-list ul {
+            padding-left: 20px;
+            color: #856404;
+        }
+        
+        .modification-list li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <div class="preview-section">
+            <h1>大小脸免费评估</h1>
+            <p class="subtitle">LAA · Linn Asymmetry Assessment</p>
+            <p class="test-info">12题，约1分钟，帮你先看真假倾向和主要方向</p>
+            
+            <div class="note">
+                <strong>修改说明：</strong>首页标题改为"大小脸免费评估"，下方添加LAA系统标识，保持专业克制风格。
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <div class="system-identifier">LAA</div>
+            
+            <div class="note">
+                <strong>修改说明：</strong>题目页顶部添加LAA系统标识，小号字体，不影响答题阅读，仅作为系统标识使用。
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <h1>LAA 评估结果</h1>
+            <p class="test-info">以下是您的评估结果</p>
+            
+            <div class="modification-list">
+                <h3>📋 主要修改内容：</h3>
+                <ul>
+                    <li>✅ 添加LAA系统标识（首页、题目页、结果页）</li>
+                    <li>✅ 结果页结构调整为三层逻辑</li>
+                    <li>✅ 结果说明改为多段落专业解释</li>
+                    <li>✅ 主按钮文案优化</li>
+                    <li>✅ 保持原有配色、圆角、按钮风格</li>
+                </ul>
+            </div>
+            
+            <div class="result-card">
+                <div class="result-section">
+                    <h3>真假倾向</h3>
+                    <div class="result-value">真性倾向</div>
+                    <p class="result-desc">从这次自测结果看，你目前更偏向真性大小脸。你现在看到的左右差异，更像已经固定在面部本身，而不只是拍照角度或暂时头位造成的视觉偏差。</p>
+                </div>
+                
+                <div class="result-section">
+                    <h3>主问题方向</h3>
+                    <div class="result-value">动态控制方向</div>
+                    <p class="result-desc">结合你的回答，问题更偏向动态控制不平衡较明显的类型。这类情况往往静态不一定最突出，但一到微笑、说话或做表情时，左右差异会更明显。</p>
+                </div>
+                
+                <div class="result-section">
+                    <h3>左右侧提示</h3>
+                    <div class="result-value">不明确</div>
+                    <p class="result-desc">目前左右侧方向还不够稳定，说明你的问题不太像单一一侧特别突出。从目前的回答看，你的差异更像是多个因素一起参与，而不是单一块状问题。</p>
+                </div>
+                
+                <div class="result-section">
+                    <h3>复杂度提示</h3>
+                    <div class="result-value">建议进一步评估</div>
+                    <p class="result-desc">你的结果里提示了较多复合因素，后续更适合进一步查看详细评估说明。如果你想知道问题主次关系和处理顺序，后面需要更细的分析。</p>
+                </div>
+            </div>
+            
+            <div class="result-summary">
+                <h3>结果说明</h3>
+                <div class="summary-text">
+                    <p>从这次自测结果看，你目前更偏向真性大小脸。</p>
+                    <p>结合你的回答，你的主要问题方向更偏向动态控制不平衡。这类情况在静态时不一定最突出，但一做表情、说话或微笑时，左右差异往往会更明显。</p>
+                    <p>同时，你目前的左右侧提示还不算特别明确，说明这次结果更像是多个因素一起参与，而不是单一一侧特别突出。</p>
+                    <p>所以这份免费评估更适合帮你先看方向。若想进一步知道问题主次关系和处理顺序，还需要更细的评估分析。</p>
+                </div>
+            </div>
+            
+            <div class="reminder">
+                <p>结果仅代表当前自测倾向，不等同于正式评估结果</p>
+            </div>
+            
+            <button class="btn-primary">查看问题主次与训练建议</button>
+            <button class="btn-secondary">重新测试</button>
+            
+            <div class="note">
+                <strong>页面逻辑：</strong><br>
+                1. <strong>结论层</strong> - 先回答用户最关心的四个问题<br>
+                2. <strong>解释层</strong> - 再说明为什么会得到这个判断<br>
+                3. <strong>承接层</strong> - 最后出现免责声明和下一步按钮
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <div class="modification-list">
+                <h3>🎯 修改目标达成：</h3>
+                <ul>
+                    <li><strong>专业克制：</strong> 有评估工具感，不是营销落地页</li>
+                    <li><strong>阅读顺序合理：</strong> 先判断 → 再解释 → 再承接下一步</li>
+                    <li><strong>减少推销感：</strong> 不让用户感觉是先引导付费再补结果</li>
+                    <li><strong>移动端友好：</strong> 保持原有响应式设计</li>
+                    <li><strong>LAA标识自然：</strong> 清晰但不突兀，融入整体设计</li>
+                </ul>
+            </div>
+            
+            <div class="note">
+                <strong>测试链接：</strong><br>
+                • 主测试页面: <a href="index.html">index.html</a><br>
+                • 微信二维码: <a href="wechat-qrcode.html">wechat-qrcode.html</a><br>
+                • 修改说明: <a href="test-modifications.html">test-modifications.html</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

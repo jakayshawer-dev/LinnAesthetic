@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>淘宝商品图占位符</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .placeholder {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .placeholder i {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        .placeholder h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
+        }
+        .placeholder p {
+            margin: 0;
+            opacity: 0.9;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="placeholder">
+        <i class="fas fa-shopping-bag"></i>
+        <h3>淘宝商品图</h3>
+        <p>LAA 进阶评估服务</p>
+        <p>￥29.9</p>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <p><strong>说明：</strong>这是一个占位图片，实际部署时应替换为真实的淘宝商品截图。</p>
+        <p>保存为 <code>taobao-product.jpg</code> 或 <code>taobao-product.png</code> 到 <code>assets/images/</code> 目录。</p>
+    </div>
+</body>
+</html>

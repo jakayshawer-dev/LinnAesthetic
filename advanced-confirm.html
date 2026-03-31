@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA 进阶评估 - 付款确认</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 付款确认页 -->
+        <div id="advanced-confirm-page" class="page active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-clock"></i>
+                </div>
+                
+                <h1 class="main-title">付款确认中</h1>
+                <p class="subtitle">请按页面提示完成后续确认</p>
+                
+                <!-- 确认说明 -->
+                <div class="confirm-card">
+                    <div class="confirm-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="confirm-content">
+                        <p>如果你已完成付款，请按页面提示完成后续确认。</p>
+                        <p class="confirm-highlight">确认后即可查看你的 LAA 进阶评估结果。</p>
+                    </div>
+                </div>
+                
+                <!-- 当前版本说明 -->
+                <div class="version-info">
+                    <h3><i class="fas fa-info-circle"></i> 当前版本说明</h3>
+                    <div class="info-content">
+                        <p>当前版本为确认后开通，不是自动识别付款系统。</p>
+                        <p>请保留当前页面信息，后续将按既定方式为你开通 LAA 进阶评估结果。</p>
+                    </div>
+                </div>
+                
+                <!-- 付款确认表单 -->
+                <div class="payment-confirm-form">
+                    <h3><i class="fas fa-receipt"></i> 付款确认信息</h3>
+                    <p class="form-note">请填写以下信息，帮助我们更快确认你的付款：</p>
+                    
+                    <div class="form-fields">
+                        <!-- 订单号（自动生成） -->
+                        <div class="form-group">
+                            <label><i class="fas fa-hashtag"></i> 订单号</label>
+                            <div class="order-id-display" id="order-id-display">
+                                正在生成...
+                            </div>
+                            <small class="form-help">系统自动生成的唯一订单标识</small>
+                        </div>
+                        
+                        <!-- 支付方式 -->
+                        <div class="form-group">
+                            <label><i class="fas fa-credit-card"></i> 支付方式 <span class="required">*</span></label>
+                            <select id="payment-method" required>
+                                <option value="">请选择支付方式</option>
+                                <option value="alipay">支付宝</option>
+                                <option value="wechat">微信支付</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 付款时间 -->
+                        <div class="form-group">
+                            <label><i class="fas fa-clock"></i> 付款时间 <span class="required">*</span></label>
+                            <input type="datetime-local" id="payment-time" required>
+                        </div>
+                        
+                        <!-- 付款截图 -->
+                        <div class="form-group">
+                            <label><i class="fas fa-image"></i> 付款截图 <span class="required">*</span></label>
+                            <div class="screenshot-upload-area" id="screenshot-upload-area">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>点击上传付款截图</p>
+                                <small>支持 JPG、PNG 格式，最大 5MB</small>
+                                <input type="file" id="screenshot-input" accept="image/*" style="display: none;">
+                            </div>
+                            
+                            <!-- 截图预览 -->
+                            <div class="screenshot-preview" id="screenshot-preview" style="display: none;">
+                                <div class="preview-container">
+                                    <img id="screenshot-image" src="" alt="付款截图预览">
+                                    <button class="remove-screenshot" id="remove-screenshot">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <p class="preview-text">已上传付款截图</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 备注信息 -->
+                        <div class="form-group">
+                            <label><i class="fas fa-comment"></i> 备注信息（可选）</label>
+                            <textarea id="payment-notes" placeholder="可填写付款备注或其他信息，例如：付款人姓名、付款金额尾数等" rows="3"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-note-final">
+                        <p><i class="fas fa-lightbulb"></i> <strong>流程说明：</strong>提交后信息将推送到飞书表格，管理员审核确认后会为你开通进阶评估结果。</p>
+                    </div>
+                </div>
+                
+                <!-- 后续流程说明 -->
+                <div class="next-steps">
+                    <h3><i class="fas fa-forward"></i> 后续流程</h3>
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <strong>付款确认</strong>
+                                <p>管理员确认你的付款信息</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <strong>结果开通</strong>
+                                <p>为你开通 LAA 进阶评估结果</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <strong>查看结果</strong>
+                                <p>查看详细的主次关系分析和处理建议</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 底部按钮区 -->
+                <div class="action-buttons">
+                    <button id="read-btn" class="btn-primary">
+                        <i class="fas fa-check"></i> 我已阅读
+                    </button>
+                    <button id="back-to-payment-btn" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> 返回支付页
+                    </button>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA · 进阶评估
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const readBtn = document.getElementById('read-btn');
+        const backToPaymentBtn = document.getElementById('back-to-payment-btn');
+        const orderIdDisplay = document.getElementById('order-id-display');
+        const paymentMethod = document.getElementById('payment-method');
+        const paymentTime = document.getElementById('payment-time');
+        const screenshotUploadArea = document.getElementById('screenshot-upload-area');
+        const screenshotInput = document.getElementById('screenshot-input');
+        const screenshotPreview = document.getElementById('screenshot-preview');
+        const screenshotImage = document.getElementById('screenshot-image');
+        const removeScreenshotBtn = document.getElementById('remove-screenshot');
+        const paymentNotes = document.getElementById('payment-notes');
+
+        // 全局变量
+        let orderId = '';
+        let screenshotFile = null;
+
+        // 生成订单号
+        function generateOrderId() {
+            const timestamp = Date.now();
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `LAA${timestamp}${random}`;
+        }
+
+        // 初始化应用
+        function initConfirmApp() {
+            // 生成订单号
+            orderId = generateOrderId();
+            orderIdDisplay.textContent = orderId;
+            
+            // 设置默认付款时间为当前时间
+            const now = new Date();
+            const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+            paymentTime.value = localDateTime;
+            
+            // 绑定截图上传事件
+            screenshotUploadArea.addEventListener('click', () => {
+                screenshotInput.click();
+            });
+            
+            screenshotInput.addEventListener('change', handleScreenshotSelect);
+            removeScreenshotBtn.addEventListener('click', removeScreenshot);
+            
+            // 拖拽上传支持
+            screenshotUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                screenshotUploadArea.style.background = '#e8f4fd';
+                screenshotUploadArea.style.borderColor = '#2196f3';
+            });
+            
+            screenshotUploadArea.addEventListener('dragleave', () => {
+                screenshotUploadArea.style.background = '';
+                screenshotUploadArea.style.borderColor = '';
+            });
+            
+            screenshotUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                screenshotUploadArea.style.background = '';
+                screenshotUploadArea.style.borderColor = '';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type.startsWith('image/')) {
+                        handleScreenshotFile(file);
+                    } else {
+                        alert('请选择图片文件（JPG、PNG格式）');
+                    }
+                }
+            });
+            
+            // 我已阅读按钮（现在改为提交确认）
+            readBtn.addEventListener('click', submitPaymentConfirmation);
+            
+            // 返回支付页按钮
+            backToPaymentBtn.addEventListener('click', () => {
+                window.history.back();
+            });
+            
+            // 添加键盘支持
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    readBtn.click();
+                } else if (e.key === 'Escape') {
+                    backToPaymentBtn.click();
+                }
+            });
+        }
+
+        // 处理截图选择
+        function handleScreenshotSelect(e) {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                handleScreenshotFile(file);
+            }
+        }
+
+        // 处理截图文件
+        function handleScreenshotFile(file) {
+            // 检查文件大小（最大5MB）
+            if (file.size > 5 * 1024 * 1024) {
+                alert('文件大小不能超过5MB');
+                return;
+            }
+            
+            // 检查文件类型
+            if (!file.type.startsWith('image/')) {
+                alert('请选择图片文件（JPG、PNG格式）');
+                return;
+            }
+            
+            // 保存文件
+            screenshotFile = file;
+            
+            // 显示预览
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                screenshotImage.src = e.target.result;
+                screenshotPreview.style.display = 'block';
+                screenshotUploadArea.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 移除截图
+        function removeScreenshot() {
+            screenshotInput.value = '';
+            screenshotPreview.style.display = 'none';
+            screenshotUploadArea.style.display = 'block';
+            screenshotFile = null;
+        }
+
+        // 提交付款确认
+        function submitPaymentConfirmation() {
+            // 验证表单
+            if (!paymentMethod.value) {
+                alert('请选择支付方式');
+                paymentMethod.focus();
+                return;
+            }
+            
+            if (!paymentTime.value) {
+                alert('请填写付款时间');
+                paymentTime.focus();
+                return;
+            }
+            
+            if (!screenshotFile) {
+                alert('请上传付款截图');
+                return;
+            }
+            
+            // 显示提交中状态
+            readBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 提交中...';
+            readBtn.disabled = true;
+            
+            // 模拟提交到飞书（实际需要后端API）
+            setTimeout(() => {
+                // 这里应该是实际的飞书API调用
+                // await pushToFeishu(screenshotFile, orderId);
+                
+                // 模拟成功
+                showConfirmationSuccess();
+            }, 1500);
+        }
+
+        // 显示确认成功
+        function showConfirmationSuccess() {
+            // 创建成功消息
+            const successMessage = `
+                <div class="success-message">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>付款确认已提交！</h3>
+                    <p>你的付款信息已成功提交到飞书表格。</p>
+                    <div class="success-details">
+                        <p><strong>订单号：</strong>${orderId}</p>
+                        <p><strong>支付方式：</strong>${paymentMethod.options[paymentMethod.selectedIndex].text}</p>
+                        <p><strong>付款时间：</strong>${paymentTime.value}</p>
+                    </div>
+                    <p class="success-note">管理员审核确认后，会为你开通 LAA 进阶评估结果。</p>
+                    <p class="success-contact">如有问题，可通过飞书联系管理员。</p>
+                </div>
+            `;
+            
+            // 替换页面内容
+            document.querySelector('.container').innerHTML = successMessage;
+            
+            // 添加返回按钮
+            const backButton = document.createElement('button');
+            backButton.className = 'btn-primary';
+            backButton.innerHTML = '<i class="fas fa-home"></i> 返回首页';
+            backButton.style.marginTop = '20px';
+            backButton.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+            
+            document.querySelector('.container').appendChild(backButton);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initConfirmApp);
+    </script>
+</body>
+</html>

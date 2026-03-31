@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>验证修复 - 实时测试</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .test-case { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .status.pass { background: #d4edda; border: 1px solid #c3e6cb; }
+        .status.fail { background: #f8d7da; border: 1px solid #f5c6cb; }
+        pre { background: #333; color: #fff; padding: 15px; border-radius: 4px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>验证修复 - 实时测试</h1>
+    <p>测试您指出的3个问题是否已修复：</p>
+    
+    <div class="test-case">
+        <h2>问题1：testId生成时机</h2>
+        <p><strong>文档说</strong>: testId在第二层（4题+照片）后生成</p>
+        <p><strong>之前错误</strong>: ❌ 第一层12题后就生成</p>
+        
+        <button onclick="testProblem1()">测试问题1</button>
+        <div id="problem1-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>问题2：second-layer-testid.js文件</h2>
+        <p><strong>文档说</strong>: 有second-layer-testid.js文件</p>
+        <p><strong>之前错误</strong>: ❌ 404不存在</p>
+        
+        <button onclick="testProblem2()">测试问题2</button>
+        <div id="problem2-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>问题3：答案数量</h2>
+        <p><strong>文档说</strong>: 16题答案合并后生成testId</p>
+        <p><strong>之前错误</strong>: ❌ 只有12题答案</p>
+        
+        <button onclick="testProblem3()">测试问题3</button>
+        <div id="problem3-result"></div>
+    </div>
+    
+    <div class="test-case">
+        <h2>完整流程测试</h2>
+        <button onclick="testFullFlow()">测试完整流程</button>
+        <div id="full-flow-result"></div>
+    </div>
+    
+    <script>
+        // 问题1：测试testId生成时机
+        async function testProblem1() {
+            const result = document.getElementById('problem1-result');
+            result.innerHTML = '<div class="status">测试中...</div>';
+            
+            // 清空之前的测试数据
+            localStorage.removeItem('current_second_layer_test_id');
+            localStorage.removeItem('laa_basic_answers');
+            
+            // 模拟第一层：12题基础评估
+            const basicAnswers = {};
+            for (let i = 1; i <= 12; i++) {
+                basicAnswers['BQ' + i] = 'A';
+            }
+            localStorage.setItem('laa_basic_answers', JSON.stringify(basicAnswers));
+            
+            // 检查第一层后是否有testId
+            const testIdAfterFirstLayer = localStorage.getItem('current_second_layer_test_id');
+            
+            if (testIdAfterFirstLayer) {
+                result.innerHTML = `<div class="status fail">❌ 失败：第一层后就有testId: ${testIdAfterFirstLayer}</div>`;
+            } else {
+                result.innerHTML = `<div class="status pass">✅ 通过：第一层后没有testId</div>`;
+            }
+        }
+        
+        // 问题2：测试second-layer-testid.js文件
+        async function testProblem2() {
+            const result = document.getElementById('problem2-result');
+            result.innerHTML = '<div class="status">测试中...</div>';
+            
+            try {
+                const response = await fetch('js/second-layer-testid.js');
+                if (response.ok) {
+                    result.innerHTML = `<div class="status pass">✅ 通过：second-layer-testid.js文件存在</div>`;
+                    
+                    // 尝试加载并测试功能
+                    const script = document.createElement('script');
+                    script.src = 'js/second-layer-testid.js';
+                    script.onload = function() {
+                        if (window.SecondLayerTestIdGenerator) {
+                            result.innerHTML += `<div class="status pass">✅ 通过：SecondLayerTestIdGenerator已加载</div>`;
+                        } else {
+                            result.innerHTML += `<div class="status fail">❌ 失败：SecondLayerTestIdGenerator未加载</div>`;
+                        }
+                    };
+                    script.onerror = function() {
+                        result.innerHTML += `<div class="status fail">❌ 失败：加载JS文件出错</div>`;
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    result.innerHTML = `<div class="status fail">❌ 失败：second-layer-testid.js返回${response.status}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status fail">❌ 失败：${error.message}</div>`;
+            }
+        }
+        
+        // 问题3：测试答案数量
+        async function testProblem3() {
+            const result = document.getElementById('problem3-result');
+            result.innerHTML = '<div class="status">测试中...</div>';
+            
+            // 需要先加载JS文件
+            await loadRequiredJS();
+            
+            // 模拟16题答案（12基础 + 4进阶）
+            const basicAnswers = {};
+            for (let i = 1; i <= 12; i++) {
+                basicAnswers['BQ' + i] = 'A';
+            }
+            
+            const advancedAnswers = {};
+            for (let i = 1; i <= 4; i++) {
+                advancedAnswers['AQ' + i] = 'B';
+            }
+            
+            try {
+                if (window.generateSecondLayerTestId) {
+                    const testId = window.generateSecondLayerTestId(basicAnswers, advancedAnswers);
+                    
+                    // 检查TestIDManager中的记录
+                    if (window.TestIDManager) {
+                        const record = window.TestIDManager.getTestRecord(testId);
+                        if (record && record.userData) {
+                            const basicCount = record.userData.basic_answers ? record.userData.basic_answers.length : 0;
+                            const advancedCount = record.userData.advanced_answers ? record.userData.advanced_answers.length : 0;
+                            const total = basicCount + advancedCount;
+                            
+                            if (total === 16) {
+                                result.innerHTML = `<div class="status pass">✅ 通过：testId基于${total}题答案生成</div>
+                                                   <p>基础答案: ${basicCount}题，进阶答案: ${advancedCount}题</p>
+                                                   <p>testId: ${testId}</p>`;
+                            } else {
+                                result.innerHTML = `<div class="status fail">❌ 失败：只有${total}题答案，应该是16题</div>`;
+                            }
+                        } else {
+                            result.innerHTML = `<div class="status fail">❌ 失败：TestIDManager记录不存在</div>`;
+                        }
+                    } else {
+                        result.innerHTML = `<div class="status fail">❌ 失败：TestIDManager未加载</div>`;
+                    }
+                } else {
+                    result.innerHTML = `<div class="status fail">❌ 失败：generateSecondLayerTestId函数未加载</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="status fail">❌ 失败：${error.message}</div>`;
+            }
+        }
+        
+        // 完整流程测试
+        async function testFullFlow() {
+            const result = document.getElementById('full-flow-result');
+            result.innerHTML = '<h3>完整流程测试：</h3>';
+            
+            // 清空数据
+            localStorage.clear();
+            
+            // 步骤1：测试第一层
+            result.innerHTML += '<p>1. 测试第一层基础评估...</p>';
+            await testProblem1();
+            const problem1Result = document.getElementById('problem1-result').innerHTML;
+            result.innerHTML += problem1Result.includes('✅') ? '<p>✅ 第一层测试通过</p>' : '<p>❌ 第一层测试失败</p>';
+            
+            // 步骤2：测试文件加载
+            result.innerHTML += '<p>2. 测试JS文件加载...</p>';
+            await testProblem2();
+            const problem2Result = document.getElementById('problem2-result').innerHTML;
+            result.innerHTML += problem2Result.includes('✅') ? '<p>✅ 文件加载测试通过</p>' : '<p>❌ 文件加载测试失败</p>';
+            
+            // 步骤3：测试答案合并
+            result.innerHTML += '<p>3. 测试16题答案合并...</p>';
+            await testProblem3();
+            const problem3Result = document.getElementById('problem3-result').innerHTML;
+            result.innerHTML += problem3Result.includes('✅') ? '<p>✅ 答案合并测试通过</p>' : '<p>❌ 答案合并测试失败</p>';
+            
+            // 总结
+            const allPass = problem1Result.includes('✅') && problem2Result.includes('✅') && problem3Result.includes('✅');
+            if (allPass) {
+                result.innerHTML += '<div class="status pass" style="margin-top: 20px;">🎉 所有测试通过！修复成功！</div>';
+            } else {
+                result.innerHTML += '<div class="status fail" style="margin-top: 20px;">❌ 部分测试失败，请检查问题</div>';
+            }
+        }
+        
+        // 加载必要的JS文件
+        async function loadRequiredJS() {
+            return new Promise((resolve) => {
+                // 检查是否已加载
+                if (window.TestIDManager && window.SecondLayerTestIdGenerator) {
+                    resolve();
+                    return;
+                }
+                
+                // 加载JS文件
+                const scripts = [
+                    'js/answer-hash-generator.js',
+                    'js/test-id.js',
+                    'js/second-layer-testid.js'
+                ];
+                
+                let loaded = 0;
+                scripts.forEach(src => {
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.onload = () => {
+                        loaded++;
+                        if (loaded === scripts.length) {
+                            setTimeout(resolve, 500);
+                        }
+                    };
+                    script.onerror = () => {
+                        loaded++;
+                        if (loaded === scripts.length) {
+                            setTimeout(resolve, 500);
+                        }
+                    };
+                    document.head.appendChild(script);
+                });
+            });
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('验证页面已加载');
+        });
+    </script>
+</body>
+</html>

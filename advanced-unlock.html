@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>解锁 LAA 进阶评估结果</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 测试编号显示样式 */
+        .test-id-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .test-id-label {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .test-id-number {
+            font-size: 2.8em;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .copy-test-id-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+        
+        .copy-test-id-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .copy-test-id-btn.copied {
+            background: #4CAF50;
+        }
+        
+        /* 价格区域 */
+        .price-section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .price-amount {
+            font-size: 48px;
+            font-weight: 700;
+            color: #e74c3c;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+        
+        .price-note {
+            font-size: 15px;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        
+
+        
+        /* 提示区域 */
+        .reminder-box {
+            background: #fff8e1;
+            border-left: 4px solid #ffb300;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .reminder-box strong {
+            color: #ff8f00;
+        }
+        
+        /* 解锁内容列表 */
+        .unlock-features {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .unlock-features h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feature-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f1f1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-list li i {
+            color: #4f46e5;
+            font-size: 14px;
+        }
+        
+        /* 流程说明 */
+        .process-steps {
+            background: #f0f9ff;
+            border-radius: 16px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #bae6fd;
+        }
+        
+        .process-steps h3 {
+            color: #0369a1;
+            margin-bottom: 20px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        
+        .step-number {
+            background: #0ea5e9;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .step-content p {
+            color: #666;
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 结果解锁页 -->
+        <div id="advanced-unlock-page" class="page active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-lock-open"></i>
+                </div>
+                
+                <h1 class="main-title">解锁 LAA 进阶评估结果</h1>
+                <p class="subtitle">你已完成免费评估，接下来可继续完成进阶评估以获取更详细的分析结果</p>
+                
+                <!-- 测试编号显示 -->
+                <div class="test-id-display">
+                    <div class="test-id-label">你的测试编号</div>
+                    <div class="test-id-number" id="test-id-number">LAA24001</div>
+                    <button class="copy-test-id-btn" id="copy-test-id-btn">
+                        <i class="fas fa-copy"></i> 复制编号
+                    </button>
+                    <div style="margin-top: 15px; font-size: 14px; opacity: 0.9;">
+                        请复制并保存该编号。下单后将凭此编号为你匹配并开通专属进阶结果。
+                    </div>
+                </div>
+                
+                <!-- 已完成提示 -->
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="info-content">
+                        <p>你已完成免费评估，获得了初步分析结果。</p>
+                        <p class="info-highlight">继续完成进阶评估以获取更详细的分析结果。</p>
+                    </div>
+                </div>
+                
+                <!-- 解锁内容 -->
+                <div class="unlock-features">
+                    <h3><i class="fas fa-eye"></i> 解锁后你将看到</h3>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-circle"></i> 主因与次因拆解</li>
+                        <li><i class="fas fa-circle"></i> 表现侧与驱动侧分析</li>
+                        <li><i class="fas fa-circle"></i> 复合因素判断</li>
+                        <li><i class="fas fa-circle"></i> 形成逻辑说明</li>
+                        <li><i class="fas fa-circle"></i> 处理顺序建议</li>
+                    </ul>
+                </div>
+                
+                <!-- 重要提示 -->
+                <div class="reminder-box">
+                    <p><strong>重要提示：</strong>请保存好你的测试编号 <span id="reminder-test-id" style="font-weight: bold; color: #d35400;">LAA24001</span>。</p>
+                    <p>完成进阶评估后，将凭此编号为你匹配专属的进阶评估结果。</p>
+                </div>
+                
+                <!-- 底部提示 -->
+                <div class="instruction-box">
+                    <p><i class="fas fa-info-circle"></i> <strong>温馨提示：</strong>请保留你的测试编号。完成进阶评估后，将凭此编号为你开通对应结果查看权限。</p>
+                </div>
+                
+                <!-- 尝试查看结果按钮 -->
+                <div class="try-view-section" style="margin-top: 30px; text-align: center;">
+                    <button class="btn-primary try-view-btn" id="try-view-btn" style="padding: 15px 40px; font-size: 16px;">
+                        <i class="fas fa-eye"></i> 尝试查看结果
+                    </button>
+                    <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                        点击查看已开通的进阶评估结果（需完成支付并开通权限）
+                    </p>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA · 进阶评估
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/test-id.js"></script>
+    <script src="js/data-manager.js"></script>
+    <script>
+        // DOM元素
+        const testIdNumber = document.getElementById('test-id-number');
+        const reminderTestId = document.getElementById('reminder-test-id');
+        const copyTestIdBtn = document.getElementById('copy-test-id-btn');
+        const tryViewBtn = document.getElementById('try-view-btn');
+        
+        // 页面加载初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initUnlockPage();
+        });
+        
+        // 初始化页面
+        function initUnlockPage() {
+            // 获取或生成测试编号
+            let testId = localStorage.getItem('current_advanced_test_id');
+            
+            if (!testId) {
+                // 生成新的测试编号
+                testId = generateAdvancedTestId();
+                localStorage.setItem('current_advanced_test_id', testId);
+            }
+            
+            // 更新页面显示
+            updateTestIdDisplay(testId);
+            
+            // 绑定复制按钮
+            copyTestIdBtn.addEventListener('click', async function() {
+                const success = await copyToClipboard(testId);
+                
+                if (success) {
+                    const originalText = copyTestIdBtn.innerHTML;
+                    copyTestIdBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                    copyTestIdBtn.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        copyTestIdBtn.innerHTML = originalText;
+                        copyTestIdBtn.classList.remove('copied');
+                    }, 2000);
+                } else {
+                    alert('复制失败，请手动选择并复制编号：' + testId);
+                }
+            });
+            
+            // 绑定尝试查看结果按钮
+            tryViewBtn.addEventListener('click', function() {
+                checkAndRedirectToResult(testId);
+            });
+        }
+        
+        // 生成进阶评估测试编号
+        function generateAdvancedTestId() {
+            // 从localStorage获取最后一个编号
+            let lastId = localStorage.getItem('last_advanced_test_id');
+            if (!lastId) {
+                lastId = '24000'; // 起始编号
+            }
+            
+            // 生成新编号
+            const newIdNum = parseInt(lastId) + 1;
+            const newId = 'LAA' + newIdNum;
+            
+            // 保存到localStorage
+            localStorage.setItem('last_advanced_test_id', newIdNum.toString());
+            
+            return newId;
+        }
+        
+        // 更新测试编号显示
+        function updateTestIdDisplay(testId) {
+            testIdNumber.textContent = testId;
+            reminderTestId.textContent = testId;
+        }
+        
+        // 复制到剪贴板
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (err) {
+                console.error('复制失败:', err);
+                // 备用方法
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    return successful;
+                } catch (err2) {
+                    console.error('备用复制方法失败:', err2);
+                    return false;
+                }
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message) {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4CAF50;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+            `;
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-info-circle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 3秒后移除
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+            
+            // 添加动画样式
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        // 检查并跳转到结果页面
+        function checkAndRedirectToResult(testId) {
+            try {
+                // 检查测试编号是否存在
+                if (!window.checkTestIdStatus) {
+                    alert("系统未初始化，请刷新页面重试");
+                    return;
+                }
+                
+                const status = window.checkTestIdStatus(testId);
+                
+                if (!status.exists) {
+                    alert("自测码无效，请重新生成");
+                    return;
+                }
+                
+                // 检查支付状态
+                if (!status.paid) {
+                    alert("请完成支付后再查看结果");
+                    return;
+                }
+                
+                // 检查开通状态
+                if (!status.opened) {
+                    alert("请等待后台确认开通后查看结果");
+                    return;
+                }
+                
+                // 获取记录以检查答题数据
+                let record = null;
+                if (window.TestIDManager && window.TestIDManager.getTestRecord) {
+                    record = window.TestIDManager.getTestRecord(testId);
+                }
+                
+                // 检查是否有答题数据
+                if (!record || !record.userData || !record.userData.advanced_answers) {
+                    alert("未找到答题数据，请确认是否完成测试流程");
+                    return;
+                }
+                
+                // 所有检查通过，跳转到结果页面
+                window.location.href = `result-viewer.html?testId=${testId}`;
+                
+            } catch (error) {
+                console.error('检查记录时出错:', error);
+                alert("系统错误，请稍后重试");
+            }
+        }
+    </script>
+</body>
+</html>

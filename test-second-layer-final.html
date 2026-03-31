@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第二层评估流程测试 - 最终版</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .test-step { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        pre { background: #333; color: #fff; padding: 15px; border-radius: 4px; overflow: auto; }
+        .flow-diagram { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            margin: 20px 0; 
+        }
+        .flow-step {
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            background: white;
+        }
+        .flow-step.completed {
+            border-left-color: #28a745;
+            background: #e8f5e8;
+        }
+    </style>
+</head>
+<body>
+    <h1>第二层评估流程测试 - 最终版</h1>
+    <p>验证正确的用户流程：testId应在第二层（4题+照片）完成后生成</p>
+    
+    <div class="flow-diagram">
+        <div class="flow-step" id="step1">
+            <strong>步骤1：第一层基础评估</strong>
+            <p>12题 → 保存基础答案到localStorage</p>
+        </div>
+        <div class="flow-step" id="step2">
+            <strong>步骤2：第二层进阶评估</strong>
+            <p>4题 → 合并基础+进阶答案 → 生成testId</p>
+        </div>
+        <div class="flow-step" id="step3">
+            <strong>步骤3：照片上传</strong>
+            <p>上传正面照 → 完成第二层评估</p>
+        </div>
+        <div class="flow-step" id="step4">
+            <strong>步骤4：支付</strong>
+            <p>标记 paid = true → 出现在后台</p>
+        </div>
+        <div class="flow-step" id="step5">
+            <strong>步骤5：后台开通</strong>
+            <p>管理员开通 → 标记 opened = true</p>
+        </div>
+        <div class="flow-step" id="step6">
+            <strong>步骤6：查看结果</strong>
+            <p>验证 paid && opened → 显示final-v3结果</p>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <h2>测试1：检查JS文件加载</h2>
+        <button onclick="checkJSFiles()">检查JS文件</button>
+        <div id="js-status"></div>
+    </div>
+    
+    <div class="test-step">
+        <h2>测试2：模拟第一层基础评估（12题）</h2>
+        <button onclick="simulateFirstLayer()">模拟12题基础评估</button>
+        <div id="first-layer-status"></div>
+    </div>
+    
+    <div class="test-step">
+        <h2>测试3：模拟第二层进阶评估（4题）</h2>
+        <button onclick="simulateSecondLayer()">模拟4题进阶评估</button>
+        <div id="second-layer-status"></div>
+    </div>
+    
+    <div class="test-step">
+        <h2>测试4：验证testId生成</h2>
+        <button onclick="verifyTestId()">验证testId</button>
+        <div id="testid-status"></div>
+    </div>
+    
+    <div class="test-step">
+        <h2>测试5：测试按钮跳转逻辑</h2>
+        <button onclick="testButtonLogic()">测试按钮跳转</button>
+        <div id="button-status"></div>
+    </div>
+    
+    <div class="test-step">
+        <h2>测试6：完整流程测试</h2>
+        <button onclick="runFullTest()">运行完整测试</button>
+        <div id="full-test-status"></div>
+    </div>
+    
+    <script src="js/answer-hash-generator.js"></script>
+    <script src="js/test-id.js"></script>
+    <script src="js/second-layer-testid.js"></script>
+    
+    <script>
+        // 更新流程图
+        function updateFlowDiagram() {
+            const steps = ['step1', 'step2', 'step3', 'step4', 'step5', 'step6'];
+            steps.forEach(step => {
+                document.getElementById(step).classList.remove('completed');
+            });
+            
+            // 根据当前状态标记完成步骤
+            const basicAnswers = localStorage.getItem('laa_basic_answers');
+            if (basicAnswers) {
+                document.getElementById('step1').classList.add('completed');
+            }
+            
+            const testId = localStorage.getItem('current_second_layer_test_id');
+            if (testId) {
+                document.getElementById('step2').classList.add('completed');
+                
+                // 检查支付状态
+                try {
+                    const record = window.TestIDManager.getTestRecord(testId);
+                    if (record) {
+                        if (record.paid) {
+                            document.getElementById('step4').classList.add('completed');
+                        }
+                        if (record.opened) {
+                            document.getElementById('step5').classList.add('completed');
+                        }
+                    }
+                } catch (e) {}
+            }
+        }
+        
+        // 测试1：检查JS文件加载
+        function checkJSFiles() {
+            const status = document.getElementById('js-status');
+            let html = '<h3>JS文件加载状态：</h3>';
+            
+            const files = [
+                { name: 'AnswerHashGenerator', check: () => window.AnswerHashGenerator },
+                { name: 'TestIDManager', check: () => window.TestIDManager },
+                { name: 'SecondLayerTestIdGenerator', check: () => window.SecondLayerTestIdGenerator },
+                { name: 'generateSecondLayerTestId', check: () => window.generateSecondLayerTestId },
+                { name: 'isSecondLayerCompleted', check: () => window.isSecondLayerCompleted }
+            ];
+            
+            files.forEach(file => {
+                const exists = file.check();
+                if (exists) {
+                    html += `<p class="success">✅ ${file.name} 已加载</p>`;
+                } else {
+                    html += `<p class="error">❌ ${file.name} 未加载</p>`;
+                }
+            });
+            
+            status.innerHTML = html;
+            updateFlowDiagram();
+        }
+        
+        // 测试2：模拟第一层基础评估
+        function simulateFirstLayer() {
+            const status = document.getElementById('first-layer-status');
+            
+            // 模拟12题基础答案
+            const basicAnswers = {};
+            for (let i = 1; i <= 12; i++) {
+                const options = ['A', 'B', 'C', 'D'];
+                basicAnswers['BQ' + i] = options[Math.floor(Math.random() * options.length)];
+            }
+            
+            // 保存到localStorage
+            localStorage.setItem('laa_basic_answers', JSON.stringify(basicAnswers));
+            
+            status.innerHTML = `
+                <p class="success">✅ 第一层基础评估模拟完成</p>
+                <p>生成 ${Object.keys(basicAnswers).length} 个基础答案</p>
+                <p>已保存到 localStorage</p>
+                <p><small>这些答案将在第二层用于生成testId</small></p>
+            `;
+            
+            updateFlowDiagram();
+        }
+        
+        // 测试3：模拟第二层进阶评估
+        function simulateSecondLayer() {
+            const status = document.getElementById('second-layer-status');
+            
+            // 获取基础答案
+            const basicAnswers = JSON.parse(localStorage.getItem('laa_basic_answers') || '{}');
+            
+            if (Object.keys(basicAnswers).length === 0) {
+                status.innerHTML = '<p class="error">❌ 请先完成第一层基础评估（测试2）</p>';
+                return;
+            }
+            
+            // 模拟4题进阶答案
+            const advancedAnswers = {};
+            for (let i = 1; i <= 4; i++) {
+                const options = ['A', 'B', 'C', 'D'];
+                advancedAnswers['AQ' + i] = options[Math.floor(Math.random() * options.length)];
+            }
+            
+            status.innerHTML = `
+                <p>基础答案数量: ${Object.keys(basicAnswers).length}</p>
+                <p>进阶答案数量: ${Object.keys(advancedAnswers).length}</p>
+                <p>总答案数量: ${Object.keys(basicAnswers).length + Object.keys(advancedAnswers).length}</p>
+            `;
+            
+            // 生成第二层testId
+            try {
+                if (window.generateSecondLayerTestId) {
+                    const testId = window.generateSecondLayerTestId(basicAnswers, advancedAnswers);
+                    
+                    status.innerHTML += `
+                        <p class="success">✅ 第二层testId已生成: ${testId}</p>
+                        <p>基于 ${Object.keys(basicAnswers).length + Object.keys(advancedAnswers).length} 个答案</p>
+                        <p>已保存到 localStorage</p>
+                    `;
+                    
+                    // 验证1对1绑定
+                    setTimeout(() => {
+                        const record = window.TestIDManager.getTestRecord(testId);
+                        if (record && record.userData) {
+                            const totalAnswers = (record.userData.basic_answers ? record.userData.basic_answers.length : 0) + 
+                                               (record.userData.advanced_answers ? record.userData.advanced_answers.length : 0);
+                            status.innerHTML += `<p>TestIDManager记录包含 ${totalAnswers} 个答案</p>`;
+                        }
+                    }, 100);
+                    
+                } else {
+                    status.innerHTML += '<p class="error">❌ generateSecondLayerTestId函数未加载</p>';
+                }
+            } catch (error) {
+                status.innerHTML += `<p class="error">❌ 生成testId失败: ${error.message}</p>`;
+            }
+            
+            updateFlowDiagram();
+        }
+        
+        // 测试4：验证testId
+        function verifyTestId() {
+            const status = document.getElementById('testid-status');
+            const testId = localStorage.getItem('current_second_layer_test_id');
+            
+            if (!testId) {
+                status.innerHTML = '<p class="error">❌ 没有找到第二层testId</p>';
+                return;
+            }
+            
+            let html = `<h3>验证testId: ${testId}</h3>`;
+            
+            try {
+                // 检查TestIDManager记录
+                const record = window.TestIDManager.getTestRecord(testId);
+                if (record) {
+                    html += `<p class="success">✅ TestIDManager记录存在</p>
+                            <p>创建时间: ${record.createdAt}</p>
+                            <p>支付状态: ${record.paid ? '✅ 已支付' : '❌ 未支付'}</p>
+                            <p>开通状态: ${record.opened ? '✅ 已开通' : '❌ 未开通'}</p>`;
+                    
+                    // 检查答案数量
+                    if (record.userData) {
+                        const basicCount = record.userData.basic_answers ? record.userData.basic_answers.length : 0;
+                        const advancedCount = record.userData.advanced_answers ? record.userData.advanced_answers.length : 0;
+                        html += `<p>基础答案: ${basicCount} 个 (应该是12)</p>
+                                <p>进阶答案: ${advancedCount} 个 (应该是4)</p>
+                                <p>第二层完成: ${record.userData.second_layer_completed ? '✅' : '❌'}</p>`;
+                        
+                        if (basicCount === 12 && advancedCount === 4) {
+                            html += '<p class="success">✅ 答案数量正确！</p>';
+                        } else {
+                            html += '<p class="error">❌ 答案数量不正确</p>';
+                        }
+                    }
+                }
+                
+                // 检查第二层数据
+                if (window.getSecondLayerData) {
+                    const secondLayerData = window.getSecondLayerData(testId);
+                    if (secondLayerData) {
+                        const totalAnswers = secondLayerData.allAnswers ? Object.keys(secondLayerData.allAnswers).length : 0;
+                        html += `<p class="success">✅ 第二层数据存在 (${totalAnswers} 个答案)</p>`;
+                    }
+                }
+                
+            } catch (error) {
+                html += `<p class="error">❌ 验证失败: ${error.message}</p>`;
+            }
+            
+            status.innerHTML = html;
+            updateFlowDiagram();
+        }
+        
+        // 测试5：测试按钮跳转逻辑
+        function testButtonLogic() {
+            const status = document.getElementById('button-status');
+            const testId = localStorage.getItem('current_second_layer_test_id');
+            
+            if (!testId) {
+                status.innerHTML = '<p class="error">❌ 请先生成testId（测试3）</p>';
+                return;
+            }
+            
+            let html = `<h3>按钮跳转逻辑测试 (testId: ${testId})</h3>`;
+            
+            // 模拟showAdvancedAssessment函数
+            try {
+                // 需要从app.js复制函数逻辑，这里简化测试
+                const record = window.TestIDManager.getTestRecord(testId);
+                
+                if (!record) {
+                    html += '<p class="error">❌ 记录不存在 → 应该跳转到 advanced-intro.html</p>';
+                } else if (!record.paid) {
+                    html += '<p class="warning">❌ 未支付 → 应该跳转到 payment-page.html</p>';
+                } else if (!record.opened) {
+                    html += '<p class="warning">❌ 已支付未开通 → 应该跳转到 advanced-unlock.html</p>';
+                } else {
+                    // 检查第二层完成状态
+                    const secondLayerCompleted = window.isSecondLayerCompleted ? window.isSecondLayerCompleted(testId) : false;
+                    if (!secondLayerCompleted) {
+                        html += '<p class="warning">❌ 第二层未完成 → 应该跳转到 advanced-questions.html</p>';
+                    } else {
+                        html += '<p class="success">✅ 所有条件满足 → 应该跳转到 result-viewer.html</p>';
+                    }
+                }
+                
+                html += `<p>当前状态:</p>
+                        <ul>
+                            <li>记录存在: ${record ? '✅' : '❌'}</li>
+                            <li>已支付: ${record && record.paid ? '✅' : '❌'}</li>
+                            <li>已开通: ${record && record.opened ? '✅' : '❌'}</li>
+                            <li>第二层完成: ${secondLayerCompleted ? '✅' : '❌'}</li>
+                        </ul>`;
+                
+            } catch (error) {
+                html += `<p class="error">❌ 测试错误: ${error.message}</p>`;
+            }
+            
+            status.innerHTML = html;
+        }
+        
+        // 测试6：完整流程测试
+        function runFullTest() {
+            const status = document.getElementById('full-test-status');
+            status.innerHTML = '<h3>完整流程测试：</h3>';
+            
+            // 清空之前的状态
+            document.getElementById('first-layer-status').innerHTML = '';
+            document.getElementById('second-layer-status').innerHTML = '';
+            document.getElementById('testid-status').innerHTML = '';
+            document.getElementById('button-status').innerHTML = '';
+            
+            // 步骤1：模拟第一层
+            status.innerHTML += '<p>1. 模拟第一层基础评估...</p>';
+            simulateFirstLayer();
+            
+            setTimeout(() => {
+                status.innerHTML += '<p>✅ 第一层完成</p>';
+                
+                // 步骤2：模拟第二层
+                status.innerHTML += '<p>2. 模拟第二层进阶评估...</p>';
+                simulateSecondLayer();
+                
+                setTimeout(() => {
+                    const testId = localStorage.getItem('current_second_layer_test_id');
+                    status.innerHTML += `<p>✅ 第二层完成，生成testId: ${testId}</p>`;
+                    
+                    // 步骤3：模拟支付
+                    status.innerHTML += '<p>3. 模拟支付...</p>';
+                    try {
+                        window.TestIDManager.updateTestRecord(testId, {
+                            paid: true,
+                            paymentTime: new Date().toISOString(),
+                            status: 'paid'
+                        });
+                        status.innerHTML += '<p>✅ 支付完成</p>';
+                        
+                        // 步骤4：模拟开通
+                        status.innerHTML += '<p>4. 模拟后台开通...</p>';
+                        window.TestIDManager.updateTestRecord(testId, {
+                            opened: true,
+                            activationTime: new Date().toISOString(),
+                            status: 'activated'
+                        });
+                        status.innerHTML += '<p>✅ 开通完成</p>';
+                        
+                        // 步骤5：验证状态
+                        status.innerHTML += '<p>5. 验证最终状态...</p>';
+                        setTimeout(() => {
+                            verifyTestId();
+                            testButtonLogic();
+                            
+                            status.innerHTML += '<p class="success">🎉 完整流程测试完成！</p>';
+                            status.innerHTML += '<p>现在可以：</p>';
+                            status.innerHTML += '<ul>';
+                            status.innerHTML += '<li>打开主页面测试实际按钮跳转</li>';
+                            status.innerHTML += '<li>打开管理员后台查看记录</li>';
+                            status.innerHTML += '<li>打开第二层问卷测试实际流程</li>';
+                            status.innerHTML += '</ul>';
+                        }, 500);
+                        
+                    } catch (error) {
+                        status.innerHTML += `<p class="error">❌ 流程错误: ${error.message}</p>`;
+                    }
+                }, 500);
+            }, 500);
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFlowDiagram();
+            console.log('第二层流程测试页面已加载');
+        });
+    </script>
+</body>
+</html>
