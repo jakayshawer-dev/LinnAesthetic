@@ -3,266 +3,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>LAA 进阶评估结果</title>
+<title>进阶评估结果</title>
 <style>
 * { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #f5f7fb;
-  color: #1f2937;
+html, body { margin: 0; padding: 0; background: #f5f7fb; color: #1f2937;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
-               "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
-}
+               "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; }
 body { min-height: 100vh; }
-.page {
-  width: 100%;
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 16px 16px 28px;
-}
-.card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 20px 16px 18px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-  margin-bottom: 14px;
-}
-.eyebrow {
-  font-size: 12px;
-  color: #6366f1;
-  font-weight: 700;
-  letter-spacing: .04em;
-  margin-bottom: 10px;
-}
-.title {
-  margin: 0 0 8px;
-  font-size: 24px;
-  line-height: 1.4;
-  color: #111827;
-}
-.subtext, .muted, .blur-text {
-  color: #6b7280;
-  font-size: 14px;
-  line-height: 1.75;
-}
-.summary-box, .preview-box, .lock-box {
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 14px 14px;
-}
-.summary-grid {
-  display: grid;
-  gap: 10px;
-  margin-top: 14px;
-}
-.summary-item {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 12px;
-}
-.label {
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 6px;
-}
-.value {
-  font-size: 16px;
-  line-height: 1.6;
-  color: #111827;
-  font-weight: 600;
-}
-.preview-title {
-  margin: 0 0 10px;
-  font-size: 18px;
-  color: #111827;
-}
-.preview-box {
-  margin-top: 14px;
-}
-.blur-wrap {
-  position: relative;
-  overflow: hidden;
-  border-radius: 16px;
-  margin-top: 12px;
-}
-.blur-layer {
-  filter: blur(6px);
-  user-select: none;
-  pointer-events: none;
-}
-.blur-mask {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.92));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 18px;
-}
-.mask-text {
-  color: #111827;
-  font-size: 15px;
-  line-height: 1.7;
-  font-weight: 600;
-}
-.primary-btn, .secondary-btn {
-  width: 100%;
-  appearance: none;
-  border: none;
-  border-radius: 14px;
-  min-height: 48px;
-  padding: 0 16px;
-  font-size: 15px;
-  cursor: pointer;
-}
-.primary-btn {
-  background: #4f46e5;
-  color: #fff;
-  font-weight: 600;
-}
-.secondary-btn {
-  background: #fff;
-  color: #374151;
-  border: 1px solid #dbe3ef;
-}
-.actions {
-  display: grid;
-  gap: 12px;
-  margin-top: 16px;
-}
-.tip {
-  margin-top: 12px;
-  color: #9ca3af;
-  font-size: 12px;
-  line-height: 1.7;
-  text-align: center;
-}
-/* 微信支付样式 */
-.pay-section {
-  background: #fff;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-  margin-bottom: 14px;
-  text-align: center;
-}
-.pay-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 16px;
-}
-.pay-qr-container {
-  background: #f8fafc;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-.pay-qr {
-  width: 200px;
-  height: 200px;
-  margin: 0 auto;
-  display: block;
-}
-.pay-note {
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 16px;
-  font-size: 14px;
-  color: #92400e;
-}
-.pay-note strong {
-  color: #dc2626;
-}
-.test-id-display {
-  background: #eef2ff;
-  border: 1px solid #818cf8;
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 16px;
-  font-size: 16px;
-}
-.test-id-display span {
-  font-weight: 700;
-  color: #4f46e5;
-  font-size: 20px;
-}
+.page { width: 100%; max-width: 560px; margin: 0 auto; padding: 16px 16px 28px; }
+.card { background: #fff; border-radius: 20px; padding: 20px 16px 18px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); margin-bottom: 14px; }
+.eyebrow { font-size: 12px; color: #6366f1; font-weight: 700; letter-spacing: .04em; margin-bottom: 10px; }
+.title { margin: 0 0 8px; font-size: 24px; line-height: 1.4; color: #111827; }
+.subtext { color: #6b7280; font-size: 14px; line-height: 1.75; }
+.summary-grid { display: grid; gap: 10px; margin-top: 14px; }
+.summary-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 12px; }
+.label { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+.value { font-size: 16px; line-height: 1.6; color: #111827; font-weight: 600; }
+.preview-title { margin: 0 0 10px; font-size: 18px; color: #111827; }
+.preview-box { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 16px; padding: 14px; margin-top: 14px; }
+.blur-wrap { position: relative; overflow: hidden; border-radius: 16px; margin-top: 12px; }
+.blur-layer { filter: blur(6px); user-select: none; pointer-events: none; }
+.blur-mask { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.92)); display: flex; align-items: center; justify-content: center; text-align: center; padding: 18px; }
+.mask-text { color: #111827; font-size: 15px; line-height: 1.7; font-weight: 600; }
+.blur-text { color: #6b7280; font-size: 14px; line-height: 1.8; }
+/* 支付区域 */
+.pay-section { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); margin-bottom: 14px; text-align: center; }
+.pay-title { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px; }
+.pay-qr-container { background: #f8fafc; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+.pay-qr { width: 200px; height: 200px; margin: 0 auto; display: block; border-radius: 8px; }
+.pay-note { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 14px; color: #92400e; }
+.pay-note strong { color: #dc2626; }
+.test-id-display { background: #eef2ff; border: 1px solid #818cf8; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 16px; }
+.test-id-display span { font-weight: 700; color: #4f46e5; font-size: 20px; }
+.primary-btn { width: 100%; appearance: none; border: none; border-radius: 14px; min-height: 48px; padding: 0 16px; font-size: 15px; cursor: pointer; background: #4f46e5; color: #fff; font-weight: 600; }
+.tip { margin-top: 12px; text-align: center; font-size: 12px; color: #9ca3af; line-height: 1.6; }
 </style>
 </head>
 <body>
 <div class="page">
-  <div class="card">
-    <div class="eyebrow">LAA · 进阶评估结果</div>
-    <h1 class="title">你的补充评估已完成</h1>
-    <p class="subtext">第二层结果会在第一层免费初筛的基础上，进一步细化你的核心参与层、触发场景和优先处理顺序。</p>
+<div class="card">
+  <div class="eyebrow">LAA · 进阶评估结果</div>
+  <h1 class="title">你的补充评估已完成</h1>
+  <p class="subtext">第二层结果会在第一层免费初筛的基础上，进一步细化你的核心参与层、触发场景和优先处理顺序。</p>
 
-    <div class="summary-grid">
-      <div class="summary-item">
-        <div class="label">更可能的主模板</div>
-        <div id="templateName" class="value">正在读取</div>
-      </div>
-      <div class="summary-item">
-        <div class="label">最容易暴露的场景</div>
-        <div id="sceneText" class="value">正在读取</div>
-      </div>
-      <div class="summary-item">
-        <div class="label">结果页重心</div>
-        <div id="focusText" class="value">正在读取</div>
-      </div>
+  <div class="summary-grid">
+    <div class="summary-item">
+      <div class="label">更可能的主模板</div>
+      <div id="templateName" class="value">正在读取</div>
     </div>
-
-    <div class="preview-box">
-      <h2 class="preview-title">先给你一个简要判断</h2>
-      <p id="previewText" class="subtext"></p>
+    <div class="summary-item">
+      <div class="label">最容易暴露的场景</div>
+      <div id="sceneText" class="value">正在读取</div>
+    </div>
+    <div class="summary-item">
+      <div class="label">结果页重心</div>
+      <div id="focusText" class="value">正在读取</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="eyebrow">完整结果已锁定</div>
-    <h2 class="preview-title">解锁后可查看</h2>
-    <div class="blur-wrap">
-      <div class="lock-box blur-layer">
-        <p class="blur-text">1. 承接第一层结果后的整体判断</p>
-        <p class="blur-text">2. 更可能的核心参与层</p>
-        <p class="blur-text">3. 为什么外观看起来会这样</p>
-        <p class="blur-text">4. 表现侧与优先处理侧</p>
-        <p class="blur-text">5. 训练安排提示</p>
-        <p class="blur-text">6. 最容易误判或练错的点</p>
-      </div>
-      <div class="blur-mask">
-        <div class="mask-text">完整进阶结果已生成。<br>扫码支付后查看完整结果。</div>
-      </div>
-    </div>
+  <div class="preview-box">
+    <h2 class="preview-title">先给你一个简要判断</h2>
+    <p id="previewText" class="subtext"></p>
   </div>
+</div>
 
-  <!-- 微信支付区域 -->
-  <div class="pay-section">
-    <div class="pay-title">微信支付解锁完整结果</div>
-    
-    <div class="pay-qr-container">
-      <img src="assets/images/wechat-pay-qr.jpg" alt="微信支付二维码" class="pay-qr">
+<div class="card">
+  <div class="eyebrow">完整结果已锁定</div>
+  <h2 class="preview-title">解锁后可查看</h2>
+  <div class="blur-wrap">
+    <div class="blur-layer" style="padding:20px;">
+      <p class="blur-text">1. 承接第一层结果后的整体判断</p>
+      <p class="blur-text">2. 更可能的核心参与层</p>
+      <p class="blur-text">3. 为什么外观看起来会这样</p>
+      <p class="blur-text">4. 表现侧与优先处理侧</p>
+      <p class="blur-text">5. 训练安排提示</p>
+      <p class="blur-text">6. 最容易误判或练错的点</p>
     </div>
-    
-    <div class="pay-note">
-      <strong>⚠️ 请备注测试编号后再支付</strong>
+    <div class="blur-mask">
+      <div class="mask-text">完整进阶结果已生成。<br>扫码支付后查看完整结果。</div>
     </div>
-    
-    <div class="test-id-display">
-      你的测试编号是：<span id="testIdDisplay">--</span>
-    </div>
-    
-    <div class="actions">
-      <button id="viewResultBtn" class="primary-btn" type="button">我已完成支付，查看完整结果</button>
-    </div>
-    
-    <div class="tip">支付完成后，点击上方按钮查看完整结果</div>
   </div>
+</div>
+
+<!-- 微信支付区域 -->
+<div class="pay-section">
+  <div class="pay-title">微信支付解锁完整结果</div>
+  <div class="pay-qr-container">
+    <img src="assets/images/wechat-pay-qr.jpg" alt="微信支付二维码" class="pay-qr">
+  </div>
+  <div class="pay-note">
+    <strong>⚠️ 请备注测试编号后再支付</strong>
+  </div>
+  <div class="test-id-display">
+    你的测试编号是：<span id="testIdDisplay">--</span>
+  </div>
+  <button id="viewResultBtn" class="primary-btn" type="button">我已完成支付，查看完整结果</button>
+  <div class="tip">支付完成后，点击上方按钮查看完整结果</div>
+</div>
 </div>
 
 <script>
@@ -289,9 +126,7 @@ function readPayload() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     return JSON.parse(raw);
-  } catch (e) {
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
 function getAnswerValue(payload, qid) {
@@ -321,18 +156,10 @@ function decideTemplate(payload) {
   const q2 = getAnswerValue(payload, 'Q2');
   const q3 = getAnswerValue(payload, 'Q3');
 
-  if (q3 === 'getting_worse_recently' || q3 === 'left_right_fluctuate') {
-    return '复合波动型';
-  }
-  if (q1 === 'smile_or_talk' || q2 === 'one_side_expression' || q3 === 'dynamic_amplified') {
-    return '口周 / 口角动态控制失衡型';
-  }
-  if (q1 === 'chew_or_force' || q2 === 'one_side_chew') {
-    return '咀嚼 / 下颌使用代偿型';
-  }
-  if (q2 === 'one_side_support') {
-    return '位置牵拉 / 头颈支撑牵连型';
-  }
+  if (q3 === 'getting_worse_recently' || q3 === 'left_right_fluctuate') return '复合波动型';
+  if (q1 === 'smile_or_talk' || q2 === 'one_side_expression' || q3 === 'dynamic_amplified') return '口周 / 口角动态控制失衡型';
+  if (q1 === 'chew_or_force' || q2 === 'one_side_chew') return '咀嚼 / 下颌使用代偿型';
+  if (q2 === 'one_side_support') return '位置牵拉 / 头颈支撑牵连型';
   return '静态轮廓 / 软组织张力偏差型';
 }
 
@@ -341,11 +168,9 @@ function buildPreview(payload) {
   const q2 = getAnswerValue(payload, 'Q2');
   const q3 = getAnswerValue(payload, 'Q3');
   const template = decideTemplate(payload);
-
   const scene = mapScene(q1);
 
   let sentence2 = '你目前的表现更像是单一主线在起作用，而不是完全随机的外观波动。';
-
   if (template === '口周 / 口角动态控制失衡型') {
     sentence2 = '你的差异更容易在动态状态里暴露，说明问题不只是静态大小差，还与说话、微笑或表情启动有关。';
   } else if (template === '咀嚼 / 下颌使用代偿型') {
@@ -359,7 +184,6 @@ function buildPreview(payload) {
   }
 
   let sentence3 = '完整结果里会进一步告诉你：更可能的核心参与层、为什么会看成这样、以及先处理哪一层更合适。';
-
   if (q3 === 'left_right_fluctuate') {
     sentence3 = '你的表现还带有左右波动信号，完整结果会更适合帮你区分"表现侧"和"优先处理侧"并不是一回事。';
   } else if (q2 === 'one_side_support') {
@@ -370,9 +194,7 @@ function buildPreview(payload) {
 }
 
 function render() {
-  // 显示测试编号
   document.getElementById('testIdDisplay').textContent = getTestId();
-  
   const payload = readPayload();
   const templateName = payload ? decideTemplate(payload) : '暂未读取到结果';
   const q1 = getAnswerValue(payload, 'Q1');
@@ -381,12 +203,10 @@ function render() {
   document.getElementById('templateName').textContent = templateName;
   document.getElementById('sceneText').textContent = mapScene(q1);
   document.getElementById('focusText').textContent = mapFocus(q4);
-  document.getElementById('previewText').textContent = payload
-    ? buildPreview(payload)
-    : '暂未读取到第二层答题记录，请先完成补充评估。';
+  document.getElementById('previewText').textContent = payload ? buildPreview(payload) : '暂未读取到第二层答题记录，请先完成补充评估。';
 }
 
-document.getElementById('viewResultBtn').addEventListener('click', function () {
+document.getElementById('viewResultBtn').addEventListener('click', function() {
   window.location.href = PAY_RESULT_PAGE;
 });
 

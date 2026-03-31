@@ -3,126 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>LAA 完整进阶结果</title>
+<title>完整进阶结果</title>
 <style>
 * { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #f5f7fb;
-  color: #1f2937;
+html, body { margin: 0; padding: 0; background: #f5f7fb; color: #1f2937;
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
-               "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
-}
+               "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; }
 body { min-height: 100vh; }
-.page {
-  width: 100%;
-  max-width: 560px;
-  margin: 0 auto;
-  padding: 16px 16px 28px;
-}
-.card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 20px 16px 18px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-  margin-bottom: 14px;
-}
-.eyebrow {
-  font-size: 12px;
-  color: #6366f1;
-  font-weight: 700;
-  letter-spacing: .04em;
-  margin-bottom: 10px;
-}
-.title {
-  margin: 0 0 8px;
-  font-size: 24px;
-  line-height: 1.4;
-  color: #111827;
-}
-.subtitle {
-  color: #4f46e5;
-  font-size: 16px;
-  line-height: 1.6;
-  font-weight: 600;
-  margin: 0 0 16px;
-}
-.text {
-  color: #4b5563;
-  font-size: 14px;
-  line-height: 1.85;
-}
-.section {
-  margin-top: 14px;
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 14px;
-}
-.section-title {
-  margin: 0 0 10px;
-  font-size: 16px;
-  color: #111827;
-}
-.tag {
-  display: inline-block;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: #4338ca;
-  font-size: 12px;
-  padding: 6px 10px;
-  margin-bottom: 10px;
-}
-.secondary-btn {
-  width: 100%;
-  appearance: none;
-  border: 1px solid #dbe3ef;
-  background: #fff;
-  color: #374151;
-  border-radius: 14px;
-  min-height: 48px;
-  font-size: 15px;
-  cursor: pointer;
-}
+.page { width: 100%; max-width: 560px; margin: 0 auto; padding: 16px 16px 28px; }
+.card { background: #fff; border-radius: 20px; padding: 20px 16px 18px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); margin-bottom: 14px; }
+.eyebrow { font-size: 12px; color: #6366f1; font-weight: 700; letter-spacing: .04em; margin-bottom: 10px; }
+.title { margin: 0 0 8px; font-size: 24px; line-height: 1.4; color: #111827; }
+.subtext { color: #6b7280; font-size: 14px; line-height: 1.75; }
+.result-section { margin-bottom: 20px; }
+.result-section:last-child { margin-bottom: 0; }
+.section-title { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.section-title .icon { font-size: 18px; }
+.result-box { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 14px; padding: 14px; }
+.result-item { margin-bottom: 12px; }
+.result-item:last-child { margin-bottom: 0; }
+.result-label { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+.result-value { font-size: 15px; line-height: 1.6; color: #111827; }
+.highlight { background: #eef2ff; border-color: #818cf8; }
+.highlight .result-value { color: #4f46e5; font-weight: 600; }
+.warning-box { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 14px; padding: 14px; margin-top: 14px; }
+.warning-title { font-size: 14px; font-weight: 700; color: #92400e; margin-bottom: 8px; }
+.warning-text { font-size: 13px; line-height: 1.6; color: #92400e; }
+.tip { margin-top: 16px; text-align: center; font-size: 12px; color: #9ca3af; line-height: 1.6; }
 </style>
 </head>
 <body>
 <div class="page">
+<div class="card">
+  <div class="eyebrow">LAA · 完整进阶结果</div>
+  <h1 class="title" id="mainTitle">你的完整分析结果</h1>
+  <p class="subtext" id="mainDesc">以下是基于第二层问卷的详细分析结果</p>
+</div>
+
+<div id="resultContent">
+  <!-- 核心参与层 -->
   <div class="card">
-    <div class="eyebrow">LAA · 完整进阶结果</div>
-    <h1 id="headline" class="title">正在生成结果</h1>
-    <div id="subheadline" class="subtitle"></div>
-    <p id="introText" class="text"></p>
-
-    <div class="section">
-      <div class="tag">核心参与层</div>
-      <h2 class="section-title">更可能的核心参与层</h2>
-      <p id="layerText" class="text"></p>
-    </div>
-
-    <div class="section">
-      <div class="tag">外观原因</div>
-      <h2 class="section-title">为什么外观看起来会这样</h2>
-      <p id="reasonText" class="text"></p>
-    </div>
-
-    <div class="section">
-      <div class="tag">处理顺序</div>
-      <h2 class="section-title">优先处理方向</h2>
-      <p id="priorityText" class="text"></p>
-    </div>
-
-    <div class="section">
-      <div class="tag">注意点</div>
-      <h2 class="section-title">最容易误判 / 练错的点</h2>
-      <p id="warningText" class="text"></p>
+    <div class="result-section">
+      <div class="section-title"><span class="icon">🎯</span> 核心参与层</div>
+      <div class="result-box">
+        <div class="result-item">
+          <div class="result-label">判断类型</div>
+          <div id="templateType" class="result-value">--</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">主要参与层</div>
+          <div id="mainLayer" class="result-value">--</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">触发场景</div>
+          <div id="triggerScene" class="result-value">--</div>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- 外观原因 -->
   <div class="card">
-    <button class="secondary-btn" type="button" onclick="window.location.href='advanced-questions.html'">返回上一页</button>
+    <div class="result-section">
+      <div class="section-title"><span class="icon">🔍</span> 为什么外观看起来会这样</div>
+      <div class="result-box">
+        <div id="appearanceReason" class="result-value">--</div>
+      </div>
+    </div>
   </div>
+
+  <!-- 优先处理侧 -->
+  <div class="card">
+    <div class="result-section">
+      <div class="section-title"><span class="icon">⚖️</span> 表现侧与优先处理侧</div>
+      <div class="result-box">
+        <div class="result-item">
+          <div class="result-label">表现侧</div>
+          <div id="exhibitSide" class="result-value">--</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">优先处理侧</div>
+          <div id="prioritySide" class="result-value highlight"><span class="result-value" id="prioritySideValue">--</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 训练安排 -->
+  <div class="card">
+    <div class="result-section">
+      <div class="section-title"><span class="icon">📋</span> 训练安排提示</div>
+      <div class="result-box">
+        <div id="trainingTips" class="result-value">--</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 常见误判 -->
+  <div class="card">
+    <div class="result-section">
+      <div class="section-title"><span class="icon">⚠️</span> 最容易误判或练错的点</div>
+      <div class="warning-box">
+        <div id="commonMistakes" class="warning-text">--</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="tip">结果仅供自测参考，如需更精准分析建议咨询专业人士。</div>
+</div>
 </div>
 
 <script>
@@ -133,9 +123,7 @@ function readPayload() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     return JSON.parse(raw);
-  } catch (e) {
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
 function getAnswerValue(payload, qid) {
@@ -143,90 +131,82 @@ function getAnswerValue(payload, qid) {
   return payload.answers[qid].value || '';
 }
 
-function decideTemplate(payload) {
+function render() {
+  const payload = readPayload();
+  if (!payload) {
+    document.getElementById('resultContent').innerHTML = '<div class="card"><p class="subtext">暂无结果数据，请先完成第二层问卷。</p></div>';
+    return;
+  }
+
   const q1 = getAnswerValue(payload, 'Q1');
   const q2 = getAnswerValue(payload, 'Q2');
   const q3 = getAnswerValue(payload, 'Q3');
+  const q4 = getAnswerValue(payload, 'Q4');
 
-  if (q3 === 'getting_worse_recently' || q3 === 'left_right_fluctuate') return '复合波动型';
-  if (q1 === 'smile_or_talk' || q2 === 'one_side_expression' || q3 === 'dynamic_amplified') return '口周 / 口角动态控制失衡型';
-  if (q1 === 'chew_or_force' || q2 === 'one_side_chew') return '咀嚼 / 下颌使用代偿型';
-  if (q2 === 'one_side_support') return '位置牵拉 / 头颈支撑牵连型';
-  return '静态轮廓 / 软组织张力偏差型';
-}
+  // 判断模板类型
+  let templateType = '静态轮廓型';
+  let mainLayer = '软组织张力';
+  let triggerScene = '静态拍照';
 
-function buildContent(template) {
-  if (template === '口周 / 口角动态控制失衡型') {
-    return {
-      title: '你的情况更偏动态控制失衡',
-      sub: '更容易在微笑、说话或表情启动时把左右差异放大',
-      intro: '从补充评估看，你的问题不只是静态轮廓差，更像在动态状态下，一侧更容易上提、外拉、启动更快，另一侧则更慢、更弱或更难稳定配合。',
-      layer: '第一阶段更建议先看口周—口角动态控制层，尤其是口角外拉与口周稳定的协同关系，而不是一开始就把它理解成纯骨性问题。',
-      reason: '你在静态时未必最明显，但一动起来差异会被迅速放大，所以外观看起来更像“一边会动、一边不太跟得上”，而不是单纯一边大一边小。',
-      priority: '优先顺序更建议是：先稳定动态控制层，再看口周协同，最后再决定是否需要进一步追溯到更深层的使用代偿。',
-      warning: '这一类最容易误判成“纯轮廓不对称”，然后一开始就盯着厚薄或骨感去处理，反而忽略了真正的问题是在动态控制链。'
-    };
+  if (q3 === 'getting_worse_recently' || q3 === 'left_right_fluctuate') {
+    templateType = '复合波动型';
+  }
+  if (q1 === 'smile_or_talk' || q2 === 'one_side_expression' || q3 === 'dynamic_amplified') {
+    templateType = '口周动态控制失衡型';
+    mainLayer = '表情肌/口周肌';
+    triggerScene = '微笑、说话时';
+  } else if (q1 === 'chew_or_force' || q2 === 'one_side_chew') {
+    templateType = '咀嚼代偿型';
+    mainLayer = '咬肌/下颌肌';
+    triggerScene = '咀嚼、用力时';
+  } else if (q2 === 'one_side_support') {
+    templateType = '位置牵拉型';
+    mainLayer = '颈肩/支撑肌';
+    triggerScene = '头颈位置变化时';
   }
 
-  if (template === '咀嚼 / 下颌使用代偿型') {
-    return {
-      title: '你的情况更偏下颌使用代偿',
-      sub: '更容易在咀嚼、发力或单侧使用时暴露',
-      intro: '从补充评估看，你的差异更像与单侧发力、咀嚼路径、下颌偏载有关，外观看起来会更偏“长期用出来的偏差”。',
-      layer: '第一阶段更建议先看下颌—咀嚼使用代偿层，而不是直接把它理解成静态脂肪、软组织厚薄差。',
-      reason: '如果一侧长期承担更多咬合或发力任务，就更容易出现一侧更厚、更硬、更鼓，另一侧相对更松或存在感更弱的表现。',
-      priority: '优先顺序更建议是：先处理单侧使用偏载，再看下颌稳定层，最后再判断是否已经影响到口周协同。',
-      warning: '这一类最容易练错的地方，是一开始就盯着脸部表面做对称训练，但没有先解决单侧咀嚼和发力路径的问题。'
-    };
+  document.getElementById('templateType').textContent = templateType;
+  document.getElementById('mainLayer').textContent = mainLayer;
+  document.getElementById('triggerScene').textContent = triggerScene;
+
+  // 外观原因
+  let appearanceReason = '你的差异主要来自软组织张力偏差，表现为静态下的左右不对称。';
+  if (q1 === 'smile_or_talk') {
+    appearanceReason = '你的差异主要与表情肌控制有关，在动态表情时会更加明显。';
+  } else if (q1 === 'chew_or_force') {
+    appearanceReason = '你的差异主要与咀嚼侧发力偏多有关，导致咬肌和下颌肌发达程度不同。';
+  } else if (q2 === 'one_side_support') {
+    appearanceReason = '你的差异可能与头颈支撑姿势有关，长期单侧支撑导致软组织被牵拉偏移。';
   }
+  document.getElementById('appearanceReason').textContent = appearanceReason;
 
-  if (template === '位置牵拉 / 头颈支撑牵连型') {
-    return {
-      title: '你的情况更偏位置牵拉与支撑牵连',
-      sub: '更像脸部表现受到头颈支撑和上游关系影响',
-      intro: '从补充评估看，你的表现更像不是单纯脸上的问题，而是头颈支撑、单侧托脸、侧睡或偏向一侧支撑的关系在持续参与。',
-      layer: '第一阶段更建议先看头颈支撑肌群与位置牵拉链，而不是一开始只盯着局部软组织厚薄差。',
-      reason: '当上游支撑长期失衡时，脸上的外观就可能被“带偏”，看起来像一边更紧、更提、更利，另一边更松、更垮、更散。',
-      priority: '优先顺序更建议是：先处理支撑与牵拉，再看局部脸部协同，最后再决定是否需要更细分的动态矫正。',
-      warning: '这一类最容易误判成“我就是某边脸更大”，但如果只盯脸而不处理支撑来源，结果常常会反复。'
-    };
+  // 表现侧与优先处理侧
+  let exhibitSide = '右侧更明显';
+  let prioritySide = '左侧（优先处理）';
+  if (q2 === 'one_side_chew' || q2 === 'one_side_support') {
+    exhibitSide = '患侧更明显';
+    prioritySide = '需要评估后确定';
   }
+  document.getElementById('exhibitSide').textContent = exhibitSide;
+  document.getElementById('prioritySideValue').textContent = prioritySide;
 
-  if (template === '复合波动型') {
-    return {
-      title: '你的情况更偏复合波动型',
-      sub: '目前不适合用单一原因直接解释',
-      intro: '从补充评估看，你的情况里已经出现了波动、加重或左右不稳定的信号，说明当前很可能不是单一主线，而是多条因素叠加。',
-      layer: '第一阶段更建议先从复合代偿层和基础稳定层入手，先把波动减下来，再继续细分到底是动态、使用偏载还是支撑牵拉占主导。',
-      reason: '你之所以会觉得有时左边明显、有时右边明显，或者最近越来越明显，通常就意味着不能只靠一张静态照片去下结论。',
-      priority: '优先顺序更建议是：先降低波动和混乱感，再看最稳定的暴露场景，最后再做更细分的主模板判断。',
-      warning: '这一类最容易误判成“我今天看着像这个，明天又像那个”，然后不停换判断逻辑，反而把真正主线越看越乱。'
-    };
+  // 训练提示
+  let trainingTips = '建议先从基础的面部肌群感知练习开始，逐步建立正确的发力习惯。';
+  if (q1 === 'smile_or_talk') {
+    trainingTips = '建议进行表情肌控制练习，包括对称微笑训练和口周肌群感知练习。';
+  } else if (q1 === 'chew_or_force') {
+    trainingTips = '建议进行咀嚼肌放松和两侧均衡发力练习，减少单侧代偿。';
+  } else if (q2 === 'one_side_support') {
+    trainingTips = '建议进行头颈姿势矫正和颈肩肌群松解，改变不良支撑习惯。';
   }
+  document.getElementById('trainingTips').textContent = trainingTips;
 
-  return {
-    title: '你的情况更偏静态轮廓 / 软组织张力偏差',
-    sub: '更容易在静态拍照时看到差异',
-    intro: '从补充评估看，你的差异更偏静态表现，通常更像一侧更紧、更顶、更收，另一侧更松、更散、更容易显得存在感不足。',
-    layer: '第一阶段更建议先看软组织张力层和静态轮廓支撑层，而不是先把它理解成纯动态控制问题。',
-    reason: '如果问题主要在静态拍照时最明显，而且长期相对稳定，那么外观看起来通常更像“松紧差、顶垮差、收放差”，而不是单纯一动才偏。',
-    priority: '优先顺序更建议是：先判断哪一侧更紧、哪一侧更松，再做静态支撑层处理，最后再看是否需要补充动态协同。',
-    warning: '这一类最容易误判成“纯脂肪问题”或“单纯骨性问题”，从而忽略了软组织张力和静态支撑关系。'
-  };
-}
-
-function render() {
-  const payload = readPayload();
-  const template = decideTemplate(payload);
-  const content = buildContent(template);
-
-  document.getElementById('headline').textContent = content.title;
-  document.getElementById('subheadline').textContent = content.sub;
-  document.getElementById('introText').textContent = content.intro;
-  document.getElementById('layerText').textContent = content.layer;
-  document.getElementById('reasonText').textContent = content.reason;
-  document.getElementById('priorityText').textContent = content.priority;
-  document.getElementById('warningText').textContent = content.warning;
+  // 常见误判
+  let commonMistakes = '1. 只看静态照片判断，忽略了动态因素\n2. 只处理表现侧而忽略了真正的问题源头\n3. 训练强度过大，反而加重了不对称';
+  if (q3 === 'left_right_fluctuate') {
+    commonMistakes = '1. 以为自己的问题是固定的，实际上有波动\n2. 容易误判表现侧，需要更细致的评估\n3. 训练方案需要根据波动情况灵活调整';
+  }
+  document.getElementById('commonMistakes').textContent = commonMistakes;
 }
 
 render();
