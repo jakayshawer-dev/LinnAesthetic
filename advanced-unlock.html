@@ -141,6 +141,58 @@ body { min-height: 100vh; }
   line-height: 1.7;
   text-align: center;
 }
+/* 微信支付样式 */
+.pay-section {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  margin-bottom: 14px;
+  text-align: center;
+}
+.pay-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 16px;
+}
+.pay-qr-container {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.pay-qr {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  display: block;
+}
+.pay-note {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #92400e;
+}
+.pay-note strong {
+  color: #dc2626;
+}
+.test-id-display {
+  background: #eef2ff;
+  border: 1px solid #818cf8;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+.test-id-display span {
+  font-weight: 700;
+  color: #4f46e5;
+  font-size: 20px;
+}
 </style>
 </head>
 <body>
@@ -184,22 +236,53 @@ body { min-height: 100vh; }
         <p class="blur-text">6. 最容易误判或练错的点</p>
       </div>
       <div class="blur-mask">
-        <div class="mask-text">完整进阶结果已生成。<br>前往淘宝完成解锁后查看。</div>
+        <div class="mask-text">完整进阶结果已生成。<br>扫码支付后查看完整结果。</div>
       </div>
     </div>
+  </div>
 
-    <div class="actions">
-      <button id="taobaoBtn" class="primary-btn" type="button">前往淘宝解锁完整结果</button>
-      <button id="viewResultBtn" class="secondary-btn" type="button">我已完成支付，查看完整结果</button>
+  <!-- 微信支付区域 -->
+  <div class="pay-section">
+    <div class="pay-title">微信支付解锁完整结果</div>
+    
+    <div class="pay-qr-container">
+      <img src="assets/images/wechat-pay-qr.jpg" alt="微信支付二维码" class="pay-qr">
     </div>
-    <div class="tip">当前页只展示简要判断。完整结果页建议与淘宝支付流程配合使用。</div>
+    
+    <div class="pay-note">
+      <strong>⚠️ 请备注测试编号后再支付</strong>
+    </div>
+    
+    <div class="test-id-display">
+      你的测试编号是：<span id="testIdDisplay">--</span>
+    </div>
+    
+    <div class="actions">
+      <button id="viewResultBtn" class="primary-btn" type="button">我已完成支付，查看完整结果</button>
+    </div>
+    
+    <div class="tip">支付完成后，点击上方按钮查看完整结果</div>
   </div>
 </div>
 
 <script>
-const TAOBAO_URL = 'https://example.com';
 const PAY_RESULT_PAGE = 'advanced-result.html';
 const STORAGE_KEY = 'laa_second_layer_payload';
+
+function generateTestId() {
+  const timestamp = Date.now().toString().slice(-6);
+  const random = Math.floor(Math.random() * 900 + 100);
+  return 'LAA' + timestamp + random;
+}
+
+function getTestId() {
+  let testId = localStorage.getItem('laa_test_id');
+  if (!testId) {
+    testId = generateTestId();
+    localStorage.setItem('laa_test_id', testId);
+  }
+  return testId;
+}
 
 function readPayload() {
   try {
@@ -266,7 +349,7 @@ function buildPreview(payload) {
   if (template === '口周 / 口角动态控制失衡型') {
     sentence2 = '你的差异更容易在动态状态里暴露，说明问题不只是静态大小差，还与说话、微笑或表情启动有关。';
   } else if (template === '咀嚼 / 下颌使用代偿型') {
-    sentence2 = '你的差异更像与单侧发力、咀嚼路径或下颌使用偏载有关，外观看起来会更偏“用出来的差异”。';
+    sentence2 = '你的差异更像与单侧发力、咀嚼路径或下颌使用偏载有关，外观看起来会更偏"用出来的差异"。';
   } else if (template === '位置牵拉 / 头颈支撑牵连型') {
     sentence2 = '你的问题更像不仅发生在脸上，还和头颈支撑、侧睡托脸或整体牵拉关系有关。';
   } else if (template === '复合波动型') {
@@ -278,15 +361,18 @@ function buildPreview(payload) {
   let sentence3 = '完整结果里会进一步告诉你：更可能的核心参与层、为什么会看成这样、以及先处理哪一层更合适。';
 
   if (q3 === 'left_right_fluctuate') {
-    sentence3 = '你的表现还带有左右波动信号，完整结果会更适合帮你区分“表现侧”和“优先处理侧”并不是一回事。';
+    sentence3 = '你的表现还带有左右波动信号，完整结果会更适合帮你区分"表现侧"和"优先处理侧"并不是一回事。';
   } else if (q2 === 'one_side_support') {
-    sentence3 = '完整结果会重点解释：为什么你可能会出现“看起来像脸的问题，实则有上游牵连”的情况。';
+    sentence3 = '完整结果会重点解释：为什么你可能会出现"看起来像脸的问题，实则有上游牵连"的情况。';
   }
 
-  return `从你补充的 4 个问题来看，你的情况最容易在“${scene}”这个场景下暴露。${sentence2}${sentence3}`;
+  return `从你补充的 4 个问题来看，你的情况最容易在"${scene}"这个场景下暴露。${sentence2}${sentence3}`;
 }
 
 function render() {
+  // 显示测试编号
+  document.getElementById('testIdDisplay').textContent = getTestId();
+  
   const payload = readPayload();
   const templateName = payload ? decideTemplate(payload) : '暂未读取到结果';
   const q1 = getAnswerValue(payload, 'Q1');
@@ -299,10 +385,6 @@ function render() {
     ? buildPreview(payload)
     : '暂未读取到第二层答题记录，请先完成补充评估。';
 }
-
-document.getElementById('taobaoBtn').addEventListener('click', function () {
-  window.location.href = TAOBAO_URL;
-});
 
 document.getElementById('viewResultBtn').addEventListener('click', function () {
   window.location.href = PAY_RESULT_PAGE;
