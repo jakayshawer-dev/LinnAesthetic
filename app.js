@@ -1,4 +1,4 @@
-// 主应用逻辑 - 第一层12题修复版
+// 主应用逻辑 - 修复版
 
 // 全局状态
 let currentQuestionIndex = 0;
@@ -108,7 +108,7 @@ function showQuestion(index) {
     currentQuestionIndex = index;
     const question = questions[index];
     
-    // 🚨 关键修复：检查题目是否有选项
+    // 检查题目是否有选项
     if (!question.options || !Array.isArray(question.options) || question.options.length === 0) {
         console.error(`第 ${index + 1} 题没有选项！`);
         optionsContainer.innerHTML = '<div class="error">题目选项加载失败</div>';
@@ -146,7 +146,7 @@ function showQuestion(index) {
             </div>
         `;
         
-        // 🚨 关键修复：添加点击事件，阻止事件冒泡
+        // 添加点击事件，阻止事件冒泡
         optionElement.addEventListener('click', (e) => {
             e.stopPropagation(); // 阻止事件冒泡
             selectOption(index, optionIndex);
@@ -386,9 +386,6 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
-
-// 🚨 移除全局滑动翻题逻辑，防止移动端误触
-// 原代码中的触摸滑动支持已移除
 
 // 调试功能：在控制台显示当前状态
 window.debugState = function() {

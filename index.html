@@ -49,35 +49,27 @@
             <div class="container">
                 <div class="progress-container">
                     <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill"></div>
+                        <div id="progress-fill" class="progress-fill"></div>
                     </div>
-                    <div class="progress-text" id="progress-text">1/12</div>
+                    <div id="progress-text" class="progress-text">第 1/12 题</div>
                 </div>
                 
-                <div class="system-identifier">
-                    LAA · 大小脸免费评估
-                </div>
-                
-                <div class="question-container">
-                    <h2 class="question-title" id="question-title"></h2>
-                    <div class="question-hint" id="observation"></div>
+                <div class="question-card">
+                    <h2 id="question-title" class="question-title"></h2>
+                    <div id="observation" class="observation"></div>
                     
-                    <div class="options-container" id="options-container">
-                        <!-- 选项会动态生成 -->
+                    <div id="options-container" class="options-container">
+                        <!-- 选项将通过JS动态生成 -->
                     </div>
-                </div>
-                
-                <div class="navigation-buttons">
-                    <button id="prev-btn" class="btn-secondary">
-                        <i class="fas fa-arrow-left"></i> 上一题
-                    </button>
-                    <button id="next-btn" class="btn-primary">
-                        下一题 <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-                
-                <div class="system-identifier-bottom">
-                    LAA · 大小脸免费评估
+                    
+                    <div class="navigation">
+                        <button id="prev-btn" class="btn-secondary">
+                            <i class="fas fa-arrow-left"></i> 上一题
+                        </button>
+                        <button id="next-btn" class="btn-primary" disabled>
+                            下一题 <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,53 +78,58 @@
         <div id="result-page" class="page">
             <div class="container">
                 <div class="result-header">
-                    <h1 class="result-main-title">LAA 评估结果</h1>
-                    <p class="result-subtitle">以下是您的评估结果</p>
-                </div>
-                
-                <div class="result-summary">
-                    <h3><i class="fas fa-file-alt"></i> 结果说明</h3>
-                    <div class="summary-text" id="result-summary"></div>
+                    <div class="logo">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h1 class="main-title">评估完成</h1>
+                    <p class="subtitle">以下是你的初步评估结果</p>
                 </div>
                 
                 <div class="result-card">
                     <div class="result-section">
-                        <h3><i class="fas fa-balance-scale"></i> 真假倾向</h3>
-                        <div class="result-value" id="result-tendency"></div>
-                        <p class="result-desc" id="result-tendency-desc"></p>
+                        <h3><i class="fas fa-lightbulb"></i> 主要倾向</h3>
+                        <div id="result-tendency" class="result-value"></div>
+                        <p id="result-tendency-desc" class="result-desc"></p>
                     </div>
                     
                     <div class="result-section">
-                        <h3><i class="fas fa-compass"></i> 主问题方向</h3>
-                        <div class="result-value" id="result-direction"></div>
-                        <p class="result-desc" id="result-direction-desc"></p>
+                        <h3><i class="fas fa-arrows-alt-h"></i> 主要方向</h3>
+                        <div id="result-direction" class="result-value"></div>
+                        <p id="result-direction-desc" class="result-desc"></p>
                     </div>
                     
                     <div class="result-section">
-                        <h3><i class="fas fa-map-marker-alt"></i> 左右侧提示</h3>
-                        <div class="result-value" id="result-side"></div>
-                        <p class="result-desc" id="result-side-desc"></p>
+                        <h3><i class="fas fa-balance-scale"></i> 偏侧表现</h3>
+                        <div id="result-side" class="result-value"></div>
+                        <p id="result-side-desc" class="result-desc"></p>
+                    </div>
+                    
+                    <div class="result-summary">
+                        <h3><i class="fas fa-file-alt"></i> 总结</h3>
+                        <p id="result-summary" class="summary-text"></p>
                     </div>
                 </div>
                 
-                <div class="action-buttons">
-                    <button id="detail-btn" class="btn-primary">
-                        <i class="fas fa-eye"></i> 尝试查看进阶评估结果
-                    </button>
+                <div class="result-actions">
                     <button id="retest-btn" class="btn-secondary">
                         <i class="fas fa-redo"></i> 重新测试
                     </button>
+                    <button id="advanced-btn" class="btn-primary">
+                        进阶评估 <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                
+                <div class="footer-note">
+                    <p>此结果为初步评估，如需更精准分析，请进行进阶评估</p>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- 加载JS文件 -->
+
+    <!-- 脚本文件 -->
     <script src="questions.js"></script>
     <script src="scoring.js"></script>
     <script src="results.js"></script>
-    <script src="js/answer-hash-generator.js"></script>
-    <script src="js/test-id.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
