@@ -36,7 +36,7 @@ function initApp() {
   userAnswers = new Array(window.questions.length).fill(null);
   startBtn.addEventListener('click', startTest);
   prevBtn.addEventListener('click', goPrev);
-  prevBtnBottom.addEventListener('click', goPrev);
+  if (prevBtnBottom) prevBtnBottom.addEventListener('click', goPrev);
   nextBtn.addEventListener('click', goNext);
   retestBtn.addEventListener('click', restartTest);
   detailBtn.addEventListener('click', goToAdvanced);
