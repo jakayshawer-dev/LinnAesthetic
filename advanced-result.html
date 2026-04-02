@@ -116,6 +116,11 @@ body { min-height: 100vh; }
 </div>
 
 <script>
+// 前端守卫：未解锁则重定向回分享页
+if (sessionStorage.getItem('advancedUnlocked') !== '1') {
+  window.location.href = 'advanced-unlock.html';
+}
+
 const STORAGE_KEY = 'laa_second_layer_payload';
 
 function readPayload() {

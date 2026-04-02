@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>进阶评估结果</title>
+<title>分享解锁进阶结果</title>
 <style>
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; background: #f5f7fb; color: #1f2937;
@@ -26,21 +26,41 @@ body { min-height: 100vh; }
 .blur-mask { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.92)); display: flex; align-items: center; justify-content: center; text-align: center; padding: 18px; }
 .mask-text { color: #111827; font-size: 15px; line-height: 1.7; font-weight: 600; }
 .blur-text { color: #6b7280; font-size: 14px; line-height: 1.8; }
-/* 支付区域 */
-.pay-section { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); margin-bottom: 14px; text-align: center; }
-.pay-title { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px; }
-.pay-qr-container { background: #f8fafc; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
-.pay-qr { width: 200px; height: 200px; margin: 0 auto; display: block; border-radius: 8px; }
-.pay-note { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 14px; color: #92400e; }
-.pay-note strong { color: #dc2626; }
-.test-id-display { background: #eef2ff; border: 1px solid #818cf8; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 16px; }
-.test-id-display span { font-weight: 700; color: #4f46e5; font-size: 20px; }
-.primary-btn { width: 100%; appearance: none; border: none; border-radius: 14px; min-height: 48px; padding: 0 16px; font-size: 15px; cursor: pointer; background: #4f46e5; color: #fff; font-weight: 600; }
-.tip { margin-top: 12px; text-align: center; font-size: 12px; color: #9ca3af; line-height: 1.6; }
+
+/* 分享解锁区域 */
+.share-section { background: #fff; border-radius: 20px; padding: 24px 20px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); margin-bottom: 14px; text-align: center; }
+.share-icon-wrap { width: 56px; height: 56px; background: #eef2ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.share-icon-wrap i { font-size: 26px; color: #4f46e5; }
+.share-title { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 8px; }
+.share-desc { font-size: 14px; color: #6b7280; line-height: 1.7; margin-bottom: 20px; }
+.share-btn { width: 100%; appearance: none; border: none; border-radius: 14px; min-height: 48px; padding: 0 16px; font-size: 15px; cursor: pointer; background: #4f46e5; color: #fff; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s; }
+.share-btn:hover { background: #4338ca; }
+.share-btn:active { background: #3730a3; }
+.share-btn i { font-size: 16px; }
+.secondary-btn { width: 100%; appearance: none; border: 1.5px solid #e5e7eb; border-radius: 14px; min-height: 48px; padding: 0 16px; font-size: 14px; cursor: pointer; background: #fff; color: #374151; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: border-color .2s, background .2s; }
+.secondary-btn:hover { border-color: #4f46e5; background: #f5f3ff; }
+.secondary-btn i { font-size: 15px; }
+.tip { margin-top: 4px; text-align: center; font-size: 12px; color: #9ca3af; line-height: 1.6; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: #d1d5db; font-size: 12px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
+
+/* 降级提示卡 */
+.fallback-card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); margin-bottom: 14px; text-align: center; }
+.fallback-title { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 8px; }
+.fallback-desc { font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 16px; }
+.copy-success-toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.78); color: #fff; font-size: 14px; padding: 12px 24px; border-radius: 12px; z-index: 9999; pointer-events: none; opacity: 0; transition: opacity .3s; }
+.copy-success-toast.show { opacity: 1; }
+
+/* 提示标签 */
+.notice-badge { display: inline-flex; align-items: center; gap: 6px; background: #f0fdf4; border: 1px solid #86efac; color: #15803d; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 100px; margin-bottom: 12px; }
+.notice-badge i { font-size: 11px; }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <div class="page">
+
+<!-- 预览摘要卡 -->
 <div class="card">
   <div class="eyebrow">LAA · 进阶评估结果</div>
   <h1 class="title">你的补充评估已完成</h1>
@@ -67,6 +87,7 @@ body { min-height: 100vh; }
   </div>
 </div>
 
+<!-- 完整结果预览（模糊） -->
 <div class="card">
   <div class="eyebrow">完整结果已锁定</div>
   <h2 class="preview-title">解锁后可查看</h2>
@@ -80,52 +101,70 @@ body { min-height: 100vh; }
       <p class="blur-text">6. 最容易误判或练错的点</p>
     </div>
     <div class="blur-mask">
-      <div class="mask-text">完整进阶结果已生成。<br>扫码支付后查看完整结果。</div>
+      <div class="mask-text">完整进阶结果已生成。<br>分享一次即可查看完整结果。</div>
     </div>
   </div>
 </div>
 
-<!-- 微信支付区域 -->
-<div class="pay-section">
-  <div class="pay-title">微信支付解锁完整结果</div>
-  <div class="pay-qr-container">
-    <img src="assets/images/wechat-pay-qr.jpg" alt="微信支付二维码" class="pay-qr">
+<!-- 分享解锁区域 -->
+<div class="share-section">
+  <div class="share-icon-wrap">
+    <i class="fas fa-share-alt"></i>
   </div>
-  <div class="pay-note">
-    <strong>⚠️ 请备注测试编号后再支付</strong>
+  <div class="notice-badge">
+    <i class="fas fa-info-circle"></i>
+    本页不再支付，改为分享解锁
   </div>
-  <div class="test-id-display">
-    你的测试编号是：<span id="testIdDisplay">--</span>
-  </div>
-  <button id="viewResultBtn" class="primary-btn" type="button">我已完成支付，查看完整结果</button>
-  <div class="tip">支付完成后，点击上方按钮查看完整结果</div>
+  <h2 class="share-title">分享后查看完整进阶结果</h2>
+  <p class="share-desc">分享一次当前测试链接，即可解锁更详细的分析结果与建议。<br>完成分享后，页面将自动跳转到完整结果。</p>
+
+  <!-- 主按钮：原生分享 -->
+  <button id="shareBtn" class="share-btn" type="button">
+    <i class="fas fa-share-nodes"></i>
+    立即分享
+  </button>
+
+  <div class="divider">或</div>
+
+  <!-- 次按钮：复制链接 -->
+  <button id="copyBtn" class="secondary-btn" type="button">
+    <i class="fas fa-link"></i>
+    复制链接
+  </button>
+
+  <p class="tip">分享完成后将自动解锁结果</p>
 </div>
+
+<!-- 降级提示（navigator.share 不可用时显示） -->
+<div id="fallbackCard" class="fallback-card" style="display:none;">
+  <div class="fallback-title">链接已复制到剪贴板</div>
+  <p class="fallback-desc">请打开微信、朋友圈、微博、小红书等平台，<br>粘贴并发送你的测试链接。</p>
+  <button id="manualUnlockBtn" class="share-btn" type="button" style="margin-bottom:0;">
+    <i class="fas fa-check-circle"></i>
+    我已完成分享，查看结果
+  </button>
 </div>
+
+</div>
+
+<!-- 复制成功提示 -->
+<div id="copyToast" class="copy-success-toast">链接已复制</div>
 
 <script>
-const PAY_RESULT_PAGE = 'advanced-result.html';
+const RESULT_PAGE = 'advanced-result.html';
 const STORAGE_KEY = 'laa_second_layer_payload';
+const UNLOCK_KEY = 'advancedUnlocked';
 
-function generateTestId() {
-  const timestamp = Date.now().toString().slice(-6);
-  const random = Math.floor(Math.random() * 900 + 100);
-  return 'LAA' + timestamp + random;
+// 检查是否已解锁（防止刷新后重复触发）
+if (sessionStorage.getItem(UNLOCK_KEY) === '1') {
+  window.location.href = RESULT_PAGE;
 }
 
-function getTestId() {
-  let testId = localStorage.getItem('laa_test_id');
-  if (!testId) {
-    testId = generateTestId();
-    localStorage.setItem('laa_test_id', testId);
-  }
-  return testId;
-}
-
+// ---------- 业务逻辑（从原页面保留） ----------
 function readPayload() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
+    return raw ? JSON.parse(raw) : null;
   } catch (e) { return null; }
 }
 
@@ -135,20 +174,24 @@ function getAnswerValue(payload, qid) {
 }
 
 function mapScene(q1) {
-  if (q1 === 'static_photo') return '静态拍照时更明显';
-  if (q1 === 'smile_or_talk') return '微笑或说话时更明显';
-  if (q1 === 'chew_or_force') return '咀嚼或用力时更明显';
-  if (q1 === 'unstable_day_to_day') return '每天波动，不太稳定';
-  return '暂未明确';
+  const map = {
+    'static_photo': '静态拍照时更明显',
+    'smile_or_talk': '微笑或说话时更明显',
+    'chew_or_force': '咀嚼或用力时更明显',
+    'unstable_day_to_day': '每天波动，不太稳定'
+  };
+  return map[q1] || '暂未明确';
 }
 
 function mapFocus(q4) {
-  if (q4 === 'why_bigger') return '为什么一边脸看起来更大';
-  if (q4 === 'why_dynamic_asymmetry') return '为什么笑起来或说话时更不对称';
-  if (q4 === 'why_cannot_tell_side') return '为什么总分不清到底哪边有问题';
-  if (q4 === 'priority_and_order') return '问题主次和处理顺序';
-  if (q4 === 'overall_logic') return '先理清整体逻辑';
-  return '整体逻辑';
+  const map = {
+    'why_bigger': '为什么一边脸看起来更大',
+    'why_dynamic_asymmetry': '为什么笑起来或说话时更不对称',
+    'why_cannot_tell_side': '为什么总分不清到底哪边有问题',
+    'priority_and_order': '问题主次和处理顺序',
+    'overall_logic': '先理清整体逻辑'
+  };
+  return map[q4] || '整体逻辑';
 }
 
 function decideTemplate(payload) {
@@ -170,31 +213,30 @@ function buildPreview(payload) {
   const template = decideTemplate(payload);
   const scene = mapScene(q1);
 
-  let sentence2 = '你目前的表现更像是单一主线在起作用，而不是完全随机的外观波动。';
+  let s2 = '你目前的表现更像是单一主线在起作用，而不是完全随机的外观波动。';
   if (template === '口周 / 口角动态控制失衡型') {
-    sentence2 = '你的差异更容易在动态状态里暴露，说明问题不只是静态大小差，还与说话、微笑或表情启动有关。';
+    s2 = '你的差异更容易在动态状态里暴露，说明问题不只是静态大小差，还与说话、微笑或表情启动有关。';
   } else if (template === '咀嚼 / 下颌使用代偿型') {
-    sentence2 = '你的差异更像与单侧发力、咀嚼路径或下颌使用偏载有关，外观看起来会更偏"用出来的差异"。';
+    s2 = '你的差异更像与单侧发力、咀嚼路径或下颌使用偏载有关，外观看起来会更偏"用出来的差异"。';
   } else if (template === '位置牵拉 / 头颈支撑牵连型') {
-    sentence2 = '你的问题更像不仅发生在脸上，还和头颈支撑、侧睡托脸或整体牵拉关系有关。';
+    s2 = '你的问题更像不仅发生在脸上，还和头颈支撑、侧睡托脸或整体牵拉关系有关。';
   } else if (template === '复合波动型') {
-    sentence2 = '你的情况里已经出现了波动和复合信号，说明单看静态照片很可能不足以判断清楚。';
+    s2 = '你的情况里已经出现了波动和复合信号，说明单看静态照片很可能不足以判断清楚。';
   } else if (template === '静态轮廓 / 软组织张力偏差型') {
-    sentence2 = '你的差异更偏静态表现，通常更像一侧更紧、更顶、更收，另一侧更松、更散。';
+    s2 = '你的差异更偏静态表现，通常更像一侧更紧、更顶、更收，另一侧更松、更散。';
   }
 
-  let sentence3 = '完整结果里会进一步告诉你：更可能的核心参与层、为什么会看成这样、以及先处理哪一层更合适。';
+  let s3 = '完整结果里会进一步告诉你：更可能的核心参与层、为什么会看成这样、以及先处理哪一层更合适。';
   if (q3 === 'left_right_fluctuate') {
-    sentence3 = '你的表现还带有左右波动信号，完整结果会更适合帮你区分"表现侧"和"优先处理侧"并不是一回事。';
+    s3 = '你的表现还带有左右波动信号，完整结果会更适合帮你区分"表现侧"和"优先处理侧"并不是一回事。';
   } else if (q2 === 'one_side_support') {
-    sentence3 = '完整结果会重点解释：为什么你可能会出现"看起来像脸的问题，实则有上游牵连"的情况。';
+    s3 = '完整结果会重点解释：为什么你可能会出现"看起来像脸的问题，实则有上游牵连"的情况。';
   }
 
-  return `从你补充的 4 个问题来看，你的情况最容易在"${scene}"这个场景下暴露。${sentence2}${sentence3}`;
+  return `从你补充的 4 个问题来看，你的情况最容易在"${scene}"这个场景下暴露。${s2}${s3}`;
 }
 
 function render() {
-  document.getElementById('testIdDisplay').textContent = getTestId();
   const payload = readPayload();
   const templateName = payload ? decideTemplate(payload) : '暂未读取到结果';
   const q1 = getAnswerValue(payload, 'Q1');
@@ -203,13 +245,74 @@ function render() {
   document.getElementById('templateName').textContent = templateName;
   document.getElementById('sceneText').textContent = mapScene(q1);
   document.getElementById('focusText').textContent = mapFocus(q4);
-  document.getElementById('previewText').textContent = payload ? buildPreview(payload) : '暂未读取到第二层答题记录，请先完成补充评估。';
+  document.getElementById('previewText').textContent = payload
+    ? buildPreview(payload)
+    : '暂未读取到第二层答题记录，请先完成补充评估。';
 }
 
-document.getElementById('viewResultBtn').addEventListener('click', function() {
-  window.location.href = PAY_RESULT_PAGE;
+// ---------- 解锁跳转 ----------
+function doUnlock() {
+  sessionStorage.setItem(UNLOCK_KEY, '1');
+  window.location.href = RESULT_PAGE;
+}
+
+// 展示降级提示卡
+function showFallbackCard() {
+  document.getElementById('fallbackCard').style.display = 'block';
+}
+
+// 复制链接
+function copyLink() {
+  const link = window.location.href.split('?')[0];
+  navigator.clipboard.writeText(link).then(function() {
+    showCopyToast();
+    showFallbackCard();
+  }).catch(function() {
+    // 降级：直接显示手动解锁按钮
+    showFallbackCard();
+  });
+}
+
+// 显示复制成功提示
+function showCopyToast() {
+  const toast = document.getElementById('copyToast');
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 2000);
+}
+
+// 分享文案
+const SHARE_TEXT = '我刚做了一个大小脸进阶评估，分享后可查看更详细结果，你也可以试试';
+const SHARE_URL = window.location.href.split('?')[0];
+
+// ---------- 事件绑定 ----------
+document.getElementById('shareBtn').addEventListener('click', function() {
+  if (navigator.share) {
+    navigator.share({
+      title: '大小脸进阶评估',
+      text: SHARE_TEXT,
+      url: SHARE_URL
+    }).then(function() {
+      // 分享成功/取消都算完成，写入解锁标记并跳转
+      doUnlock();
+    }).catch(function(err) {
+      // 分享被取消，不跳转，等用户手动点"我已完成分享"
+      // do nothing
+    });
+  } else {
+    // 浏览器不支持 native share，走降级
+    copyLink();
+  }
 });
 
+document.getElementById('copyBtn').addEventListener('click', function() {
+  copyLink();
+});
+
+document.getElementById('manualUnlockBtn').addEventListener('click', function() {
+  doUnlock();
+});
+
+// ---------- 初始化 ----------
 render();
 </script>
 </body>
