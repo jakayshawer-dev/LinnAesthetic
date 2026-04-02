@@ -290,11 +290,11 @@ document.getElementById('shareBtn').addEventListener('click', function() {
       text: SHARE_TEXT,
       url: SHARE_URL
     }).then(function() {
-      // 分享成功/取消都算完成，写入解锁标记并跳转
+      // 分享成功，写入解锁标记并跳转
       doUnlock();
     }).catch(function(err) {
-      // 分享被取消，不跳转，等用户手动点"我已完成分享"
-      // do nothing
+      // 分享被取消或失败，显示降级提示（让用户走复制+手动解锁流程）
+      showFallbackCard();
     });
   } else {
     // 浏览器不支持 native share，走降级
