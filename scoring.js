@@ -102,3 +102,7 @@ function calculateResults(scores) {
 
     return { tendency, direction: directions[0].label, side, complexity };
 }
+
+// 确保全局可用
+window.calculateScores = calculateScores;
+window.calculateResults = calculateResults;

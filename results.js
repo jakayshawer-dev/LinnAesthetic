@@ -179,3 +179,7 @@ if (typeof module !== 'undefined' && module.exports) {
         getDetailedDescriptions
     };
 }
+
+// 确保全局可用
+window.getDetailedDescriptions = getDetailedDescriptions;
+window.generateResultSummary = generateResultSummary;
