@@ -103,6 +103,7 @@ function goPrev() {
 }
 
 function goNext() {
+  console.log('goNext called, currentQuestionIndex:', currentQuestionIndex, 'answer:', userAnswers[currentQuestionIndex]);
   if (!userAnswers[currentQuestionIndex]) {
     alert('请先选择一个答案');
     return;
