@@ -24,7 +24,6 @@ const resultDirection = document.getElementById('result-direction');
 const resultDirectionDesc = document.getElementById('result-direction-desc');
 const resultSide = document.getElementById('result-side');
 const resultSummary = document.getElementById('result-summary');
-const resultSummaryText = document.getElementById('result-summary-text');
 
 const retestBtn = document.getElementById('retest-btn');
 const detailBtn = document.getElementById('detail-btn');
@@ -120,13 +119,18 @@ function goNext() {
 function finishTest() {
   currentScores = calculateScores(userAnswers);
   currentResults = calculateResults(currentScores);
+
+  // 获取详细描述
+  const descriptions = getDetailedDescriptions(currentResults, currentScores);
+
+  // 更新结果页
   resultTendency.textContent = currentResults.tendency;
-  resultTendencyDesc.textContent = currentResults.tendency;
+  resultTendencyDesc.textContent = descriptions.tendency;
   resultDirection.textContent = currentResults.direction;
-  resultDirectionDesc.textContent = currentResults.direction;
+  resultDirectionDesc.textContent = descriptions.direction;
   resultSide.textContent = currentResults.side;
-  resultSummary.textContent = currentResults.complexity;
-  resultSummaryText.textContent = generateResultSummary(currentResults, currentScores);
+  resultSummary.textContent = descriptions.summary;
+
   showPage('result');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
