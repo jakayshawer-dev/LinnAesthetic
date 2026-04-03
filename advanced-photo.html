@@ -196,7 +196,8 @@
             if (sessionStorage.getItem('flowState') !== 'photo') {
                 window.location.href = 'advanced-share.html';
             }
-            sessionStorage.setItem('flowState', 'result');
+            // 不要在这里设置 flowState='result'，那样会导致返回重答时循环
+            // flowState 只在 goToPaymentPage() 里设置
         })();
 
         // DOM元素
@@ -291,6 +292,7 @@
 
         // 跳转到结果页
         function goToPaymentPage() {
+            sessionStorage.setItem('flowState', 'result');
             window.location.href = 'advanced-result.html';
         }
 
