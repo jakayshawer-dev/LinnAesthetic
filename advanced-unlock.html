@@ -284,20 +284,30 @@ const SHARE_URL = window.location.origin + '/index.html';
 
 // ---------- 事件绑定 ----------
 document.getElementById('shareBtn').addEventListener('click', function() {
+  // 立即设置解锁标记 + 显示完成按钮，不等待分享结果
+  sessionStorage.setItem(UNLOCK_KEY, '1');
+  showFallbackCard(); // 立即显示"已完成分享"按钮
+
   if (navigator.share) {
     navigator.share({
       title: '大小脸进阶评估',
       text: SHARE_TEXT,
       url: SHARE_URL
     }).then(function() {
-      // 分享成功，写入解锁标记并跳转
-      doUnlock();
-    }).catch(function(err) {
-      // 分享被取消或失败，显示降级提示（让用户走复制+手动解锁流程）
-      showFallbackCard();
+      // 分享成功，跳转
+      window.location.href = RESULT_PAGE;
+    }).catch(function() {
+      // 分享取消或失败，保持当前状态（已完成分享按钮已显示）
+      // 用户可点该按钮跳转
     });
+    // 定时兜底：3秒后无论 Promise 是否触发都强制跳转
+    setTimeout(function() {
+      if (window.location.pathname.endsWith('advanced-unlock.html')) {
+        window.location.href = RESULT_PAGE;
+      }
+    }, 3000);
   } else {
-    // 浏览器不支持 native share，走降级
+    // 浏览器不支持 native share，走复制链接流程
     copyLink();
   }
 });
