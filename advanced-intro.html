@@ -76,19 +76,13 @@
     </div>
 
     <script>
-        // 前端守卫：未解锁则跳到分享页
-        // 分享时机：从"第一层→第二层之间，第二层4个问题之前"解锁
-        if (localStorage.getItem('advancedUnlocked') !== '1') {
-            window.location.href = 'advanced-unlock.html';
-        }
-
         // 页面元素
         const startAdvancedBtn = document.getElementById('start-advanced-btn');
         const backToResultsBtn = document.getElementById('back-to-results-btn');
 
-        // 开始进阶评估（已解锁，直接进入问题）
+        // 开始进阶评估 → 进入分享页（分享可选）
         startAdvancedBtn.addEventListener('click', function() {
-            window.location.href = 'advanced-questions.html';
+            window.location.href = 'advanced-share.html';
         });
         
         // 返回上一页

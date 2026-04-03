@@ -120,11 +120,8 @@ body { min-height: 100vh; }
 </div>
 
 <script>
-// ── 前端守卫 ──────────────────────────────────────────────────────────────
-// iOS Safari 杀死页面后 sessionStorage 会丢失，解锁标记存在 localStorage
-if (localStorage.getItem('advancedUnlocked') !== '1') {
-  window.location.href = 'advanced-unlock.html';
-}
+// ── 前端守卫已移除 ────────────────────────────────────────────────────────
+// 分享现在是可选动作，不再作为结果页的前置门槛
 
 // ── 存储键 ──────────────────────────────────────────────────────────────────
 const STORAGE_KEY = 'laa_second_layer_payload';

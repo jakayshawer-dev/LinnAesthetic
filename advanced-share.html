@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>分享进阶评估</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome-6.4.0/css/all.min.css">
+    <style>
+        body { background: #f5f7fb; min-height: 100vh; }
+        .page { width: 100%; max-width: 560px; margin: 0 auto; padding: 16px 16px 28px; }
+        .share-card { background: #fff; border-radius: 20px; padding: 32px 20px; box-shadow: 0 10px 30px rgba(15,23,42,.06); margin-bottom: 14px; text-align: center; }
+        .share-icon-wrap { width: 64px; height: 64px; background: #eef2ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .share-icon-wrap i { font-size: 30px; color: #4f46e5; }
+        .share-title { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 12px; line-height: 1.4; }
+        .share-desc { font-size: 14px; color: #6b7280; line-height: 1.7; margin-bottom: 24px; }
+        .share-btn { width: 100%; appearance: none; border: none; border-radius: 14px; min-height: 52px; padding: 0 16px; font-size: 15px; font-weight: 600; cursor: pointer; background: #4f46e5; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; transition: background .2s; }
+        .share-btn:hover { background: #4338ca; }
+        .share-btn i { font-size: 16px; }
+        .divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: #9ca3af; font-size: 13px; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
+        .next-btn { width: 100%; appearance: none; border: 2px solid #4f46e5; border-radius: 14px; min-height: 52px; padding: 0 16px; font-size: 15px; font-weight: 700; cursor: pointer; background: #fff; color: #4f46e5; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s; }
+        .next-btn:hover { background: #eef2ff; }
+        .next-btn i { font-size: 16px; }
+        .copy-success-toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: #1f2937; color: #fff; font-size: 14px; padding: 10px 20px;
+            border-radius: 8px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 9999;
+        }
+        .copy-success-toast.show { opacity: 1; }
+        .tip { text-align: center; font-size: 12px; color: #9ca3af; line-height: 1.6; margin-top: 8px; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="share-card">
+        <div class="share-icon-wrap">
+            <i class="fas fa-share-alt"></i>
+        </div>
+        <h1 class="share-title">完成後分享即可解鎖<br>查看你的 LAA 進階評估結果</h1>
+        <p class="share-desc">分享给朋友或po到社交平台<br>帮助更多人了解自己的面部结构</p>
+
+        <!-- 分享按钮 -->
+        <button id="shareBtn" class="share-btn" type="button">
+            <i class="fas fa-share-nodes"></i> 立即分享
+        </button>
+
+        <!-- 复制链接（备选） -->
+        <button id="copyBtn" class="share-btn" style="background:#f3f4f6;color:#374151;" type="button">
+            <i class="fas fa-link"></i> 复制链接
+        </button>
+
+        <div class="divider">或</div>
+
+        <!-- 直接继续（不强制分享） -->
+        <button id="nextBtn" class="next-btn" type="button">
+            <i class="fas fa-arrow-right"></i> 先继续测试，之后再分享
+        </button>
+    </div>
+
+    <div class="tip">分享是可选的，不影响继续测试</div>
+</div>
+
+<div id="copyToast" class="copy-success-toast">链接已复制</div>
+
+<script>
+var SHARE_TEXT = '我刚做了一个大小脸进阶评估，分享后可查看更详细结果，你也可以试试';
+var SHARE_URL  = window.location.origin + window.location.pathname;
+
+function showCopyToast() {
+    var toast = document.getElementById('copyToast');
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2000);
+}
+
+document.getElementById('shareBtn').addEventListener('click', function() {
+    if (navigator.share) {
+        navigator.share({ title: '大小脸进阶评估', text: SHARE_TEXT, url: SHARE_URL })
+            .catch(function() {});
+    } else {
+        navigator.clipboard.writeText(SHARE_URL).then(function() {
+            showCopyToast();
+        }).catch(function() {});
+    }
+});
+
+document.getElementById('copyBtn').addEventListener('click', function() {
+    navigator.clipboard.writeText(SHARE_URL).then(function() {
+        showCopyToast();
+    }).catch(function() {});
+});
+
+document.getElementById('nextBtn').addEventListener('click', function() {
+    window.location.href = 'advanced-questions.html';
+});
+</script>
+</body>
+</html>
