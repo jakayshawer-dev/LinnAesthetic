@@ -2161,3 +2161,59 @@ button:disabled {
         font-size: 13px;
     }
 }
+/* 线下门店样式 */
+.offline-stores {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid #e0e6ff;
+}
+
+.stores-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #4a6fa5;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.store-card {
+    background: #f0f4ff;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #dde4ff;
+}
+
+.store-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 6px;
+}
+
+.store-city {
+    font-size: 13px;
+    color: #4a6fa5;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.store-address {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+.store-phone {
+    font-size: 13px;
+    color: #2c3e50;
+    font-weight: 500;
+}
