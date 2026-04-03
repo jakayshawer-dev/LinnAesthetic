@@ -91,6 +91,7 @@ document.getElementById('copyBtn').addEventListener('click', function() {
 });
 
 document.getElementById('nextBtn').addEventListener('click', function() {
+    sessionStorage.setItem('flowState', 'questions');
     window.location.href = 'advanced-questions.html';
 });
 </script>

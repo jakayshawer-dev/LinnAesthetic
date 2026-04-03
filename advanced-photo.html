@@ -191,6 +191,14 @@
     </div>
 
     <script>
+        // 流程守卫：必须从第二层问卷进入
+        (function() {
+            if (sessionStorage.getItem('flowState') !== 'photo') {
+                window.location.href = 'advanced-share.html';
+            }
+            sessionStorage.setItem('flowState', 'result');
+        })();
+
         // DOM元素
         const uploadArea = document.getElementById('upload-area');
         const photoInput = document.getElementById('photo-input');
