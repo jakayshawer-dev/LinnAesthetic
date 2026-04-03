@@ -191,15 +191,6 @@
     </div>
 
     <script>
-        // 流程守卫：必须从第二层问卷进入
-        (function() {
-            if (sessionStorage.getItem('flowState') !== 'photo') {
-                window.location.href = 'advanced-share.html';
-            }
-            // 不要在这里设置 flowState='result'，那样会导致返回重答时循环
-            // flowState 只在 goToPaymentPage() 里设置
-        })();
-
         // DOM元素
         const uploadArea = document.getElementById('upload-area');
         const photoInput = document.getElementById('photo-input');
@@ -292,13 +283,12 @@
 
         // 跳转到结果页
         function goToPaymentPage() {
-            sessionStorage.setItem('flowState', 'result');
             window.location.href = 'advanced-result.html';
         }
 
         // 返回上一页
         function goBackToQuestions() {
-            window.history.back();
+            window.location.href = 'advanced-questions.html';
         }
 
         // 页面加载完成后初始化

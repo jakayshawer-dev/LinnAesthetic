@@ -60,15 +60,6 @@ body { min-height: 100vh; }
 </section>
 
 <script>
-// 流程守卫：检查是否从分享页合法进入
-(function() {
-    var state = sessionStorage.getItem('flowState');
-    // 只有 states: 'questions' 或 'photo' 才允许访问
-    if (state !== 'questions' && state !== 'photo') {
-        window.location.href = 'advanced-share.html';
-    }
-})();
-
 const NEXT_PAGE = 'advanced-photo.html';
 const STORAGE_KEY = 'laa_advanced_answers_v1';
 const PAYLOAD_KEY = 'laa_second_layer_payload';
@@ -197,7 +188,6 @@ function goNext() {
     answerOrder: QUESTIONS.map(q => answers[q.id] || null)
   };
   localStorage.setItem(PAYLOAD_KEY, JSON.stringify(payload));
-  sessionStorage.setItem('flowState', 'photo');
   window.location.href = NEXT_PAGE;
 }
 
