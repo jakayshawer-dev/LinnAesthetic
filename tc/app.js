@@ -30,7 +30,7 @@ const detailBtn = document.getElementById('detail-btn');
 
 function initApp() {
   if (!window.questions || !Array.isArray(window.questions) || window.questions.length !== 12) {
-    alert('題庫載入失敗，請重新整理頁面。');
+    alert('題庫加載失敗，請刷新頁面重試。');
     return;
   }
   userAnswers = new Array(window.questions.length).fill(null);
@@ -64,7 +64,7 @@ function startTest() {
 function renderQuestion() {
   const question = window.questions[currentQuestionIndex];
   if (!question || !Array.isArray(question.options) || question.options.length === 0) {
-    optionsContainer.innerHTML = '<div class="observation-box">題目選項載入失敗，請檢查 questions.js</div>';
+    optionsContainer.innerHTML = '<div class="observation-box">題目選項加載失敗，請檢查 questions.js</div>';
     return;
   }
 
@@ -104,7 +104,7 @@ function goPrev() {
 
 function goNext() {
   if (!userAnswers[currentQuestionIndex]) {
-    alert('请先选择一个答案');
+    alert('請先選擇一個答案');
     return;
   }
   if (currentQuestionIndex < window.questions.length - 1) {
@@ -120,7 +120,7 @@ function finishTest() {
   currentScores = calculateScores(userAnswers);
   currentResults = calculateResults(currentScores);
 
-  // 储存第一层結果，供第二层結果页读取
+  // 儲存第一層結果，供第二層結果頁讀取
   try {
     localStorage.setItem('laa_layer1_results', JSON.stringify({
       tendency: currentResults.tendency,
@@ -130,10 +130,10 @@ function finishTest() {
     }));
   } catch(e) {}
 
-  // 获取詳細描述
+  // 獲取詳細描述
   const descriptions = getDetailedDescriptions(currentResults, currentScores);
 
-  // 更新結果页
+  // 更新結果頁
   resultTendency.textContent = currentResults.tendency;
   resultTendencyDesc.textContent = descriptions.tendency;
   resultDirection.textContent = currentResults.direction;
