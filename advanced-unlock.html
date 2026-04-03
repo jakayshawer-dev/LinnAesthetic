@@ -173,15 +173,19 @@ function goToResult() {
 
 // ── iOS Safari 专用：页面从 bfcache 恢复时检测 ────────────────────────────
 // iOS Safari 打开分享面板会挂起页面，返回时触发 pageshow(persisted=true)
-// 但如果页面被淘汰出 bfcache，则触发 pageshow(persisted=false)
 window.addEventListener('pageshow', function(event) {
   if (event.persisted) {
     // 页面从 bfcache 恢复，iOS Safari 回来了
     if (localStorage.getItem(UNLOCK_KEY) === '1') {
-      goToResult();
+      // 如果 fallback 卡还没显示（说明分享后 DOM 修改被中断了），先显示它
+      var fb = document.getElementById('fallbackCard');
+      if (fb && fb.style.display === 'none') {
+        fb.style.display = 'block';
+      }
+      // 延迟跳转，等 DOM 更新渲染完
+      setTimeout(function() { goToResult(); }, 100);
     }
   }
-  // persisted=false 时不需要处理（首次加载或非 bfcache，恢复时 JS 已重新执行，上面的 checkOnLoad 已处理）
 });
 
 // ── 页面隐藏/可见：双重保险 ───────────────────────────────────────────────
