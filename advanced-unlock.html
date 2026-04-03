@@ -152,10 +152,18 @@ const RESULT_PAGE = 'advanced-result.html?v=20260403';
 const STORAGE_KEY = 'laa_second_layer_payload';
 const UNLOCK_KEY = 'advancedUnlocked';
 
-// 检查是否已解锁（防止刷新后重复触发）
-if (sessionStorage.getItem(UNLOCK_KEY) === '1') {
+// iOS Safari 在打开分享面板时会杀死页面进程，
+// sessionStorage 会丢失，用 localStorage 替代（持久化，Safari 杀死后恢复仍存在）
+if (localStorage.getItem(UNLOCK_KEY) === '1') {
   window.location.href = RESULT_PAGE;
 }
+
+// 页面可见性变化时检测（iOS Safari 从后台恢复时再次检查）
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible' && localStorage.getItem(UNLOCK_KEY) === '1') {
+    window.location.href = RESULT_PAGE;
+  }
+});
 
 // ---------- 业务逻辑（从原页面保留） ----------
 function readPayload() {
@@ -249,7 +257,7 @@ function render() {
 
 // ---------- 解锁跳转 ----------
 function doUnlock() {
-  sessionStorage.setItem(UNLOCK_KEY, '1');
+  localStorage.setItem(UNLOCK_KEY, '1');
   window.location.href = RESULT_PAGE;
 }
 
@@ -284,7 +292,7 @@ const SHARE_URL = window.location.origin + window.location.pathname;
 // ---------- 事件绑定 ----------
 document.getElementById('shareBtn').addEventListener('click', function() {
   // 立即设置解锁标记 + 显示完成按钮，不等待分享结果
-  sessionStorage.setItem(UNLOCK_KEY, '1');
+  localStorage.setItem(UNLOCK_KEY, '1');
   showFallbackCard(); // 立即显示"已完成分享"按钮
 
   if (navigator.share) {

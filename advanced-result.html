@@ -121,7 +121,8 @@ body { min-height: 100vh; }
 
 <script>
 // ── 前端守卫 ──────────────────────────────────────────────────────────────
-if (sessionStorage.getItem('advancedUnlocked') !== '1') {
+// iOS Safari 杀死页面后 sessionStorage 会丢失，解锁标记存在 localStorage
+if (localStorage.getItem('advancedUnlocked') !== '1') {
   window.location.href = 'advanced-unlock.html';
 }
 
