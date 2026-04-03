@@ -147,7 +147,8 @@ body { min-height: 100vh; }
 <div id="copyToast" class="copy-success-toast">链接已复制</div>
 
 <script>
-const RESULT_PAGE = 'advanced-result.html';
+// 强制刷新参数，解决浏览器缓存导致页面过旧的问题
+const RESULT_PAGE = 'advanced-result.html?v=20260403';
 const STORAGE_KEY = 'laa_second_layer_payload';
 const UNLOCK_KEY = 'advancedUnlocked';
 
