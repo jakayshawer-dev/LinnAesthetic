@@ -136,84 +136,283 @@ function getAnswerValue(payload, qid) {
   return payload.answers[qid].value || '';
 }
 
+// ============================================================
+// 完整的第二层结果渲染逻辑
+// 基于：LAA_第二层组合调用表 v3
+// 路由优先级：Q3 > Q2 > Q1 > 第一层方向校正
+// ============================================================
+
+// 读取第一层结果的工具函数
+function readLayer1Results() {
+  try {
+    const raw = localStorage.getItem('laa_layer1_results');
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+
+// 统一侧别文字（来自第一层的 side 字段）
+function getSideText(l1) {
+  if (!l1) return '暂不明確，需综合评估';
+  if (l1.side === '左侧更明显') return '左侧更明显';
+  if (l1.side === '右侧更明显') return '右侧更明显';
+  return '暂不明確，波动期两侧皆参与';
+}
+
+// 统一真假倾向文字
+function getTendencyText(l1) {
+  if (!l1) return '';
+  return l1.tendency || '';
+}
+
+// ============================================================
+// 模板定义
+// ============================================================
+const TEMPLATES = {
+  T1: {
+    label: '动态控制 / 表情偏侧型',
+    mainLayer: '表情肌 / 口周肌群',
+    triggerScene: '微笑、说话、做表情时',
+    // 外观原因
+    appearance: {
+      default: '你的差异主要与两侧表情肌启动速度不一致、口角控制力不同有关。在微笑、说话或做表情时，两侧差异会被放大。',
+      q4_why_bigger: '你的差异看起来一侧更大，主要原因不是骨骼或软组织厚度，而是表情启动时两侧发力程序不对称，导致动态放大。',
+      q4_why_dynamic: '你的差异在微笑和说话时更明显，核心原因是表情肌的启动顺序和控制力在两侧存在偏差，而非单纯的静态大小。',
+      q4_cannot_tell: '你总分不清哪边更明显，是因为在动态时两侧都在参与，只是参与程度不同——这不是"没问题是"，而是两侧都在出问题。',
+      q4_priority: '你的问题在表情和说话时最突出，应该优先处理口周肌群的控制对称性，再逐步建立正确的发力习惯。',
+      q4_logic: '从整体来看，你的问题更像"表情编程偏差"型——动态时暴露更明显，核心参与层是表情肌和口周肌群，而非骨骼或咬合。'
+    },
+    // 表现侧
+    exhibitSide(l1) { return getSideText(l1); },
+    // 优先处理侧
+    prioritySide(l1) {
+      if (!l1) return '需综合评估后确定';
+      return `优先处理「${l1.side === '左侧更明显' ? '左侧' : l1.side === '右侧更明显' ? '右侧' : '两侧'}表情启动较慢、控制力较弱的一侧`;
+    },
+    // 训练提示
+    training: {
+      default: '建议进行对称微笑感知练习：对着镜子缓慢做对称微笑，感受两侧发力差异；每日进行口周肌群感知训练，建立正确的表情发力习惯。',
+      q4_why_bigger: '训练重点在于解决"表情发力偏差"——不是把大的一侧练小，而是让两侧启动速度趋于同步。先从轻柔的表情感知练习开始。',
+      q4_priority: '优先处理：每天进行 5–10 分钟口周感知训练，感受两侧肌肉发力的细微差异，逐步建立对称的控制习惯。'
+    },
+    // 常见误判
+    mistakes: {
+      default: '1. 只看静态照片下结论，忽略了表情时的动态差异\n2. 只处理"看起来大"的那侧，而忽略了真正控制力弱的侧\n3. 表情训练强度过快，反而加重了两侧控制不对称',
+      q4_cannot_tell: '1. 以为"两边都一样"就是没问题，其实是两边都在出问题\n2. 在没有分辨清楚哪侧是"表现侧"的情况下自行训练\n3. 只处理动态时明显的一侧，忽略了两侧的关联性'
+    }
+  },
+
+  T2: {
+    label: '咀嚼发力 / 下颌偏载型',
+    mainLayer: '咬肌 / 下颌肌群',
+    triggerScene: '咀嚼、咬牙、发力时',
+    appearance: {
+      default: '你的差异主要与单侧咀嚼发力偏多有关，导致咬肌和下颌肌发达程度不同。在咀嚼、咬牙或用力时，两侧差异会被放大。',
+      q4_why_bigger: '你的差异看起来一侧更大，主要是因为单侧咀嚼导致咬肌肥厚程度不同。发力侧长期代偿，外观看起来会更"壮"。',
+      q4_why_dynamic: '你的差异在咀嚼和发力时更明显，核心原因是下颌咀嚼轨迹长期偏向一侧，导致两侧肌群发展不均衡。',
+      q4_cannot_tell: '你总分不清哪边更明显，是因为咀嚼习惯可能在两侧之间波动——这不是"没问题是"，而是单侧咀嚼模式还没有被打破。',
+      q4_priority: '你的问题在咀嚼和发力时最突出，应该优先处理咀嚼肌的张力对称和交替咀嚼习惯，再逐步改善发力模式。',
+      q4_logic: '从整体来看，你的问题更像"咀嚼路径偏载"型——单侧发力导致肌群发达程度不同，核心参与层是咬肌和下颌肌群。'
+    },
+    exhibitSide(l1) { return getSideText(l1); },
+    prioritySide(l1) {
+      if (!l1) return '需综合评估后确定';
+      return `优先处理「${l1.side === '左侧更明显' ? '左侧' : l1.side === '右侧更明显' ? '右侧' : '两侧'}咬肌张力更高、发力更多的」那一侧`;
+    },
+    training: {
+      default: '建议进行咀嚼肌放松和两侧交替咀嚼练习：每天有意识地进行双侧均衡咀嚼，减少单侧代偿；用温热敷配合轻手法松解咬肌高张侧。',
+      q4_why_bigger: '训练重点在于恢复两侧咬肌张力平衡：先用放松手法降低发达侧的肌张力，再逐步建立双侧交替咀嚼的习惯。',
+      q4_priority: '优先处理咀嚼肌张力最高的那一侧，同时建立双侧交替咀嚼的意识，避免继续单侧代偿。'
+    },
+    mistakes: {
+      default: '1. 只处理"看起来大"的那侧咬肌，忽略了发力习惯的根本问题\n2. 直接做咬牙训练，加重了单侧代偿\n3. 忽略了饮食咀嚼方式对结果的影响',
+      q4_cannot_tell: '1. 以为"两边嚼起来差不多"就是均衡，其实习惯已经偏了一侧\n2. 在不确定哪侧是惯用侧的情况下自行训练\n3. 只处理咬肌，忽略了颞颌关节的整体配合'
+    }
+  },
+
+  T3: {
+    label: '静态轮廓 / 软组织张力偏差型',
+    mainLayer: '面部软组织张力层',
+    triggerScene: '静态拍照、放松时',
+    appearance: {
+      default: '你的差异主要表现为静态下的软组织张力偏差：可能是一侧更紧、更顶、更收，另一侧更松、更垮、更散。在放松或静态时最容易被观察到。',
+      q4_why_bigger: '你的差异看起来一侧更大，核心是软组织张力的不对称——一侧更"紧实顶胀"，另一侧更"松散垂垮"，而不是骨骼本身的大小差异。',
+      q4_why_dynamic: '你的差异在静态时比动态时更明显，提示问题更偏向软组织的张力固定，而非肌肉控制问题。',
+      q4_cannot_tell: '你总分不清哪边更明显，是因为你的差异在静态时处于"相对平衡"状态——两侧都有参与，只是程度不同。',
+      q4_priority: '你的问题在静态时最明显，应该优先处理软组织张力的"松紧差"，让两侧回到更接近的状态。',
+      q4_logic: '从整体来看，你的问题更像"软组织张力固定偏差"型——静态外观差异明显，核心参与层是面部软组织的张力层，而非骨骼或肌肉控制。'
+    },
+    exhibitSide(l1) { return getSideText(l1); },
+    prioritySide(l1) {
+      if (!l1) return '需综合评估后确定';
+      return `优先处理「${l1.side === '左侧更明显' ? '左侧' : l1.side === '右侧更明显' ? '右侧' : '两侧'}软组织张力更高」的那一侧`;
+    },
+    training: {
+      default: '建议进行面部肌群感知和张力平衡练习：通过轻柔的感知练习感受两侧张力差异，从放松高张侧开始，逐步建立两侧均衡的发力感觉。',
+      q4_why_bigger: '训练重点在于降低高张侧的软组织张力，同时激活弱侧：每日进行面部感知练习，感受两侧差异，针对性放松"更紧更顶"的一侧。',
+      q4_priority: '优先处理软组织张力明显偏高的一侧，配合轻度的弱侧激活练习，逐步拉近两侧张力差距。'
+    },
+    mistakes: {
+      default: '1. 只看外观判断"哪侧大"，而没有分辨"高张侧"和"弱侧"不是同一侧\n2. 训练强度过大，反而加重了两侧张力差\n3. 只处理面部，忽略了颈肩体态对软组织张力的上游影响',
+      q4_cannot_tell: '1. 以为"两边差不多"就是没问题，其实是两侧都偏离了理想状态\n2. 在没有分辨清楚高张侧和弱侧的情况下盲目训练\n3. 只做面部练习，忽略了体态和呼吸模式的影响'
+    }
+  },
+
+  T4: {
+    label: '位置牵拉 / 头颈支撑牵连型',
+    mainLayer: '颈肩支撑肌群 / 筋膜链',
+    triggerScene: '头颈位置变化时',
+    appearance: {
+      default: '你的差异可能不只在脸上，还和头颈支撑、侧睡、托腮或整体牵拉链有关。上游支撑偏移带动了面部筋膜链，使外观出现不对称。',
+      q4_why_bigger: '你的差异看起来一侧更大，核心原因不在面部本身，而在上游头颈支撑位置：单侧托腮、侧睡等习惯导致支撑链长期偏歪，进而牵拉面部。',
+      q4_why_dynamic: '你的差异在头颈位置变化时最明显，提示问题的根源在上游（颈肩支撑和筋膜链），而非面部本身。',
+      q4_cannot_tell: '你总分不清哪边更明显，是因为支撑偏歪的位置可能不只一处——这恰恰说明上游牵连路径复杂，需要系统处理。',
+      q4_priority: '你的问题根源在上游头颈支撑，应该优先处理支撑肌群的失衡，改变单侧托腮和侧睡习惯，再处理面部的下游表现。',
+      q4_logic: '从整体来看，你的问题更像"支撑链偏移"型——面部不对称是下游表现，根源在头颈肩的支撑肌群和筋膜牵拉链。'
+    },
+    exhibitSide(l1) { return getSideText(l1); },
+    prioritySide(l1) {
+      if (!l1) return '需综合评估后确定';
+      return `优先处理「${l1.side === '左侧更明显' ? '左侧' : l1.side === '右侧更明显' ? '右侧' : '两侧'}颈肩支撑肌群更紧张、位置更偏」的那一侧`;
+    },
+    training: {
+      default: '建议优先处理头颈姿势和颈肩肌群松解：改变单侧托腮和固定侧睡习惯；每天进行颈侧肌群松解和姿势矫正练习，减轻上游牵拉。',
+      q4_why_bigger: '训练重点在于处理上游：先改变单侧支撑和侧睡习惯，再做颈肩肌群的松解和姿势矫正，减少上游对面部的持续牵拉。',
+      q4_priority: '优先处理：减少单侧托腮和固定侧睡习惯是第一步，同时配合颈肩肌群的松解练习，打断上游牵拉链。'
+    },
+    mistakes: {
+      default: '1. 只处理面部，完全忽略上游支撑因素\n2. 做了面部训练但继续维持单侧托腮习惯，训练效果被抵销\n3. 没有意识到体态和头位对面部外观的影响',
+      q4_cannot_tell: '1. 以为面部训练就能解决，实际上源头在支撑链\n2. 只做颈肩练习，但继续维持托腮和侧睡习惯\n3. 忽略了呼吸模式和整体体态对面部的影响'
+    }
+  },
+
+  T5: {
+    label: '复合波动型',
+    mainLayer: '多层参与（不稳定）',
+    triggerScene: '波动出现，静态+动态同时参与',
+    appearance: {
+      default: '你的情况存在明显的波动信号：静态和动态因素同时参与，且两侧表现可能随时间和用力方式变化。不是单一因素，而是多因素叠加、相互影响。',
+      q4_why_bigger: '你的差异看起来有时明显、有时不明显，说明至少有两个以上的因素同时参与你的问题。这类复合型不适合单线处理，需要先梳理清各因素的参与权重。',
+      q4_why_dynamic: '你的差异在动态时和静态时都有表现，且可能随时间和状态波动——这提示你的问题不是单一维度的，而是"动态放大+静态固定"同时存在的复合型。',
+      q4_cannot_tell: '你总分不清哪边更明显，是因为在不同的状态下参与问题的因素本身就在变化。这类情况最适合先做系统评估，再制定针对性的分步处理方案。',
+      q4_priority: '你的情况比较复杂，优先处理最稳定的那条主线（通常是需要先处理上游支撑还是先稳定动态控制），不要同时做太多练习。',
+      q4_logic: '从整体来看，你的问题属于"多因素复合波动型"——静态外观、动态放大、上游牵连可能同时存在，需要先梳理清楚各因素的权重关系，再制定处理顺序。'
+    },
+    exhibitSide(l1) { return '暂不明確，波动期两侧皆有参与'; },
+    prioritySide(l1) {
+      return '暂无法直接确认，需综合评估后确定优先处理侧——先抓最稳定的主线';
+    },
+    training: {
+      default: '建议先从整体评估开始，理清各因素的参与权重后再制定分步处理方案。切忌同时做太多练习，以免多因素相互干扰。建议找专业评估后按顺序处理。',
+      q4_why_bigger: '训练重点在于"先梳理后行动"：目前多因素叠加，不建议自行训练。先通过专业评估确认最需要优先处理的那条主线，再按顺序进行。',
+      q4_priority: '优先处理：先做整体评估，确认"表现侧"和"优先处理侧"的区别——在复合型中，这两侧很可能不是同一侧。按顺序处理，不要同时开始多个方向的练习。'
+    },
+    mistakes: {
+      default: '1. 以为"多个问题同时处理"效果更好，实际上互相干扰\n2. 在没有分辨清楚主次的情况下盲目训练\n3. 只处理了其中一个问题就以为好了，但其他因素还在持续影响',
+      q4_cannot_tell: '1. 以为"波动=没问题"，实际上波动本身就是问题的信号\n2. 总想找一个确定的答案，但复合型本身就是多因素共同作用的结果\n3. 在没有评估的情况下自行处理，结果多因素互相叠加'
+    }
+  }
+};
+
+// ============================================================
+// 模板路由（优先级：Q3 > Q2 > Q1 > L1校正）
+// ============================================================
+function decideTemplate(q1, q2, q3, q4, l1) {
+  // 第一优先：Q3 — 波动/加重直接判 T5（立即终结，不走后续判断）
+  if (q3 === 'getting_worse_recently' || q3 === 'left_right_fluctuate') {
+    return 'T5';
+  }
+
+  // 第二优先：Q2 — 单因素直接判（立即终结，不走 Q1 判断）
+  if (q2 === 'one_side_support') {
+    return 'T4';
+  }
+  if (q2 === 'one_side_expression') {
+    return 'T1'; // 表情偏侧，路由 T1
+  }
+  if (q2 === 'one_side_chew') {
+    return 'T2'; // 咀嚼偏侧，路由 T2（覆盖 Q1 结果）
+  }
+
+  // 第三优先：Q1 — 基础路由
+  if (q1 === 'smile_or_talk') {
+    return 'T1';
+  }
+  if (q1 === 'chew_or_force') {
+    return 'T2';
+  }
+
+  // 默认：Q1 = static_photo 或其他 → T3 静态轮廓
+  return 'T3';
+}
+
+// 获取 Q4 加权的描述内容
+function getQ4WeightedContent(templateKey, q4, field, l1) {
+  const tpl = TEMPLATES[templateKey];
+  const q4Key = 'q4_' + q4;
+  if (tpl[field] && typeof tpl[field] === 'object') {
+    if (tpl[field][q4Key]) return tpl[field][q4Key];
+  }
+  if (typeof tpl[field] === 'object') {
+    return tpl[field].default || '';
+  }
+  if (typeof tpl[field] === 'function') {
+    return tpl[field](l1);
+  }
+  return '';
+}
+
+// ============================================================
+// 主渲染函数
+// ============================================================
 function render() {
   const payload = readPayload();
   if (!payload) {
-    document.getElementById('resultContent').innerHTML = '<div class="card"><p class="subtext">暂无结果数据，请先完成第二层问卷。</p></div>';
+    document.getElementById('resultContent').innerHTML =
+      '<div class="card"><p class="subtext">暂无结果数据，请先完成第二层问卷。</p></div>';
     return;
   }
 
-  const q1 = getAnswerValue(payload, 'Q1');
-  const q2 = getAnswerValue(payload, 'Q2');
-  const q3 = getAnswerValue(payload, 'Q3');
-  const q4 = getAnswerValue(payload, 'Q4');
+  // 读取答案
+  const q1 = getAnswerValue(payload, 'Q1'); // smile_or_talk | chew_or_force | static_photo | unstable_day_to_day
+  const q2 = getAnswerValue(payload, 'Q2'); // one_side_chew | one_side_support | one_side_expression | uncertain
+  const q3 = getAnswerValue(payload, 'Q3'); // stable_long_term | getting_worse_recently | left_right_fluctuate | dynamic_amplified
+  const q4 = getAnswerValue(payload, 'Q4'); // why_bigger | why_dynamic_asymmetry | why_cannot_tell_side | priority_and_order | overall_logic
 
-  // 判断模板类型
-  let templateType = '静态轮廓型';
-  let mainLayer = '软组织张力';
-  let triggerScene = '静态拍照';
+  // 读取第一层结果（用于侧别和方向校正）
+  const l1 = readLayer1Results();
 
-  if (q3 === 'getting_worse_recently' || q3 === 'left_right_fluctuate') {
-    templateType = '复合波动型';
-  }
-  if (q1 === 'smile_or_talk' || q2 === 'one_side_expression' || q3 === 'dynamic_amplified') {
-    templateType = '口周动态控制失衡型';
-    mainLayer = '表情肌/口周肌';
-    triggerScene = '微笑、说话时';
-  } else if (q1 === 'chew_or_force' || q2 === 'one_side_chew') {
-    templateType = '咀嚼代偿型';
-    mainLayer = '咬肌/下颌肌';
-    triggerScene = '咀嚼、用力时';
-  } else if (q2 === 'one_side_support') {
-    templateType = '位置牵拉型';
-    mainLayer = '颈肩/支撑肌';
-    triggerScene = '头颈位置变化时';
-  }
+  // 决定模板
+  const templateKey = decideTemplate(q1, q2, q3, q4, l1);
+  const tpl = TEMPLATES[templateKey];
 
-  document.getElementById('templateType').textContent = templateType;
-  document.getElementById('mainLayer').textContent = mainLayer;
-  document.getElementById('triggerScene').textContent = triggerScene;
+  // 填充：模板类型 / 主要参与层 / 触发场景
+  document.getElementById('templateType').textContent = tpl.label;
+  document.getElementById('mainLayer').textContent = tpl.mainLayer;
+  document.getElementById('triggerScene').textContent = tpl.triggerScene;
 
-  // 外观原因
-  let appearanceReason = '你的差异主要来自软组织张力偏差，表现为静态下的左右不对称。';
-  if (q1 === 'smile_or_talk') {
-    appearanceReason = '你的差异主要与表情肌控制有关，在动态表情时会更加明显。';
-  } else if (q1 === 'chew_or_force') {
-    appearanceReason = '你的差异主要与咀嚼侧发力偏多有关，导致咬肌和下颌肌发达程度不同。';
-  } else if (q2 === 'one_side_support') {
-    appearanceReason = '你的差异可能与头颈支撑姿势有关，长期单侧支撑导致软组织被牵拉偏移。';
-  }
-  document.getElementById('appearanceReason').textContent = appearanceReason;
+  // 填充：外观原因（Q4 加权）
+  const appearanceText = getQ4WeightedContent(templateKey, q4, 'appearance', l1);
+  document.getElementById('appearanceReason').textContent = appearanceText;
 
-  // 表现侧与优先处理侧
-  let exhibitSide = '右侧更明显';
-  let prioritySide = '左侧（优先处理）';
-  if (q2 === 'one_side_chew' || q2 === 'one_side_support') {
-    exhibitSide = '患侧更明显';
-    prioritySide = '需要评估后确定';
-  }
-  document.getElementById('exhibitSide').textContent = exhibitSide;
-  document.getElementById('prioritySideValue').textContent = prioritySide;
+  // 填充：表现侧（取第一层 side）
+  document.getElementById('exhibitSide').textContent = tpl.exhibitSide(l1);
 
-  // 训练提示
-  let trainingTips = '建议先从基础的面部肌群感知练习开始，逐步建立正确的发力习惯。';
-  if (q1 === 'smile_or_talk') {
-    trainingTips = '建议进行表情肌控制练习，包括对称微笑训练和口周肌群感知练习。';
-  } else if (q1 === 'chew_or_force') {
-    trainingTips = '建议进行咀嚼肌放松和两侧均衡发力练习，减少单侧代偿。';
-  } else if (q2 === 'one_side_support') {
-    trainingTips = '建议进行头颈姿势矫正和颈肩肌群松解，改变不良支撑习惯。';
-  }
-  document.getElementById('trainingTips').textContent = trainingTips;
+  // 填充：优先处理侧（Q4 加权 + L1 加权）
+  const prioritySideText = getQ4WeightedContent(templateKey, q4, 'prioritySide', l1)
+    || tpl.prioritySide(l1);
+  document.getElementById('prioritySideValue').textContent = prioritySideText;
 
-  // 常见误判
-  let commonMistakes = '1. 只看静态照片判断，忽略了动态因素\n2. 只处理表现侧而忽略了真正的问题源头\n3. 训练强度过大，反而加重了不对称';
-  if (q3 === 'left_right_fluctuate') {
-    commonMistakes = '1. 以为自己的问题是固定的，实际上有波动\n2. 容易误判表现侧，需要更细致的评估\n3. 训练方案需要根据波动情况灵活调整';
-  }
-  document.getElementById('commonMistakes').textContent = commonMistakes;
+  // 填充：训练提示（Q4 加权）
+  const trainingText = getQ4WeightedContent(templateKey, q4, 'training', l1);
+  document.getElementById('trainingTips').textContent = trainingText;
+
+  // 填充：常见误判（Q4 加权）
+  const mistakesText = getQ4WeightedContent(templateKey, q4, 'mistakes', l1);
+  document.getElementById('commonMistakes').textContent = mistakesText;
 }
 
+// 执行渲染
 render();
 </script>
 </body>
