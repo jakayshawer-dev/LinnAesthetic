@@ -191,6 +191,11 @@
     </div>
 
     <script>
+        // 前端守卫：未解锁则跳到分享页
+        if (localStorage.getItem('advancedUnlocked') !== '1') {
+            window.location.href = 'advanced-unlock.html';
+        }
+
         // DOM元素
         const uploadArea = document.getElementById('upload-area');
         const photoInput = document.getElementById('photo-input');

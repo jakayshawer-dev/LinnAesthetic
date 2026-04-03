@@ -60,6 +60,11 @@ body { min-height: 100vh; }
 </section>
 
 <script>
+// 前端守卫：未解锁则跳到分享页
+if (localStorage.getItem('advancedUnlocked') !== '1') {
+    window.location.href = 'advanced-unlock.html';
+}
+
 const NEXT_PAGE = 'advanced-photo.html';
 const STORAGE_KEY = 'laa_advanced_answers_v1';
 const PAYLOAD_KEY = 'laa_second_layer_payload';
