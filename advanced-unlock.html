@@ -259,13 +259,11 @@ function showFallbackCard() {
 
 // 复制链接
 function copyLink() {
-  // 分享链接指向测试首页，而不是当前解锁页
-  const link = window.location.origin + '/index.html';
+  const link = window.location.origin + window.location.pathname;
   navigator.clipboard.writeText(link).then(function() {
     showCopyToast();
     showFallbackCard();
   }).catch(function() {
-    // 降级：直接显示手动解锁按钮
     showFallbackCard();
   });
 }
@@ -279,8 +277,8 @@ function showCopyToast() {
 
 // 分享文案
 const SHARE_TEXT = '我刚做了一个大小脸进阶评估，分享后可查看更详细结果，你也可以试试';
-// 分享链接指向测试首页，让被分享者从首页开始做测试
-const SHARE_URL = window.location.origin + '/index.html';
+// 分享链接：使用当前页面完整路径，确保 recipients 打开的是同一个解锁页
+const SHARE_URL = window.location.origin + window.location.pathname;
 
 // ---------- 事件绑定 ----------
 document.getElementById('shareBtn').addEventListener('click', function() {
