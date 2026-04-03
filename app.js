@@ -120,6 +120,16 @@ function finishTest() {
   currentScores = calculateScores(userAnswers);
   currentResults = calculateResults(currentScores);
 
+  // 储存第一层结果，供第二层结果页读取
+  try {
+    localStorage.setItem('laa_layer1_results', JSON.stringify({
+      tendency: currentResults.tendency,
+      direction: currentResults.direction,
+      side: currentResults.side,
+      complexity: currentResults.complexity
+    }));
+  } catch(e) {}
+
   // 获取详细描述
   const descriptions = getDetailedDescriptions(currentResults, currentScores);
 
