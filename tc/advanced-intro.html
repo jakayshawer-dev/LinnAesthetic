@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAA 進階評估</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 第二层说明页 -->
+        <div id="advanced-intro-page" class="page active">
+            <div class="container">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                
+                <h1 class="main-title">LAA 進階評估</h1>
+                <p class="subtitle">進一步看清問題主次、疊加因素與處理順序</p>
+                
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="info-content">
+                        <p>接下來你將補充 4 個問題，並上傳 1 張自然正面照。</p>
+                        <p>這些信息將用於進一步拆解你的問題主次、形成邏輯與處理順序。</p>
+                    </div>
+                </div>
+                
+                <div class="process-steps">
+                    <h3><i class="fas fa-list-ol"></i> 評估流程</h3>
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>補充 4 個問題</strong>
+                            <p>進一步了解你的具體情況和感受</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>上傳正面照</strong>
+                            <p>1 張自然正面照，用於輔助觀察</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>解鎖進階結果</strong>
+                            <p>查看詳細的主次關係分析和處理建議</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reminder">
+                    <p><i class="fas fa-lightbulb"></i> <strong>重要提示：</strong>進階評估不是"更多內容"，而是"補充信息後，進一步拆解主次關係、形成邏輯和處理順序"。</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="start-advanced-btn" class="btn-primary">
+                        <i class="fas fa-play-circle"></i> 開始補充評估信息
+                    </button>
+                    <button id="back-to-results-btn" class="btn-secondary">
+                        <i class="fas fa-arrow-left"></i> 返回上一頁
+                    </button>
+                </div>
+                
+                <div class="system-identifier-bottom">
+                    LAA · 進階評估
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面元素
+        const startAdvancedBtn = document.getElementById('start-advanced-btn');
+        const backToResultsBtn = document.getElementById('back-to-results-btn');
+
+        // 开始进阶评估 → 直接进入第二层4道题
+        startAdvancedBtn.addEventListener('click', function() {
+            window.location.href = 'advanced-questions.html';
+        });
+        
+        // 返回上一页
+        backToResultsBtn.addEventListener('click', function() {
+            // 返回第一层结果页
+            window.history.back();
+        });
+        
+        // 添加键盘支持
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                startAdvancedBtn.click();
+            } else if (e.key === 'Escape') {
+                backToResultsBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>

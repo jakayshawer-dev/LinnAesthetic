@@ -1,0 +1,414 @@
+{
+  "systemDescription": "LAA第二层进阶评估结果系统 - 基于三份文档原文交集清单",
+  "version": "2026-03-27-final-v3",
+  "dataSource": "文件1: LAA_第二层组合调用表_OPENCLAW执行初版_v3.docx, 文件2: LAA_第二层进阶评估整理总表_续写版.docx, 文件3: LAA_第二层进阶评估整理总表_执行补充版.docx",
+  
+  "templates": {
+    "description": "5个主结果类别（完全使用文档原词）",
+    "templates": [
+      {
+        "id": "template1",
+        "name": "模板1 口周 / 口角动态控制失衡型",
+        "description": "主要承接第一层'动态控制方向'",
+        "source": "文件2第8-9行，文件3第8-9行"
+      },
+      {
+        "id": "template2",
+        "name": "模板2 咀嚼 / 下颌使用代偿型",
+        "description": "主要承接第一层'习惯偏侧方向'",
+        "source": "文件2第9-10行，文件3第9-10行"
+      },
+      {
+        "id": "template3",
+        "name": "模板3 静态轮廓 / 软组织张力偏差型",
+        "description": "主要承接第一层'肌肉-软组织方向'，也接一部分筋膜/位置牵拉方向",
+        "source": "文件2第9-10行，文件3第9-10行"
+      },
+      {
+        "id": "template4",
+        "name": "模板4 位置牵拉 / 头颈支撑牵连型",
+        "description": "主要承接第一层'体态代偿方向'，也接一部分筋膜/位置牵拉方向",
+        "source": "文件2第10行，文件3第10行"
+      },
+      {
+        "id": "template5",
+        "name": "模板5 复合波动型",
+        "description": "用于临界、波动、多层叠加、难直接写死的情况",
+        "source": "文件1第6行，文件2第7行"
+      }
+    ]
+  },
+  
+  "firstLayerVariables": {
+    "description": "第一层固定输出字段（三份文件一致）",
+    "variables": [
+      {
+        "id": "truthTendency",
+        "name": "真假倾向",
+        "possibleValues": ["假性倾向", "混合倾向", "真性倾向"],
+        "required": true,
+        "source": "文件2第6行，文件3第7行"
+      },
+      {
+        "id": "mainProblemDirection",
+        "name": "主问题方向",
+        "possibleValues": ["肌肉-软组织方向", "筋膜-位置牵拉方向", "动态控制方向", "体态代偿方向"],
+        "required": true,
+        "source": "文件2第4行，文件3第4行"
+      },
+      {
+        "id": "sideHint",
+        "name": "左右侧提示",
+        "possibleValues": ["左侧更明显", "右侧更明显", "暂不明确"],
+        "required": true,
+        "source": "文件2第4行，文件3第4行"
+      },
+      {
+        "id": "complexityHint",
+        "name": "复杂度提示",
+        "possibleValues": ["一般初筛", "建议进一步评估"],
+        "required": true,
+        "source": "文件2第4行，文件3第4行"
+      }
+    ]
+  },
+  
+  "secondLayerVariables": {
+    "description": "第二层补充问题变量（三份文件一致）",
+    "questions": [
+      {
+        "id": "Q1",
+        "question": "你最明显感觉左右不对称，是在什么情况下更容易看到？",
+        "options": [
+          {"value": "A", "text": "静态拍照时更明显"},
+          {"value": "B", "text": "微笑或说话时更明显"},
+          {"value": "C", "text": "咀嚼或用力时更明显"},
+          {"value": "D", "text": "每天看起来不太一样，不太稳定"}
+        ],
+        "purpose": "修正动态/静态权重；修正主模板分流的第一优先级",
+        "source": "文件2第7行，文件3第14行"
+      },
+      {
+        "id": "Q2",
+        "question": "你平时最明显、持续时间最长的一种偏侧使用习惯是？",
+        "options": [
+          {"value": "A", "text": "单侧咀嚼比较明显"},
+          {"value": "B", "text": "单侧托脸、侧睡或偏向一侧支撑比较明显"},
+          {"value": "C", "text": "某一侧表情或发力更常用"},
+          {"value": "D", "text": "没有明显感觉，或不确定"}
+        ],
+        "purpose": "修正更具体参与层；帮助决定第二阶段更偏哪类代偿",
+        "source": "文件2第8行，文件3第15行"
+      },
+      {
+        "id": "Q3",
+        "question": "你的不对称感受，更接近下面哪一种？",
+        "options": [
+          {"value": "A", "text": "长期都比较稳定，位置和感觉差不多"},
+          {"value": "B", "text": "最近越来越明显"},
+          {"value": "C", "text": "有时觉得左边明显，有时又觉得右边明显"},
+          {"value": "D", "text": "静态还好，但一动起来就更明显"}
+        ],
+        "purpose": "修正复杂度、波动性与动态参与程度",
+        "source": "文件2第9行"
+      },
+      {
+        "id": "Q4",
+        "question": "你现在最想优先弄清楚的是哪一类问题？",
+        "options": [
+          {"value": "A", "text": "为什么一边脸看起来更大"},
+          {"value": "B", "text": "为什么两边位置/高低/线条方向不一样"},
+          {"value": "C", "text": "为什么静态还好，一做动作差异就出来"},
+          {"value": "D", "text": "为什么问题会和习惯动作、使用偏侧或发力方式有关"},
+          {"value": "E", "text": "为什么你的情况更像复合因素，不适合只盯一个点"}
+        ],
+        "purpose": "不强改分类本身，主要修正文案重心和结果页前置顺序",
+        "source": "文件2第10行"
+      }
+    ]
+  },
+  
+  "priorityRules": {
+    "description": "分流优先级规则（文件2明确）",
+    "rules": [
+      {
+        "priority": 1,
+        "rule": "先看 Q1",
+        "description": "它直接决定问题最容易在什么状态下暴露（静态、说话/微笑、咀嚼/用力、波动不稳）",
+        "source": "文件2第14行"
+      },
+      {
+        "priority": 2,
+        "rule": "再看第一层主问题方向",
+        "description": "它负责校正 Q1，避免只凭一个场景就误分模板",
+        "source": "文件2第14行"
+      },
+      {
+        "priority": 3,
+        "rule": "再看 Q2",
+        "description": "它帮助把结果落到更具体的参与层，如表情偏侧、单侧咀嚼、单侧支撑等",
+        "source": "文件2第14行"
+      },
+      {
+        "priority": 4,
+        "rule": "再看 Q3",
+        "description": "它决定是否需要升级为'复合波动型'，或者是否更偏稳定 / 动态放大",
+        "source": "文件2第14行"
+      },
+      {
+        "priority": 5,
+        "rule": "最后看 Q4",
+        "description": "不强改分类本身，主要修正文案重心和结果页前置顺序",
+        "source": "文件2第10行"
+      }
+    ]
+  },
+  
+  "callTableStructure": {
+    "description": "组合调用表结构（文件1明确）",
+    "fields": [
+      "规则ID",
+      "真假倾向",
+      "第一层方向",
+      "侧别",
+      "复杂度",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Q4",
+      "主模板",
+      "主标签",
+      "优先处理方向",
+      "备注"
+    ],
+    "exampleRuleIds": ["R001", "R101", "R102", "R103"],
+    "source": "文件1第6-10行"
+  },
+  
+  "importantNotes": {
+    "description": "重要说明原文（三份文件一致）",
+    "notes": [
+      {
+        "note": "可执行骨架 + 已有示例行 + 待补空位",
+        "source": "文件1第2行"
+      },
+      {
+        "note": "不能逐一写 28800 份报告 - 维护成本、更新成本和逻辑一致性都会失控",
+        "source": "文件2第13行，文件3第6行"
+      },
+      {
+        "note": "必须压缩成'主模板 + 变量系统' - 先判断落到哪个第二层主模板，再替换真假倾向、左右侧、复杂度、Q4重心等变量",
+        "source": "文件2第13行，文件3第6行"
+      }
+    ]
+  },
+  
+  "implementationStatus": {
+    "currentPhase": "数据结构与配置接入",
+    "nextPhase": "规则引擎实现",
+    "lastUpdated": "2026-03-27-final-v3",
+    "notes": "此配置文件完全基于三份文档原文交集清单创建，未进行任何归纳、改写或创造"
+  },
+  
+  "confirmedRules": {
+    "description": "已确认的正式规则主线（基于确认版执行口径）",
+    "rules": [
+      {
+        "ruleId": "T1-R01",
+        "conditions": {
+          "Q1": "微笑或说话时更明显",
+          "mainProblemDirection": "动态控制方向",
+          "Q2": "某一侧表情或发力更常用",
+          "Q3": "静态还好，但一动起来就更明显"
+        },
+        "outputTemplate": "T1",
+        "remark": "T1动态控制线 - 基础规则",
+        "source": "确认版执行口径 T1-R01",
+        "status": "implemented"
+      },
+      {
+        "ruleId": "T1-R02",
+        "conditions": {
+          "Q1": "微笑或说话时更明显",
+          "Q2": "某一侧表情或发力更常用",
+          "Q3": ["静态还好，但一动起来就更明显", "长期都比较稳定，位置和感觉差不多"]
+        },
+        "outputTemplate": "T1",
+        "remark": "T1动态控制线 - 第一层方向不强时",
+        "source": "确认版执行口径 T1-R02",
+        "status": "implemented"
+      },
+      {
+        "ruleId": "T1-R03",
+        "conditions": {
+          "Q1": "微笑或说话时更明显",
+          "Q3": "静态还好，但一动起来就更明显",
+          "excludeConditions": {
+            "Q2": ["单侧咀嚼比较明显", "单侧托脸、侧睡或偏向一侧支撑比较明显"]
+          }
+        },
+        "outputTemplate": "T1",
+        "remark": "T1动态控制线 - 缺乏咀嚼或位置牵拉证据",
+        "source": "确认版执行口径 T1-R03",
+        "status": "todo",
+        "todoNote": "excludeConditions当前匹配器不支持"
+      },
+      {
+        "ruleId": "T1-R04",
+        "conditions": {
+          "Q1": "微笑或说话时更明显",
+          "Q2": "某一侧表情或发力更常用",
+          "excludeConditions": {
+            "Q2": "单侧咀嚼比较明显"
+          }
+        },
+        "outputTemplate": "T1",
+        "remark": "T1动态控制线 - 无明确单侧咀嚼证据",
+        "source": "确认版执行口径 T1-R04",
+        "status": "todo",
+        "todoNote": "excludeConditions当前匹配器不支持"
+      },
+      {
+        "ruleId": "T1-R05",
+        "conditions": {
+          "Q1": "微笑或说话时更明显",
+          "Q3": "有时觉得左边明显，有时又觉得右边明显"
+        },
+        "outputTemplate": "T5",
+        "remark": "T1动态控制线 - Q3=C时直升T5",
+        "source": "确认版执行口径 T1-R05",
+        "status": "implemented"
+      },
+      {
+        "ruleId": "T2-R01",
+        "conditions": {
+          "Q1": "咀嚼或用力时更明显",
+          "mainProblemDirection": "待匹配",
+          "Q2": "单侧咀嚼比较明显",
+          "Q3": ["长期都比较稳定，位置和感觉差不多", "静态还好，但一动起来就更明显"]
+        },
+        "outputTemplate": "T2",
+        "remark": "T2咀嚼代偿线 - 基础规则",
+        "source": "确认版执行口径 T2-R01",
+        "status": "implemented"
+      },
+      {
+        "ruleId": "T2-R02",
+        "conditions": {
+          "Q1": "咀嚼或用力时更明显",
+          "Q2": "单侧咀嚼比较明显",
+          "strength": "足够强"
+        },
+        "outputTemplate": "T2",
+        "remark": "T2咀嚼代偿线 - 即使Q4=A也留T2",
+        "source": "确认版执行口径 T2-R02",
+        "status": "todo",
+        "todoNote": "strength字段当前匹配器不支持"
+      },
+      {
+        "ruleId": "T2-R03",
+        "conditions": {
+          "Q1": ["静态拍照时更明显", "咀嚼或用力时更明显"],
+          "Q2": "单侧咀嚼比较明显",
+          "mainProblemDirection": "模糊",
+          "Q4": "为什么一边脸看起来更大"
+        },
+        "outputTemplate": "T2",
+        "remark": "T2咀嚼代偿线 - 第一层方向模糊但Q2=A明确",
+        "source": "确认版执行口径 T2-R03",
+        "status": "todo",
+        "todoNote": "mainProblemDirection=模糊不在配置允许范围内"
+      },
+      {
+        "ruleId": "T2-R04",
+        "conditions": {
+          "Q1": "咀嚼或用力时更明显",
+          "Q2": "没有明显感觉，或不确定",
+          "mainProblemDirection": "肌肉-软组织方向"
+        },
+        "outputTemplate": "T3",
+        "remark": "T2咀嚼代偿线 - 退回T3",
+        "source": "确认版执行口径 T2-R04",
+        "status": "implemented"
+      },
+      {
+        "ruleId": "T2-R05",
+        "conditions": {
+          "Q1": "咀嚼或用力时更明显",
+          "Q2": "单侧咀嚼比较明显",
+          "Q3": "有时觉得左边明显，有时又觉得右边明显"
+        },
+        "outputTemplate": "T5",
+        "remark": "T2咀嚼代偿线 - Q3=C时直升T5",
+        "source": "确认版执行口径 T2-R05",
+        "status": "implemented"
+      }
+    ]
+  },
+  
+  "executionGuidelines": {
+    "description": "执行口径（基于确认版执行口径）",
+    "t3t4Boundary": {
+      "description": "T3与T4的分界句写死",
+      "t3Logic": "看脸上这层的张力分布",
+      "t4Logic": "看头颈和支撑习惯把这张脸带向哪里",
+      "note": "只允许做同义收口，不改这条主逻辑"
+    },
+    "t5TriggerConditions": {
+      "description": "T5直接触发条件写死",
+      "conditions": [
+        {
+          "condition": "Q3=C（有时觉得左边明显，有时又觉得右边明显）",
+          "status": "implemented",
+          "implementationNote": "当前已实现"
+        },
+        {
+          "condition": "Q1 / 第一层方向 / Q2 三者打架",
+          "status": "todo",
+          "implementationNote": "需要复杂逻辑判断，当前未实现"
+        },
+        {
+          "condition": "明显动态问题与单侧咀嚼/支撑问题并存",
+          "status": "todo",
+          "implementationNote": "需要复杂逻辑判断，当前未实现"
+        }
+      ],
+      "exclusion": "复杂度提示=建议进一步评估不作为独立直升T5条件，只作为加强项"
+    },
+    "q4Principle": {
+      "description": "Q4原则写死",
+      "principle": "Q4只改结果页前两段重心，不改主模板，无例外"
+    },
+    "unifiedFallback": {
+      "description": "统一兜底写死",
+      "logic": "无明显命中，或多条条件都像时，统一走T5",
+      "note": "不另设人工复核模板"
+    }
+  },
+  
+  "variableSentences": {
+    "description": "变量替换固定句库（基于确认版执行口径）",
+    "truthTendency": {
+      "假性倾向": "先强调位置和张力因素，不急着定性为骨性 / 真性。",
+      "混合倾向": "先强调不适合只按单一原因理解。",
+      "真性倾向": "先强调存在较稳定、较固定的差异，不宜只靠表面动作解释。"
+    },
+    "sideHint": {
+      "左侧更明显": "当前左侧表现更明显，左侧可先作为主要观察侧。",
+      "右侧更明显": "当前右侧表现更明显，右侧可先作为主要观察侧。",
+      "暂不明确": "当前左右侧信息不够集中，先不强定单侧，优先看整体模式。"
+    },
+    "complexityHint": {
+      "一般初筛": "这次结果更适合作为初步分流参考，先抓主线。",
+      "建议进一步评估": "这次结果提示因素可能不止一条，先不要急着自己下定论。"
+    },
+    "q4Focus": {
+      "为什么一边脸看起来更大": "先解释为什么一边看起来更大。",
+      "为什么两边位置/高低/线条方向不一样": "先解释为什么两边位置 / 高低 / 线条方向不一样。",
+      "为什么静态还好，一做动作差异就出来": "先解释为什么静态还好，一做动作差异就出来。",
+      "为什么问题会和习惯动作、使用偏侧或发力方式有关": "先解释为什么问题会和习惯动作、使用偏侧或发力方式有关。",
+      "为什么你的情况更像复合因素，不适合只盯一个点": "先解释为什么你的情况更像复合因素，不适合只盯一个点。"
+    },
+    "note": "以上Q4句库只负责前两段解释重心，不参与主模板改写。"
+  }
+}

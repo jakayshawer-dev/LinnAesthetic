@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>完整進階結果</title>
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #f5f7fb; color: #1f2937;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+               "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; }
+body { min-height: 100vh; }
+.page { width: 100%; max-width: 560px; margin: 0 auto; padding: 16px 16px 28px; }
+
+.eyebrow { font-size: 12px; color: #6366f1; font-weight: 700; letter-spacing: .04em; margin-bottom: 10px; }
+.title { margin: 0 0 8px; font-size: 24px; line-height: 1.4; color: #111827; }
+.subtext { color: #6b7280; font-size: 14px; line-height: 1.75; }
+
+/* 卡片通用 */
+.card { background: #fff; border-radius: 20px; padding: 20px 16px 18px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); margin-bottom: 14px; }
+.card-title { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.card-title .icon { font-size: 18px; }
+
+/* 类型标签 */
+.type-badge { display: inline-block; background: #eef2ff; color: #4f46e5; font-size: 13px; font-weight: 700; padding: 4px 12px; border-radius: 999px; margin-bottom: 10px; }
+.result-box { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 14px; padding: 14px; }
+.result-item { margin-bottom: 12px; }
+.result-item:last-child { margin-bottom: 0; }
+.result-label { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+.result-value { font-size: 15px; line-height: 1.6; color: #111827; }
+
+/* 免费层：区域列表 */
+.area-list { display: flex; flex-direction: column; gap: 8px; }
+.area-tag { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.5; color: #374151; }
+.area-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: #6366f1; flex-shrink: 0; margin-top: 7px; }
+.area-tag.warning .dot { background: #f59e0b; }
+.area-tag.body .dot { background: #10b981; }
+
+/* 分割线 */
+.divider { border: none; border-top: 1px dashed #e5e7eb; margin: 14px 0; }
+
+/* 付费卡 */
+.paid-card { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border-radius: 20px; padding: 20px 16px 18px; margin-bottom: 14px; color: #fff; }
+.paid-card .lock-icon { font-size: 32px; margin-bottom: 10px; }
+.paid-card .paid-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: #fff; }
+.paid-card .paid-desc { font-size: 14px; color: #c7d2fe; line-height: 1.6; margin-bottom: 14px; }
+.paid-features { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.paid-feature { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #e0e7ff; }
+.paid-feature .check { color: #a5b4fc; }
+.paid-btn { display: block; width: 100%; background: #6366f1; color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; transition: background 0.2s; }
+.paid-btn:hover { background: #4f46e5; }
+.paid-btn .price { font-size: 18px; }
+
+/* 线下卡 */
+.offline-select { width: 100%; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; color: #374151; background: #f8fafc; margin-bottom: 12px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+.offline-result { background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 14px; }
+.offline-name { font-size: 15px; font-weight: 700; color: #166534; margin-bottom: 6px; }
+.offline-info { font-size: 13px; color: #15803d; line-height: 1.7; }
+.offline-empty { font-size: 13px; color: #9ca3af; text-align: center; padding: 10px 0; }
+.offline-soon { font-size: 13px; color: #9ca3af; line-height: 1.6; }
+
+/* 提示 */
+.tip { margin-top: 16px; text-align: center; font-size: 12px; color: #9ca3af; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- 头部 -->
+<div class="card">
+  <div class="eyebrow">LAA · 完整進階結果</div>
+  <h1 class="title" id="mainTitle">你的完整分析結果</h1>
+  <p class="subtext" id="mainDesc">以下是基於第二層問卷的詳細分析結果</p>
+</div>
+
+<!-- 结果内容 -->
+<div id="resultContent">
+  <!-- 由 JS 动态填充 -->
+</div>
+
+<!-- 付费解锁卡 -->
+<div class="paid-card" id="paidCard">
+  <div class="lock-icon">🔒</div>
+  <div class="paid-title" id="paidTitle">14天完整訓練方案</div>
+  <div class="paid-desc" id="paidDesc">解鎖完整的14天訓練計劃，包含每日具體動作、訓練頻次、進階節奏——讓訓練真正可執行。</div>
+  <div class="paid-features">
+    <div class="paid-feature"><span class="check">✓</span> 每日訓練動作與執行細節</div>
+    <div class="paid-feature"><span class="check">✓</span> 14天分階段進階方案</div>
+    <div class="paid-feature"><span class="check">✓</span> 常見問題與調整說明</div>
+    <div class="paid-feature"><span class="check">✓</span> 效果記錄表與自檢標準</div>
+  </div>
+  <a href="#" class="paid-btn" id="paidBtn">
+    <span class="price">¥299</span> 解鎖完整方案
+  </a>
+</div>
+
+<!-- 线下机构卡 -->
+<div class="card" id="offlineCard">
+  <div class="card-title"><span class="icon">📍</span> 查找當地機構</div>
+  <select class="offline-select" id="citySelect" onchange="showOfflineResult()">
+    <option value="">— 選擇你所在城市 —</option>
+    <option value="beijing">北京</option>
+    <option value="shanghai">上海</option>
+    <option value="guangzhou">廣州</option>
+    <option value="shenzhen">深圳</option>
+    <option value="chengdu">成都</option>
+    <option value="hangzhou">杭州</option>
+    <option value="wuhan">武漢</option>
+    <option value="xian">西安</option>
+    <option value="tianjin">天津</option>
+    <option value="nanjing">南京</option>
+  </select>
+  <div id="offlineResult"></div>
+</div>
+
+<div class="card">
+  <div class="tip">結果僅供自測參考，如需更精準分析建議諮詢專業人士。</div>
+</div>
+
+</div>
+
+<script>
+// ── 存储键 ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'laa_second_layer_payload';
+const LAYER1_KEY  = 'laa_layer1_results';
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+function readPayload() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+
+function readLayer1() {
+  try {
+    const raw = localStorage.getItem(LAYER1_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+
+function getAnswerValue(payload, qid) {
+  if (!payload || !payload.answers || !payload.answers[qid]) return '';
+  return payload.answers[qid].value || '';
+}
+
+function sideText(side) {
+  if (side === '左侧更明显') return '左侧';
+  if (side === '右侧更明显') return '右侧';
+  return '两侧';
+}
+
+// ── 5套模板的「涉及区域」内容 ────────────────────────────────────────────────
+
+const AREA_TEMPLATES = {
+  T1: {
+    // 口周动态控制失衡型
+    muscle: [
+      '口轮匝肌（口周环绕肌）',
+      '颧大肌 / 颧小肌（笑肌）',
+      '提口角肌 / 降口角肌',
+      '颊肌（内部填充肌）'
+    ],
+    body: [
+      '颈阔肌（颈部浅层筋膜）',
+      '下颌舌骨肌（二腹肌前腹）'
+    ],
+    habits: [
+      { type: 'warning', text: '大笑、用力说话时习惯单侧嘴角上扬' },
+      { type: 'warning', text: '说话时口型偏重某一边' },
+      { type: 'normal', text: '日常表情管理较少关注对称性' }
+    ]
+  },
+  T2: {
+    // 咀嚼代偿型
+    muscle: [
+      '咬肌（深层 + 浅层）',
+      '颞肌（颞窝）',
+      '翼内肌 / 翼外肌（下颌深部）',
+      '二腹肌后腹'
+    ],
+    body: [
+      '胸锁乳突肌（单侧紧张风险）',
+      '斜角肌（前/中/后斜角肌）'
+    ],
+    habits: [
+      { type: 'warning', text: '惯用单侧咀嚼（左侧或右侧）' },
+      { type: 'warning', text: '喜欢咬硬物、单侧托腮' },
+      { type: 'normal', text: '饮食以软食为主，缺乏咀嚼锻炼' }
+    ]
+  },
+  T3: {
+    // 静态轮廓型
+    muscle: [
+      '提上唇肌 / 降下唇肌（垂直向张力）',
+      '颏肌（下巴中央）',
+      '颈阔肌（侧向拉力）',
+      '咬肌（浅层张力）'
+    ],
+    body: [
+      '肩胛提肌（高位代偿）',
+      '斜方肌上束（单侧紧张）',
+      '胸大肌/胸小肌（胸前紧张）'
+    ],
+    habits: [
+      { type: 'warning', text: '长期低头或歪头看屏幕' },
+      { type: 'warning', text: '习惯性单侧睡或单侧支撑' },
+      { type: 'normal', text: '日常缺乏面部感知练习' }
+    ]
+  },
+  T4: {
+    // 位置牵拉型
+    muscle: [
+      '胸锁乳突肌（单侧牵拉）',
+      '斜角肌（前/中/后）',
+      '肩胛提肌（高位代偿）',
+      '斜方肌上束'
+    ],
+    body: [
+      '斜角肌（颈部侧屈肌）',
+      '胸锁乳突肌（颈部旋转肌）',
+      '枕下肌群（头部稳定肌）'
+    ],
+    habits: [
+      { type: 'warning', text: '长期单侧睡或单手托腮' },
+      { type: 'warning', text: '习惯歪头、扭头看手机' },
+      { type: 'normal', text: '久坐缺乏颈肩部活动' }
+    ]
+  },
+  T5: {
+    // 复合波动型
+    muscle: [
+      '表情肌（多区域参与）',
+      '咀嚼肌（双侧不均衡）',
+      '颈部肌群（代偿参与）'
+    ],
+    body: [
+      '体态相关肌群（综合代偿）',
+      '呼吸相关肌群（膈肌、腹横肌）'
+    ],
+    habits: [
+      { type: 'warning', text: '问题表现不稳定，时好时坏' },
+      { type: 'warning', text: '单侧咀嚼+体态偏歪同时存在' },
+      { type: 'normal', text: '尚未找出主要矛盾所在' }
+    ]
+  }
+};
+
+// ── 模板内容 ────────────────────────────────────────────────────────────────
+const TEMPLATES = {
+  T1: {
+    label: '口周动态控制失衡型',
+    mainLayer: '表情肌 / 口周肌群',
+    triggerScene: '微笑、说话、做表情时'
+  },
+  T2: {
+    label: '咀嚼代偿型',
+    mainLayer: '咬肌 / 下颌肌群',
+    triggerScene: '咀嚼、咬牙、发力时'
+  },
+  T3: {
+    label: '静态轮廓型',
+    mainLayer: '面部软组织张力层',
+    triggerScene: '静态拍照、放松时'
+  },
+  T4: {
+    label: '位置牵拉型',
+    mainLayer: '颈肩支撑肌群 / 筋膜链',
+    triggerScene: '头颈位置变化时'
+  },
+  T5: {
+    label: '复合波动型',
+    mainLayer: '多层参与（不稳定）',
+    triggerScene: '静态+动态同时参与，波动明显'
+  }
+};
+
+// ── 路由（按优先级：Q3 > Q2 > Q1 > L1方向校正）──────────────────────────────
+// 参考：LAA_第二层结果逻辑存档（最终确认版）
+function decideTemplate(q1, q2, q3, l1) {
+  // ── 第一步：Q3='C'（波动/左右摆动）直接判 T5，终结 ─────────────────────
+  // Q3='left_right_fluctuate' = C（有时左有时右，明显波动）
+  // 注意：Q3='B'（getting_worse_recently）不单独触发 T5，需配合其他条件
+  if (q3 === 'left_right_fluctuate') return 'T5';
+
+  // ── 第二步：Q2 单因素路由（立即终结，不走 Q1）──────────────────────────
+  // Q2='B'（单侧支撑/托腮）→ T4
+  if (q2 === 'one_side_support') return 'T4';
+  // Q2='C'（单侧表情发力）→ T1
+  if (q2 === 'one_side_expression') return 'T1';
+  // Q2='A'（单侧咀嚼）→ T2（但 Q3='C' 时升级 T5，已在上面处理）
+  if (q2 === 'one_side_chew') return 'T2';
+
+  // ── 第三步：Q1 基础路由 ─────────────────────────────────────────────────
+  let base = 'T3'; // 默认 T3（静态轮廓）
+
+  if (q1 === 'smile_or_talk') {
+    // Q1='B' → T1（动态表情）
+    base = 'T1';
+  } else if (q1 === 'chew_or_force') {
+    // Q1='C' → T2（咀嚼代偿）
+    base = 'T2';
+    // T2-R04：Q1='C' 但 Q2≠'A' 且 layer1 方向不支持咀嚼 → 退回 T3
+    // 咀嚼方向：咀嚼偏用 / 习惯偏侧
+    if (q2 !== 'one_side_chew' && l1 && l1.direction &&
+        l1.direction.indexOf('咀嚼') === -1 &&
+        l1.direction.indexOf('习惯偏侧') === -1) {
+      base = 'T3';
+    }
+  } else {
+    // Q1='A'（static_photo）或其他 → 默认 T3
+    base = 'T3';
+  }
+
+  // ── 第四步：Q3='B'（近期加重）对 T1/T2 的升级 ─────────────────────────
+  // Q3='B' 单独不触发 T5，但 Q1='B'/'C' + Q3='B' 时升级为 T5
+  if (q3 === 'getting_worse_recently' && (q1 === 'smile_or_talk' || q1 === 'chew_or_force')) {
+    return 'T5';
+  }
+
+  // ── 第五步：第一层方向对 T3 的校正 ────────────────────────────────────
+  // T3 + 体态代偿方向 → 加重体态关联描述（T4 倾向）
+  if (base === 'T3' && l1 && l1.direction && l1.direction.indexOf('体态代偿') !== -1) {
+    // 仍为 T3，但结果描述需要体现体态牵连
+    base = 'T3';
+  }
+
+  // T1 + 动态控制方向 → 加重表情描述（已有 Q1='B' 支撑）
+  // T2 + 咀嚼方向 → 加重咀嚼描述（已有 Q1='C' + Q2 支撑）
+  // 无需额外操作
+
+  return base;
+}
+
+// ── 渲染区域列表 ────────────────────────────────────────────────────────────
+function renderAreaList(areas, type, dotClass) {
+  return areas.map(item => {
+    const text = typeof item === 'string' ? item : item.text;
+    const cls  = typeof item === 'string' ? '' : ` ${item.type}`;
+    return `<div class="area-tag${cls}"><span class="dot${dotClass ? ' ' + dotClass : ''}"></span>${text}</div>`;
+  }).join('');
+}
+
+// ── 渲染完整结果页 ──────────────────────────────────────────────────────────
+function render() {
+  const payload = readPayload();
+  if (!payload) {
+    // 没有第二层数据时，跳转回进阶评估简介页
+    window.location.href = 'advanced-intro.html';
+    return;
+  }
+
+  const q1  = getAnswerValue(payload, 'Q1');
+  const q2  = getAnswerValue(payload, 'Q2');
+  const q3  = getAnswerValue(payload, 'Q3');
+  const l1  = readLayer1();
+
+  const tk  = decideTemplate(q1, q2, q3, l1);
+  const tpl = TEMPLATES[tk];
+  const areas = AREA_TEMPLATES[tk];
+  const side  = sideText(l1?.side);
+
+  // ── 第一层：类型判断 ──────────────────────────────────────────────────────
+  let html = `
+  <div class="card">
+    <div class="type-badge">${tpl.label}</div>
+    <div class="result-box" style="margin-bottom:0">
+      <div class="result-item">
+        <div class="result-label">主要参与层</div>
+        <div class="result-value">${tpl.mainLayer}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">触发场景</div>
+        <div class="result-value">${tpl.triggerScene}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-label">表现侧</div>
+        <div class="result-value">${side}更明显</div>
+      </div>
+    </div>
+  </div>`;
+
+  // ── 第二层：涉及区域（看起来完整，但没有具体动作） ───────────────────────
+  // T3 + 体态代偿方向：需要在 body 和 habits 里加一项
+  let muscleList = areas.muscle;
+  let bodyList = areas.body;
+  let habitsList = areas.habits;
+
+  if (tk === 'T3' && l1 && l1.direction && l1.direction.indexOf('体态代偿') !== -1) {
+    // 体态牵连型 T3：加重体态关联
+    bodyList = [
+      ...areas.body,
+      '脊柱侧弯或骨盆歪斜（筋膜链向下传导）',
+      '足底重心偏移（向上代偿）'
+    ];
+    habitsList = [
+      ...areas.habits,
+      { type: 'warning', text: '长期单侧站立重心偏移（如单侧腿负重）' },
+      { type: 'normal', text: '久坐导致髂胫束紧张向面部传导' }
+    ];
+  }
+
+  html += `
+  <div class="card">
+    <div class="card-title"><span class="icon">🎯</span>需要重点关注的区域</div>
+
+    <div style="margin-bottom:14px">
+      <div class="result-label" style="margin-bottom:8px">面部肌肉</div>
+      <div class="area-list">${renderAreaList(muscleList, 'muscle', '')}</div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div class="result-label" style="margin-bottom:8px">体态与关联部位</div>
+      <div class="area-list">${renderAreaList(bodyList, 'body', 'body')}</div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="card-title" style="margin-bottom:10px"><span class="icon">⚠️</span>需要检视的习惯</div>
+    <div class="area-list">${renderAreaList(habitsList, 'habits', '')}</div>
+  </div>`;
+
+  // ── 第三层：训练方向提示（免费但模糊） ──────────────────────────────────
+  let trainingHint = '';
+  if (tk === 'T1') {
+    trainingHint = `重点方向：恢复两侧表情启动的对称性。涉及口周肌群感知训练、对称微笑建立练习，以及表情习惯的日常管理。具体动作细节和训练频次需在完整方案中给出。`;
+  } else if (tk === 'T2') {
+    trainingHint = `重点方向：降低惯用侧咬肌张力，建立双侧交替咀嚼习惯。涉及咀嚼肌松解手法、张力平衡练习，以及咀嚼模式的重建。具体动作细节和训练频次需在完整方案中给出。`;
+  } else if (tk === 'T3') {
+    trainingHint = `重点方向：平衡两侧软组织张力差异。涉及面部感知练习、张力释放与激活练习，以及体态姿势的日常管理。具体动作细节和训练频次需在完整方案中给出。`;
+  } else if (tk === 'T4') {
+    trainingHint = `重点方向：解除上游颈肩支撑肌群的牵拉。涉及颈侧肌群松解、姿势矫正练习，以及托腮/侧睡习惯的改变。具体动作细节和训练频次需在完整方案中给出。`;
+  } else if (tk === 'T5') {
+    trainingHint = `重点方向：先梳理清楚主要矛盾再行动。静态轮廓、动态控制、颈肩代偿多条线同时存在，建议通过完整评估确认主线，再按顺序处理。具体方案需在完整训练方案中给出。`;
+  }
+
+  html += `
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span>训练方向提示</div>
+    <div class="result-box">
+      <div class="result-value">${trainingHint}</div>
+    </div>
+  </div>`;
+
+  document.getElementById('resultContent').innerHTML = html;
+}
+
+// ── 线下机构 ────────────────────────────────────────────────────────────────
+// 机构数据（后续可扩展或接入接口）
+const OFFLINE_DATA = {
+  beijing:  { name: '北京·林琳美学中心', addr: '北京市朝阳区建国路88号', tel: '010-12345678' },
+  shanghai: { name: '上海·林琳美学中心', addr: '上海市静安区南京西路1688号', tel: '021-87654321' },
+  guangzhou:{ name: '广州·林琳美学中心', addr: '广州市天河区天河路383号', tel: '020-11223344' },
+  shenzhen: { name: '深圳·林琳美学中心', addr: '深圳市南山区科技园南区A栋', tel: '0755-99887766' },
+  chengdu:  { name: '成都·林琳美学中心', addr: '成都市锦江区春熙路IFS国际金融中心', tel: '028-76543210' },
+  hangzhou: { name: '杭州·林琳美学中心', addr: '杭州市西湖区文二路391号', tel: '0571-88776655' },
+  wuhan:    { name: '武汉·林琳美学中心', addr: '武汉市江汉区解放大道688号', tel: '027-55667788' },
+  xian:     { name: '西安·林琳美学中心', addr: '西安市雁塔区小寨赛格国际', tel: '029-99887766' },
+  tianjin:  { name: '天津·林琳美学中心', addr: '天津市和平区南京路200号', tel: '022-66778899' },
+  nanjing:  { name: '南京·林琳美学中心', addr: '南京市鼓楼区中山北路100号', tel: '025-88776655' }
+};
+
+function showOfflineResult() {
+  const city = document.getElementById('citySelect').value;
+  const container = document.getElementById('offlineResult');
+
+  if (!city) {
+    container.innerHTML = '<div class="offline-empty">请选择你所在城市</div>';
+    return;
+  }
+
+  const info = OFFLINE_DATA[city];
+  if (info) {
+    container.innerHTML = `
+    <div class="offline-result">
+      <div class="offline-name">${info.name}</div>
+      <div class="offline-info">
+        📍 ${info.addr}<br>
+        📞 ${info.tel}
+      </div>
+    </div>`;
+  } else {
+    container.innerHTML = '<div class="offline-soon">该城市机构正在拓展中，请联系总部客服咨询：400-XXX-XXXX</div>';
+  }
+}
+
+// ── 初始化 ──────────────────────────────────────────────────────────────────
+render();
+showOfflineResult();
+</script>
+</body>
+</html>
