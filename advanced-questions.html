@@ -61,9 +61,24 @@ body { min-height: 100vh; }
 
 <script>
 // 前端守卫：未解锁则跳到分享页
-if (localStorage.getItem('advancedUnlocked') !== '1') {
-    window.location.href = 'advanced-unlock.html';
-}
+(function() {
+    var unlocked = localStorage.getItem('advancedUnlocked');
+    if (unlocked !== '1') {
+        window.location.href = 'advanced-unlock.html';
+    }
+})();
+
+// 调试信息（解锁后才显示，帮助排查）
+(function() {
+    var unlocked = localStorage.getItem('advancedUnlocked');
+    document.addEventListener('DOMContentLoaded', function() {
+        var debug = document.createElement('div');
+        debug.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#333;color:#fff;font-size:11px;padding:4px 8px;z-index:9999;text-align:center;';
+        debug.textContent = '🔓 advancedUnlocked = ' + (unlocked === '1' ? '已解锁' : '未解锁') + ' | 如需重新测试请到设置清除此网站数据';
+        document.body.appendChild(debug);
+        setTimeout(function() { debug.style.display = 'none'; }, 5000);
+    });
+})();
 
 const NEXT_PAGE = 'advanced-photo.html';
 const STORAGE_KEY = 'laa_advanced_answers_v1';
