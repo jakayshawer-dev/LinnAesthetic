@@ -148,20 +148,46 @@ body { min-height: 100vh; }
 
 <script>
 // 强制刷新参数，解决浏览器缓存导致页面过旧的问题
-const RESULT_PAGE = 'advanced-result.html?v=20260403';
+const RESULT_PAGE = 'advanced-result.html';
 const STORAGE_KEY = 'laa_second_layer_payload';
 const UNLOCK_KEY = 'advancedUnlocked';
 
-// iOS Safari 在打开分享面板时会杀死页面进程，
-// sessionStorage 会丢失，用 localStorage 替代（持久化，Safari 杀死后恢复仍存在）
-if (localStorage.getItem(UNLOCK_KEY) === '1') {
+// ── 统一跳转函数 ──────────────────────────────────────────────────────────
+function goToResult() {
   window.location.href = RESULT_PAGE;
 }
 
-// 页面可见性变化时检测（iOS Safari 从后台恢复时再次检查）
+// ── 页面加载时：检查解锁状态 ───────────────────────────────────────────────
+// 场景：iOS Safari 从分享面板返回后，页面从 bfcache 恢复，
+//       此时 JS 重新执行，但 localStorage 状态仍保留
+//       pageshow with persisted=true = 从 bfcache 恢复（不重新执行 script）
+//       pageshow with persisted=false = 首次加载或 bfcache 未命中
+// 注意：bfcache 恢复时不会重新执行 script，但直接加载时会执行
+(function checkOnLoad() {
+  // localStorage 有标记 → 直接跳转
+  if (localStorage.getItem(UNLOCK_KEY) === '1') {
+    goToResult();
+    return;
+  }
+})();
+
+// ── iOS Safari 专用：页面从 bfcache 恢复时检测 ────────────────────────────
+// iOS Safari 打开分享面板会挂起页面，返回时触发 pageshow(persisted=true)
+// 但如果页面被淘汰出 bfcache，则触发 pageshow(persisted=false)
+window.addEventListener('pageshow', function(event) {
+  if (event.persisted) {
+    // 页面从 bfcache 恢复，iOS Safari 回来了
+    if (localStorage.getItem(UNLOCK_KEY) === '1') {
+      goToResult();
+    }
+  }
+  // persisted=false 时不需要处理（首次加载或非 bfcache，恢复时 JS 已重新执行，上面的 checkOnLoad 已处理）
+});
+
+// ── 页面隐藏/可见：双重保险 ───────────────────────────────────────────────
 document.addEventListener('visibilitychange', function() {
   if (document.visibilityState === 'visible' && localStorage.getItem(UNLOCK_KEY) === '1') {
-    window.location.href = RESULT_PAGE;
+    goToResult();
   }
 });
 
@@ -291,9 +317,9 @@ const SHARE_URL = window.location.origin + window.location.pathname;
 
 // ---------- 事件绑定 ----------
 document.getElementById('shareBtn').addEventListener('click', function() {
-  // 立即设置解锁标记 + 显示完成按钮，不等待分享结果
+  // 立即标记解锁 + 显示"已完成分享"按钮，让用户始终有明确下一步
   localStorage.setItem(UNLOCK_KEY, '1');
-  showFallbackCard(); // 立即显示"已完成分享"按钮
+  showFallbackCard();
 
   if (navigator.share) {
     navigator.share({
@@ -301,18 +327,12 @@ document.getElementById('shareBtn').addEventListener('click', function() {
       text: SHARE_TEXT,
       url: SHARE_URL
     }).then(function() {
-      // 分享成功，跳转
-      window.location.href = RESULT_PAGE;
+      // 分享成功 → 跳转结果页
+      goToResult();
     }).catch(function() {
-      // 分享取消或失败，保持当前状态（已完成分享按钮已显示）
-      // 用户可点该按钮跳转
+      // 分享取消/失败 → 留在当前页，"已完成分享"按钮已显示，用户可点此跳转
+      // iOS Safari 返回时会触发 pageshow → 再次检查 → 自动跳转
     });
-    // 定时兜底：3秒后无论 Promise 是否触发都强制跳转
-    setTimeout(function() {
-      if (window.location.pathname.endsWith('advanced-unlock.html')) {
-        window.location.href = RESULT_PAGE;
-      }
-    }, 3000);
   } else {
     // 浏览器不支持 native share，走复制链接流程
     copyLink();
