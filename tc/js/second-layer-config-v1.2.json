@@ -1,0 +1,290 @@
+{
+  "version": "v1.2",
+  "description": "LAA 第二层 v1.2 配置 - 16 题结构（5组×3题 + 1道主诉题）",
+
+  "T_TYPES": {
+    "T1": {
+      "code": "T1",
+      "name": "口角启动型",
+      "coreIssue": "笑起来嘴角不对称，一侧口角启动慢、启动弱，或者一侧抢先发力。",
+      "commonExpressions": "一笑嘴角高低明显；一侧嘴角抬不上去；闭嘴还好，一笑就歪；微笑时一侧脸更僵。",
+      "trainingDirection": "口角抗阻启动；弱侧口角激活；闭唇口周稳定；中线微笑整合。",
+      "questions": ["T1_Q1", "T1_Q2", "T1_Q3"]
+    },
+    "T2": {
+      "code": "T2",
+      "name": "下颌偏移型",
+      "coreIssue": "下巴、下颌中线控制不好，常伴随咬肌紧、单侧咀嚼、张嘴偏。",
+      "commonExpressions": "下巴偏向一侧；张嘴下巴偏；闭嘴中线不正；一边咬肌更大、更硬；长期单侧咀嚼。",
+      "trainingDirection": "咬肌压点控制；下颌回中保持；闭唇舌位定位；下颌中线整合。",
+      "questions": ["T2_Q1", "T2_Q2", "T2_Q3"]
+    },
+    "T3": {
+      "code": "T3",
+      "name": "面中支撑弱型",
+      "coreIssue": "面中部支撑不足，鼻翼旁、苹果肌、法令区域一侧更塌、更累。",
+      "commonExpressions": "一侧法令纹更明显；一侧鼻翼旁更塌；一侧苹果肌更低；笑起来面中撑不住。",
+      "trainingDirection": "面中部支撑保持；面中抗阻上提；口角与面中联动；口周稳定整合。",
+      "questions": ["T3_Q1", "T3_Q2", "T3_Q3"]
+    },
+    "T4": {
+      "code": "T4",
+      "name": "下颌缘松垮型",
+      "coreIssue": "下颌缘、口底、下半脸支撑不足，导致脸侧沉、下颌线不清楚、嘴角下方松垮。",
+      "commonExpressions": "下颌线不清楚；一侧脸侧更沉；嘴角下方更松；下半脸视觉重心往下掉。",
+      "trainingDirection": "下颌缘收紧抗阻；口底支撑；颈前稳定；头颈上提整合。",
+      "questions": ["T4_Q1", "T4_Q2", "T4_Q3"]
+    },
+    "T5": {
+      "code": "T5",
+      "name": "头颈牵拉型",
+      "coreIssue": "脸偏的主因不只在脸，而是头颈位置、颈侧张力、肩颈不平持续影响面部中线。",
+      "commonExpressions": "头总偏一边；一边肩更高；一侧脖子更紧；拍照头摆正会别扭；一边脸像被往下牵拉。",
+      "trainingDirection": "头颈中线定位；颈侧抗阻下行；肩颈下沉 + 头顶上提；下颌回中辅助；中线整合保持。",
+      "questions": ["T5_Q1", "T5_Q2", "T5_Q3"]
+    }
+  },
+
+  "QUESTIONS": {
+    "T1_Q1": "微笑时，你是否明显感觉一侧嘴角先动，另一侧慢半拍？",
+    "T1_Q2": "一侧嘴角是不是更难抬起来，或者笑起来高低不一致？",
+    "T1_Q3": "闭嘴时还好，但一笑脸就更歪？",
+    "T2_Q1": "闭嘴时，你的下巴中线是否偏向一侧？",
+    "T2_Q2": "张嘴时，下巴会不会明显往一边偏？",
+    "T2_Q3": "咬牙时，是否一边咬肌更鼓、更硬，或者你习惯单侧咀嚼？",
+    "T3_Q1": "一侧法令纹是否明显更深？",
+    "T3_Q2": "鼻翼旁或苹果肌是否一侧更塌、更低？",
+    "T3_Q3": "笑起来时，是否感觉一侧中面部撑不住、显累？",
+    "T4_Q1": "一侧下颌线是否更模糊、不清楚？",
+    "T4_Q2": "嘴角下方到下巴这一段，是否一侧更松、更沉？",
+    "T4_Q3": "低头或疲惫时，下半脸是否更容易堆、显宽、显垮？",
+    "T5_Q1": "你的头是否总习惯偏向一边，或者拍照很难摆正？",
+    "T5_Q2": "一侧脖子是否更紧，或者一边肩更高？",
+    "T5_Q3": "你是否感觉一边脸像被脖子或肩颈往下牵拉？"
+  },
+
+  "SEVERITY_MAP": {
+    "none": 0,
+    "weak": 1,
+    "medium": 2,
+    "strong": 3
+  },
+
+  "SEVERITY_LABELS": {
+    "none": "没有",
+    "weak": "轻微",
+    "medium": "明显",
+    "strong": "非常明显"
+  },
+
+  "Q16_FOCUS_MAP": {
+    "mouth_corner": {
+      "label": "笑起来嘴角歪 / 嘴角高低",
+      "defaultT": "T1"
+    },
+    "jaw_deviation": {
+      "label": "下巴偏 / 下颌歪 / 咬肌不对称",
+      "defaultT": "T2"
+    },
+    "midface_support": {
+      "label": "法令纹 / 面中塌 / 苹果肌撑不住",
+      "defaultT": "T3"
+    },
+    "jawline_sagging": {
+      "label": "下颌线不清楚 / 下半脸松垮",
+      "defaultT": "T4"
+    },
+    "head_neck_pull": {
+      "label": "头偏 / 肩颈不平 / 整体脸歪",
+      "defaultT": "T5"
+    }
+  },
+
+  "SIDE_VALUES": ["left", "right", "bilateral", "unclear"],
+
+  "SIDEHINT_RULES": {
+    "left_weak": "T1/T3/T4 候选，且该 T 各题 side 主要为 left",
+    "right_weak": "T1/T3/T4 候选，且该 T 各题 side 主要为 right",
+    "left_tension": "T2/T5 候选，且该 T 各题 side 主要为 left",
+    "right_tension": "T2/T5 候选，且该 T 各题 side 主要为 right",
+    "bilateral": "≥2 题为 bilateral",
+    "unclear": "全部 unclear 或左右侧冲突"
+  },
+
+  "EVIDENCE_LEVEL_RULES": {
+    "none": "T_total === 0",
+    "weak": "T_total 1-2",
+    "medium": "T_total 3-5",
+    "strong_base": "T_total ≥ 6",
+    "strong_double": "任意 2 题为 strong",
+    "strong_q16": "q16Focus 对应该 T 且 T_total ≥ 4",
+    "medium_q16": "q16Focus 对应该 T 且 T_total 2-3"
+  },
+
+  "ESTABLISHMENT_RULE": {
+    "established": ["medium", "strong"],
+    "minor_candidate": ["weak"],
+    "not_established": ["none"]
+  },
+
+  "STRUCTURAL_ROOT_PRIORITY": ["T5", "T2", "T1", "T3", "T4"],
+
+  "SORT_ORDER": [
+    "evidenceLevel",
+    "T_total",
+    "q16Focus_match",
+    "firstLayerDirection_match",
+    "structural_root_priority"
+  ],
+
+  "MAIN_TYPE_RULES": {
+    "maxCount": 1,
+    "selectionCriteria": [
+      "evidenceLevel 最高",
+      "若多个 T 相同，按 T_total",
+      "若仍相同，按 q16Focus 是否匹配",
+      "若仍相同，按 firstLayerDirection 是否匹配",
+      "若仍相同，按结构根源优先级（T5>T2>T1>T3>T4）"
+    ]
+  },
+
+  "SECONDARY_TYPE_RULES": {
+    "maxCount": 1,
+    "mustNotEqualMainType": true,
+    "mustBeEstablished": true
+  },
+
+  "MINOR_TENDENCIES_RULES": {
+    "maxCount": 2,
+    "excludeMainAndSecondary": true,
+    "selectionCriteria": ["weak", "剩余 medium"]
+  },
+
+  "COMPLEXITY_HINT_RULES": {
+    "low_evidence": "没有任何 T 达到 medium/strong",
+    "mixed_evidence": "多个 T 都是 weak/medium，无 strong 类型且 top1 与 top2 差距小",
+    "conflicting_evidence": "q16Focus 指向一个 T，但 T_total 最高的是另一个 T，差距明显（≥2 分或 q16Focus T 不到 medium）",
+    "high_complexity": "4-5 个 T 都达到 medium/strong",
+    "side_unclear": "类型可以判断，但左右侧不明确或前后冲突",
+    "null": "其他正常情况"
+  },
+
+  "COMPLEXITY_HINT_PRIORITY": [
+    "high_complexity",
+    "conflicting_evidence",
+    "mixed_evidence",
+    "low_evidence",
+    "side_unclear",
+    "null"
+  ],
+
+  "TRAINING_PRIORITY_TAGS": {
+    "P1": {
+      "T5_in_set": {
+        "tag": "head_neck_midline",
+        "text": "先稳定头颈中线"
+      },
+      "T2_in_set_excludes_T5": {
+        "tag": "oral_tongue_jaw_position",
+        "text": "先做闭唇舌位与下颌基础定位"
+      },
+      "T4_in_set_excludes_T5_T2": {
+        "tag": "jawline_basic_position",
+        "text": "先做闭唇舌位与下颌缘基础定位"
+      },
+      "only_T1_T3": {
+        "tag": "mouth_closure_position",
+        "text": "先做口周闭合定位"
+      }
+    },
+    "P2": {
+      "T1": {
+        "tag": "mouth_corner_activation",
+        "text": "重点训练口角抗阻启动与弱侧口角激活"
+      },
+      "T2": {
+        "tag": "jaw_deviation_control",
+        "text": "重点训练咬肌压点控制与下颌回中保持"
+      },
+      "T3": {
+        "tag": "midface_support",
+        "text": "重点训练面中部支撑保持与面中抗阻上提"
+      },
+      "T4": {
+        "tag": "jawline_support",
+        "text": "重点训练下颌缘收紧、口底支撑与下半脸稳定"
+      },
+      "T5": {
+        "tag": "head_neck_support",
+        "text": "重点训练头颈中线稳定、颈侧下行与肩颈支撑"
+      }
+    },
+    "P3": {
+      "T1": {
+        "tag": "mouth_corner_assist",
+        "text": "辅助加入口角启动，避免训练后表情仍然偏斜"
+      },
+      "T2": {
+        "tag": "jaw_deviation_assist",
+        "text": "辅助加入下颌回中，避免下巴持续带偏面部中线"
+      },
+      "T3": {
+        "tag": "midface_support_assist",
+        "text": "辅助加入面中支撑，改善中面部无力和法令侧差"
+      },
+      "T4": {
+        "tag": "jawline_support_assist",
+        "text": "辅助加入下颌缘和口底支撑，增强下半脸稳定"
+      },
+      "T5": {
+        "tag": "head_neck_support_assist",
+        "text": "辅助加入头颈稳定，减少肩颈对面部的牵拉代偿"
+      }
+    },
+    "P4": {
+      "fixed": {
+        "tag": "midline_integration",
+        "text": "最后做中线整合保持，将头颈、下颌、口周和面部表情重新整合到稳定位置。"
+      }
+    },
+    "FALLBACK_MAIN_NULL": {
+      "tags": ["basic_midline_check", "midline_integration"],
+      "texts": [
+        "先完成基础中线复测，确认头颈、下巴、口角的初始状态",
+        "最后做中线整合保持，将头颈、下颌、口周和面部表情重新整合到稳定位置。"
+      ]
+    }
+  },
+
+  "RESULT_SUMMARY_TEMPLATES": {
+    "T1_main_no_secondary": "你的主要表现是口角启动不对称，训练重点放在口角抗阻启动和弱侧口角激活。",
+    "T1_main_T2_secondary": "你的主要表现是口角不对称，同时下颌偏移会带入面部中线偏差。训练时建议先做下颌回中再回到口角。",
+    "T1_main_T3_secondary": "你的主要表现是口角不对称，同时面中支撑不足。训练时建议先做面中支撑再回到口角。",
+    "T1_main_T4_secondary": "你的主要表现是口角不对称，同时下半脸支撑不足。训练时建议先做下颌缘收紧再回到口角。",
+    "T1_main_T5_secondary": "你的主要表现是口角启动不对称，同时头颈牵拉会影响口角训练稳定性。训练时建议先稳定头颈中线，再进行口角启动训练。",
+    "T2_main_no_secondary": "你的主要表现是下颌偏移，训练重点放在咬肌压点控制和下颌回中保持。",
+    "T2_main_T1_secondary": "你的主要表现是下颌偏移，同时口角不对称。训练时先做下颌回中，再做口角整合。",
+    "T2_main_T3_secondary": "你的主要表现是下颌偏移，同时面中支撑弱。训练时先做下颌回中，再加入面中支撑。",
+    "T2_main_T4_secondary": "你的主要表现是下颌偏移，同时下颌缘松垮。训练时先做下颌回中，再加下颌缘收紧。",
+    "T2_main_T5_secondary": "你的主要表现是下颌偏移，同时头颈牵拉会影响下颌中线。训练时建议先稳定头颈中线，再做下颌回中。",
+    "T3_main_no_secondary": "你的主要表现是面中支撑弱，训练重点放在面中部支撑保持和面中抗阻上提。",
+    "T3_main_T1_secondary": "你的主要表现是面中支撑弱，同时口角不对称。训练时先做面中支撑，再做口角整合。",
+    "T3_main_T2_secondary": "你的主要表现是面中支撑弱，同时下颌偏移。训练时先做面中支撑，再加下颌回中。",
+    "T3_main_T4_secondary": "你的主要表现是面中支撑弱，同时下颌缘松垮。训练时先做面中支撑，再做下颌缘收紧。",
+    "T3_main_T5_secondary": "你的主要表现是面中支撑弱，同时头颈牵拉会影响面中位置。训练时建议先稳定头颈中线，再做面中支撑。",
+    "T4_main_no_secondary": "你的主要表现是下颌缘松垮，训练重点放在下颌缘收紧和口底支撑。",
+    "T4_main_T1_secondary": "你的主要表现是下颌缘松垮，同时口角不对称。训练时先做下颌缘收紧，再做口角整合。",
+    "T4_main_T2_secondary": "你的主要表现是下颌缘松垮，同时下颌偏移。训练时先做下颌回中，再做下颌缘收紧。",
+    "T4_main_T3_secondary": "你的主要表现是下颌缘松垮，同时面中支撑弱。训练时先做下颌缘收紧，再加入面中支撑。",
+    "T4_main_T5_secondary": "你的主要表现是下颌缘松垮，同时头颈牵拉会影响下半脸。训练时建议先稳定头颈中线，再做下颌缘收紧。",
+    "T5_main_no_secondary": "你的主要表现是头颈牵拉，训练重点放在头颈中线稳定和颈侧下行。",
+    "T5_main_T1_secondary": "你的主要表现是头颈牵拉，同时口角不对称。训练时先稳定头颈中线，再做口角整合。",
+    "T5_main_T2_secondary": "你的主要表现是头颈牵拉，同时下颌偏移。训练时先稳定头颈中线，再做下颌回中。",
+    "T5_main_T3_secondary": "你的主要表现是头颈牵拉，同时面中支撑弱。训练时先稳定头颈中线，再做面中支撑。",
+    "T5_main_T4_secondary": "你的主要表现是头颈牵拉，同时下颌缘松垮。训练时先稳定头颈中线，再做下颌缘收紧。",
+    "main_null_low_evidence": "目前没有非常明确的单一面部偏斜方向，建议先从基础中线定位开始。",
+    "main_null_mixed_evidence": "你的表现不是单一类型，更像多个结构问题叠加，需要先处理优先级最高的部分。",
+    "main_with_high_complexity": "你的情况属于多结构叠加型，不建议只练单一部位，需要按优先级分层训练。",
+    "main_with_conflicting_evidence": "你的主观困扰和测试表现存在一定差异，训练时需要先从更影响中线的部分入手。"
+  }
+}

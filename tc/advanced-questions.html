@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>進階評估</title>
+<title>進階評估 v1.2</title>
 <style>
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; background: #f5f7fb; color: #1f2937;
@@ -16,8 +16,9 @@ body { min-height: 100vh; }
 .eyebrow { font-size: 12px; color: #6366f1; font-weight: 700; letter-spacing: .04em; margin-bottom: 10px; }
 .title { font-size: 22px; line-height: 1.4; margin: 0 0 12px; font-weight: 700; color: #111827; }
 .observation { background: #f8fafc; border: 1px solid #e5e7eb; color: #4b5563; border-radius: 14px; padding: 12px; margin-bottom: 16px; font-size: 14px; line-height: 1.7; }
+.group-tag { display: inline-block; background: #eef2ff; color: #4f46e5; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
 .options-container { display: grid; gap: 12px; }
-.option { width: 100%; background: #fff; border: 1.5px solid #dbe3ef; border-radius: 16px; padding: 14px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; transition: all .18s ease; }
+.option { width: 100%; background: #fff; border: 1.5px solid #dbe3ef; border-radius: 16px; padding: 14px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; transition: all .18s ease; text-align: left; font: inherit; color: inherit; }
 .option:hover { border-color: #a5b4fc; transform: translateY(-1px); }
 .option.selected { border-color: #4f46e5; background: #eef2ff; box-shadow: 0 0 0 3px rgba(79,70,229,.08); }
 .option-indicator { width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center; flex: 0 0 28px; background: #f3f4f6; color: #374151; font-size: 13px; font-weight: 700; margin-top: 1px; }
@@ -34,6 +35,10 @@ body { min-height: 100vh; }
 .secondary-btn { background: #fff; border: 1px solid #dbe3ef; color: #374151; }
 .question-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
 .tip { margin-top: 12px; text-align: center; font-size: 12px; color: #9ca3af; line-height: 1.6; }
+.side-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; margin-top: 10px; }
+.side-btn { padding: 8px 4px; background: #f3f4f6; border: 1.5px solid transparent; border-radius: 10px; font-size: 12px; color: #374151; cursor: pointer; }
+.side-btn.selected { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; font-weight: 600; }
+.side-label { font-size: 12px; color: #6b7280; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -42,15 +47,23 @@ body { min-height: 100vh; }
 <div class="topbar">
   <button id="prev-btn" class="secondary-btn" type="button">上一題</button>
   <div class="progress-wrap">
-    <div id="progress-text" class="progress-text">第 1/4 題</div>
+    <div id="progress-text" class="progress-text">第 1/16 題</div>
     <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
   </div>
 </div>
 <div class="card">
-  <div class="eyebrow">進階評估</div>
+  <div class="eyebrow">進階評估 v1.2</div>
+  <div id="group-tag" class="group-tag"></div>
   <h2 id="question-title" class="title"></h2>
   <div id="observation" class="observation"></div>
   <div id="options-container" class="options-container"></div>
+  <div class="side-label" id="side-label">哪一側更明顯？</div>
+  <div class="side-row" id="side-row">
+    <button type="button" class="side-btn" data-side="left">左側</button>
+    <button type="button" class="side-btn" data-side="right">右側</button>
+    <button type="button" class="side-btn" data-side="bilateral">兩側</button>
+    <button type="button" class="side-btn" data-side="unclear">不清楚</button>
+  </div>
   <div class="question-actions">
     <button id="prev-btn-bottom" class="secondary-btn" type="button">上一題</button>
     <button id="next-btn" class="primary-btn" type="button" disabled>下一題</button>
@@ -60,100 +73,131 @@ body { min-height: 100vh; }
 </section>
 
 <script>
+// ── v1.2 配置：16 题结构 ──────────────────────────────────────────────────────
 const NEXT_PAGE = 'advanced-photo.html';
-const STORAGE_KEY = 'laa_advanced_answers_v1';
-const PAYLOAD_KEY = 'laa_second_layer_payload';
+const STORAGE_KEY = 'laa_second_layer_answers_v12';
+const PAYLOAD_KEY = 'laa_second_layer_payload_v12';
 
+// 严重程度选项（每题答案 + 侧别）
+const SEVERITY_OPTIONS = [
+  { label: 'A', text: '沒有', value: 'none' },
+  { label: 'B', text: '輕微', value: 'weak' },
+  { label: 'C', text: '明顯', value: 'medium' },
+  { label: 'D', text: '非常明顯', value: 'strong' }
+];
+
+// Q16 主诉优先题（特殊处理）
+const Q16_OPTIONS = [
+  { label: 'A', text: '笑起來嘴角歪 / 嘴角高低', value: 'mouth_corner' },
+  { label: 'B', text: '下巴偏 / 下頜歪 / 咬肌不對稱', value: 'jaw_deviation' },
+  { label: 'C', text: '法令紋 / 面中塌 / 蘋果肌撐不住', value: 'midface_support' },
+  { label: 'D', text: '下頜線不清楚 / 下半臉鬆垮', value: 'jawline_sagging' },
+  { label: 'E', text: '頭偏 / 肩頸不平 / 整體臉歪', value: 'head_neck_pull' }
+];
+
+// 16 题定义（5 组×3 题 + 1 主诉）
 const QUESTIONS = [
-  {
-    id: 'Q1',
-    title: '你最明显感觉左右不对称，是在什么情况下更容易看到？',
-    observation: '这一题用来判断你的问题更偏静态、动态、发力，还是波动不稳。',
-    options: [
-      { label: 'A', text: '静态拍照时更明显', value: 'static_photo' },
-      { label: 'B', text: '微笑或说话时更明显', value: 'smile_or_talk' },
-      { label: 'C', text: '咀嚼或用力时更明显', value: 'chew_or_force' },
-      { label: 'D', text: '每天看起来不太一样，不太稳定', value: 'unstable_day_to_day' }
-    ]
-  },
-  {
-    id: 'Q2',
-    title: '你平时最明显、持续时间最长的一种偏侧使用习惯是？',
-    observation: '这一题用来判断更可能参与的是单侧咀嚼、单侧支撑，还是表情发力偏侧。',
-    options: [
-      { label: 'A', text: '单侧咀嚼比较明显', value: 'one_side_chew' },
-      { label: 'B', text: '单侧托脸、侧睡或偏向一侧支撑比较明显', value: 'one_side_support' },
-      { label: 'C', text: '某一侧表情或发力更常用', value: 'one_side_expression' },
-      { label: 'D', text: '没有明显感觉，或不确定', value: 'uncertain' }
-    ]
-  },
-  {
-    id: 'Q3',
-    title: '你的不对称感受，更接近下面哪一种？',
-    observation: '这一题用来判断你的表现更偏长期稳定、近期加重、左右波动，还是动态放大。',
-    options: [
-      { label: 'A', text: '长期都比较稳定，位置和感觉差不多', value: 'stable_long_term' },
-      { label: 'B', text: '最近越来越明显', value: 'getting_worse_recently' },
-      { label: 'C', text: '有时觉得左边明显，有时又觉得右边明显', value: 'left_right_fluctuate' },
-      { label: 'D', text: '静态还好，但一动起来就更明显', value: 'dynamic_amplified' }
-    ]
-  },
-  {
-    id: 'Q4',
-    title: '你现在最想优先弄清楚的是哪一类问题？',
-    observation: '这一题主要用来调整后续结果页的重心和解释顺序，不会强行改变你的分类。',
-    options: [
-      { label: 'A', text: '为什么一边脸看起来更大', value: 'why_bigger' },
-      { label: 'B', text: '为什么笑起来或说话时更不对称', value: 'why_dynamic_asymmetry' },
-      { label: 'C', text: '为什么我总分不清到底是哪边有问题', value: 'why_cannot_tell_side' },
-      { label: 'D', text: '我更想先知道问题主次和处理顺序', value: 'priority_and_order' },
-      { label: 'E', text: '以上都有，但我更想先理清整体逻辑', value: 'overall_logic' }
-    ]
-  }
+  // T1｜口角启动型
+  { id: 'T1_Q1', group: 'T1｜口角啟動型', title: '微笑時，你是否明顯感覺一側嘴角先動，另一側慢半拍？', observation: '重點看動態對稱性。', sidePrompt: '是哪一側先動？' },
+  { id: 'T1_Q2', group: 'T1｜口角啟動型', title: '一側嘴角是不是更難抬起來，或者笑起來高低不一致？', observation: '嘴周肌肉啟動速度。', sidePrompt: '是哪一側更難抬起來？' },
+  { id: 'T1_Q3', group: 'T1｜口角啟動型', title: '閉嘴時還好，但一笑臉就更歪？', observation: '靜態 vs 動態對比。', sidePrompt: '笑起來時偏向哪一側？' },
+  // T2｜下颌偏移型
+  { id: 'T2_Q1', group: 'T2｜下頜偏移型', title: '閉嘴時，你的下巴中線是否偏向一側？', observation: '下頜中線位置。', sidePrompt: '下巴偏向哪一側？' },
+  { id: 'T2_Q2', group: 'T2｜下頜偏移型', title: '張嘴時，下巴會不會明顯往一邊偏？', observation: '張口軌跡。', sidePrompt: '張嘴時，下巴偏向哪一側？' },
+  { id: 'T2_Q3', group: 'T2｜下頜偏移型', title: '咬牙時，是否一邊咬肌更鼓、更硬，或者你習慣單側咀嚼？', observation: '咬肌 + 咀嚼習慣。', sidePrompt: '是哪一側咬肌更鼓、更硬？' },
+  // T3｜面中支撑弱型
+  { id: 'T3_Q1', group: 'T3｜面中支撐弱型', title: '一側法令紋是否明顯更深？', observation: '面中支撐對比。', sidePrompt: '是哪一側法令紋更深？' },
+  { id: 'T3_Q2', group: 'T3｜面中支撐弱型', title: '鼻翼旁或蘋果肌是否一側更塌、更低？', observation: '蘋果肌對稱性。', sidePrompt: '是哪一側蘋果肌更塌？' },
+  { id: 'T3_Q3', group: 'T3｜面中支撐弱型', title: '笑起來時，是否感覺一側中面部撐不住、顯累？', observation: '動態面中支撐。', sidePrompt: '是哪一側中面部撐不住？' },
+  // T4｜下颌缘松垮型
+  { id: 'T4_Q1', group: 'T4｜下頜緣鬆垮型', title: '一側下頜線是否更模糊、不清楚？', observation: '下頜緣輪廓。', sidePrompt: '是哪一側下頜線更模糊？' },
+  { id: 'T4_Q2', group: 'T4｜下頜緣鬆垮型', title: '嘴角下方到下巴這一段，是否一側更鬆、更沉？', observation: '口底支撐。', sidePrompt: '是哪一側更鬆、更沉？' },
+  { id: 'T4_Q3', group: 'T4｜下頜緣鬆垮型', title: '低頭或疲憊時，下半臉是否更容易堆、顯寬、顯垮？', observation: '疲態下輪廓。', sidePrompt: '是哪一側下半臉更垮？' },
+  // T5｜头颈牵拉型
+  { id: 'T5_Q1', group: 'T5｜頭頸牽拉型', title: '你的頭是否總習慣偏向一邊，或者拍照很難擺正？', observation: '頭部位置習慣。', sidePrompt: '頭偏向哪一側？' },
+  { id: 'T5_Q2', group: 'T5｜頭頸牽拉型', title: '一側脖子是否更緊，或者一邊肩更高？', observation: '頸肩張力分佈。', sidePrompt: '是哪一側脖子更緊？' },
+  { id: 'T5_Q3', group: 'T5｜頭頸牽拉型', title: '你是否感覺一邊臉像被脖子或肩頸往下牽拉？', observation: '頭頸牽拉主觀感受。', sidePrompt: '是哪一側臉被牽拉？' },
+  // Q16｜主诉优先题
+  { id: 'Q16_focus', group: 'Q16｜主訴優先', title: '你現在最想優先改善的是哪一個？', observation: '選擇你最在意的方向。', isMainComplaint: true }
 ];
 
 let currentIndex = 0;
 let answers = {};
+// 加载已保存的答案（支持中途退出再回来）
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) answers = JSON.parse(saved);
+} catch (e) {}
 
 const progressText = document.getElementById('progress-text');
 const progressFill = document.getElementById('progress-fill');
+const groupTag = document.getElementById('group-tag');
 const questionTitle = document.getElementById('question-title');
 const observation = document.getElementById('observation');
 const optionsContainer = document.getElementById('options-container');
+const sideRow = document.getElementById('side-row');
 const prevBtn = document.getElementById('prev-btn');
 const prevBtnBottom = document.getElementById('prev-btn-bottom');
 const nextBtn = document.getElementById('next-btn');
 
 function render() {
   const q = QUESTIONS[currentIndex];
-  const selectedValue = answers[q.id] ? answers[q.id].value : null;
+  const saved = answers[q.id] || { severity: null, side: null };
+  const isMain = !!q.isMainComplaint;
+  const opts = isMain ? Q16_OPTIONS : SEVERITY_OPTIONS;
 
-  progressText.textContent = `第 ${currentIndex + 1}/${QUESTIONS.length} 题`;
+  progressText.textContent = `第 ${currentIndex + 1}/${QUESTIONS.length} 題`;
   progressFill.style.width = `${((currentIndex + 1) / QUESTIONS.length) * 100}%`;
+  groupTag.textContent = q.group;
   questionTitle.textContent = q.title;
   observation.textContent = q.observation;
 
+  // 渲染严重程度选项
   optionsContainer.innerHTML = '';
-  q.options.forEach((opt) => {
+  opts.forEach((opt) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'option';
-    if (selectedValue === opt.value) btn.classList.add('selected');
+    if (saved.severity === opt.value) btn.classList.add('selected');
     btn.innerHTML = `<span class="option-indicator">${opt.label}</span><span class="option-text">${opt.text}</span>`;
     btn.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      answers[q.id] = { questionId: q.id, questionTitle: q.title, label: opt.label, text: opt.text, value: opt.value };
+      answers[q.id] = answers[q.id] || {};
+      answers[q.id].severity = opt.value;
+      // Q16 不需要 side 字段
+      if (!isMain && !answers[q.id].side) answers[q.id].side = 'unclear';
       saveAnswers();
       render();
     });
     optionsContainer.appendChild(btn);
   });
 
+  // 渲染 side 选项（Q16 不显示）
+  if (isMain) {
+    sideRow.style.display = 'none';
+  } else {
+    sideRow.style.display = 'grid';
+    // 用当前题目的 sidePrompt 覆盖默认文案
+    const sideLabel = document.getElementById('side-label');
+    if (sideLabel) sideLabel.textContent = q.sidePrompt || '哪一側更明顯？';
+    sideRow.querySelectorAll('.side-btn').forEach((btn) => {
+      const side = btn.dataset.side;
+      btn.classList.toggle('selected', saved.side === side);
+      btn.onclick = (e) => {
+        e.preventDefault();
+        answers[q.id] = answers[q.id] || {};
+        answers[q.id].side = side;
+        saveAnswers();
+        render();
+      };
+    });
+  }
+
   prevBtn.disabled = currentIndex === 0;
   prevBtnBottom.disabled = currentIndex === 0;
-  nextBtn.disabled = !answers[q.id];
-  nextBtn.textContent = currentIndex === QUESTIONS.length - 1 ? '完成并进入下一步' : '下一题';
+  nextBtn.disabled = !saved.severity || (!isMain && !saved.side);
+  nextBtn.textContent = currentIndex === QUESTIONS.length - 1 ? '完成並進入下一步' : '下一題';
 }
 
 function saveAnswers() {
@@ -169,8 +213,13 @@ function goPrev() {
 
 function goNext() {
   const q = QUESTIONS[currentIndex];
-  if (!answers[q.id]) {
-    alert('请先选择一个答案');
+  const a = answers[q.id];
+  if (!a || !a.severity) {
+    alert('請先選擇一個答案');
+    return;
+  }
+  if (!q.isMainComplaint && !a.side) {
+    alert('請先選擇左右側');
     return;
   }
 
@@ -181,11 +230,32 @@ function goNext() {
     return;
   }
 
+  // 提交：组装 v1.2 input schema
+  const v12Answers = {};
+  for (const tq of QUESTIONS) {
+    if (tq.isMainComplaint) continue;
+    const aa = answers[tq.id];
+    v12Answers[tq.id] = {
+      severity: aa.severity,
+      side: aa.side || 'unclear',
+    };
+  }
+  const q16Focus = answers['Q16_focus'] ? answers['Q16_focus'].severity : null;
+
+  // 读取第一层（如果有）
+  let firstLayerDirection = null;
+  try {
+    const l1 = JSON.parse(localStorage.getItem('laa_layer1_results') || '{}');
+    firstLayerDirection = l1.direction || null;
+  } catch (e) {}
+
   const payload = {
-    version: 'second-layer-v1',
+    version: 'second-layer-v1.2',
     completedAt: new Date().toISOString(),
-    answers: answers,
-    answerOrder: QUESTIONS.map(q => answers[q.id] || null)
+    firstLayerDirection: firstLayerDirection,
+    q16Focus: q16Focus,
+    answers: v12Answers,
+    rawAnswers: answers,
   };
   localStorage.setItem(PAYLOAD_KEY, JSON.stringify(payload));
   window.location.href = NEXT_PAGE;
