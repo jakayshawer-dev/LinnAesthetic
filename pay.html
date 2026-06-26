@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>LAA · 解锁第三层</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #fafaf7;
+      min-height: 100vh;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    }
+    .pay-card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-top: 20px;
+    }
+    .pay-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .pay-price {
+      font-size: 48px;
+      font-weight: 800;
+      color: #b8654a;
+      text-align: center;
+      margin: 16px 0;
+    }
+    .pay-price .yuan {
+      font-size: 24px;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+    .pay-desc {
+      text-align: center;
+      color: #6b6b6b;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .qr-placeholder {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 16px;
+      background: #f5f5f0;
+      border: 2px dashed #c4c4b8;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 13px;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .qr-tip {
+      text-align: center;
+      color: #b8654a;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .confirm-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #2d5b4f, #4a7d70);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      font-family: inherit;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      color: #6b6b6b;
+      font-size: 13px;
+      margin-top: 16px;
+      text-decoration: none;
+    }
+    .pending-banner {
+      background: linear-gradient(135deg, #fff8e6 0%, #ffefc7 100%);
+      border: 1.5px solid #e8b75a;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 12px;
+      color: #7c5e10;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="pay-title">解锁第三层</h1>
+  <div class="pending-banner">
+    ⚠️ 支付页面占位中 · 收款码尚未配置
+  </div>
+  <div class="pay-card">
+    <div class="pay-desc">
+      完成第二层评估后，可解锁<br>14 天个人居家跟练计划
+    </div>
+    <div class="pay-price"><span class="yuan">¥</span>299</div>
+    <div class="qr-placeholder">
+      [ 收款码占位 ]<br>
+      待上传微信/支付宝<br>收款二维码
+    </div>
+    <div class="qr-tip">扫码支付后，请点击下方按钮确认</div>
+    <a class="confirm-btn" href="third-layer/?paid=1">我已付款，进入第三层</a>
+    <a class="back-link" href="advanced-result.html">‹ 返回第二层结果</a>
+  </div>
+</body>
+</html>

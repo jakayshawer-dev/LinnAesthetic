@@ -9,25 +9,25 @@
  *
  * 记录卡（嵌入 Day 1 / Day 7 / Day 14 内）
  *
- * localStorage key: laa_layer3_v01_preview（与 v1.2 命名空间完全隔离）
- *
- * v0.1.4：纯 v1.2 对接模式
- *   - 删除手动选择 4 个参数入口
- *   - 入口只从 v1.2 payload 读参数
- *   - 无 v1.2 payload 时显示引导：去第二层完成评估
+ * localStorage keys:
+ *   laa_layer3_v01_preview       第三层自己的状态（与 v1.2 隔离）
+ *   laa_layer3_v01_paid          支付标记（pay.html "我已付款" 写入）
  *
  * 修复记录：
  *   v0.1.1: 记录卡照片位 <div> → <button>，避免点击后焦点跳动
  *   v0.1.2: 改用 <label> 包裹 file input（解决 iOS Safari 文件选择器无法触发）
  *   v0.1.3: 接入第二层 v1.2（双模式入口）
  *   v0.1.4: 删手动选择 4 个参数入口，纯 v1.2 对接模式
+ *   v0.1.5: 同时读 result_v12 和 payload_v12（修复 localStorage 找不到 mainType 的 bug）
+ *   v0.1.6: 支持 ?paid=1 标记（pay.html 跳转后写入支付凭证）；没支付凭证时显示引导
  */
 
 (function () {
   'use strict';
 
   const STORAGE_KEY = 'laa_layer3_v01_preview';
-  const STORAGE_VERSION = 'v0.1.5';
+  const STORAGE_VERSION = 'v0.1.6';
+  const PAID_KEY = 'laa_layer3_v01_paid';
 
   // v1.2 第二层输出 keys
   // payload_v12: 题目答案（questions 页写，result 页读）
@@ -73,6 +73,57 @@
     const s = { ...loadState(), ...patch };
     saveState(s);
     return s;
+  }
+
+  // ============================================================
+  // 支付凭证
+  // ============================================================
+
+  /**
+   * 检查是否已支付
+   * v0.1: 静态检测 localStorage 标记（pay.html "我已付款" 写入）
+   * 未来: 可对接微信/支付宝回调
+   * @returns {boolean}
+   */
+  function isPaid() {
+    try {
+      const raw = localStorage.getItem(PAID_KEY);
+      if (!raw) return false;
+      const p = JSON.parse(raw);
+      return !!(p && p.paid);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
+   * 写入支付凭证（pay.html 跳转 ?paid=1 时调用）
+   */
+  function markPaid() {
+    try {
+      localStorage.setItem(PAID_KEY, JSON.stringify({
+        paid: true,
+        paidAt: new Date().toISOString(),
+        source: 'manual_confirm',  // 未来可换 'wechat' / 'alipay' / 'wechat_h5'
+      }));
+    } catch (e) { /* ignore */ }
+  }
+
+  /**
+   * 检测 URL 是否带 ?paid=1（pay.html 跳转后），如果是则写入凭证
+   * 处理完移除 URL 参数，避免刷新重复触发
+   */
+  function checkUrlPaidFlag() {
+    try {
+      const params = new URLSearchParams(location.search);
+      if (params.get('paid') === '1') {
+        markPaid();
+        // 移除 URL 参数（不刷新页面）
+        const url = new URL(location.href);
+        url.searchParams.delete('paid');
+        history.replaceState(null, '', url.toString());
+      }
+    } catch (e) { /* ignore */ }
   }
 
   // ============================================================
@@ -238,14 +289,15 @@
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.1.5'),
+      el('div', { className: 'topbar-tag' }, 'v0.1.6'),
     ]));
 
     // v1.2 接入：检测是否有第二层结果
     const v12 = readV12Params();
+    const paid = isPaid();
 
-    if (v12) {
-      // 情况 A：检测到 v1.2 payload
+    if (v12 && paid) {
+      // ✅ 情况 A：已读 v1.2 + 已支付 → 显示绿色自动卡片
       const autoCard = el('div', { className: 'entry-section' });
       const card = el('div', {
         className: 'auto-card',
@@ -307,8 +359,70 @@
         el('div', { className: 'entry-subtitle' },
           '点击上方按钮，将根据你的第二层结果自动生成 14 天计划'),
       ]));
+    } else if (v12 && !paid) {
+      // 🟡 情况 B：已读 v1.2 但未支付 → 引导去支付
+      const payCard = el('div', { className: 'entry-section' });
+      const card = el('div', {
+        className: 'pay-card',
+        style: {
+          background: 'linear-gradient(135deg, #fff8e6 0%, #ffefc7 100%)',
+          border: '1.5px solid #e8b75a',
+          borderRadius: '10px',
+          padding: '24px 20px',
+          marginBottom: '16px',
+          textAlign: 'center',
+        },
+      });
+      card.appendChild(el('div', { style: { fontSize: '32px', marginBottom: '8px' } }, '🔓'));
+      card.appendChild(el('div', {
+        style: {
+          fontSize: '15px',
+          color: '#1a1a1a',
+          fontWeight: '600',
+          marginBottom: '6px',
+        },
+      }, '已读取第二层结果'));
+      card.appendChild(el('div', {
+        style: {
+          fontSize: '13px',
+          color: '#6b6b6b',
+          lineHeight: '1.7',
+          marginBottom: '14px',
+        },
+      }, '解锁第三层 14 天跟练计划后可继续'));
+      const mainName = window.MAIN_TYPE_NAMES[v12.mainType] || v12.mainType;
+      card.appendChild(el('div', {
+        style: { fontSize: '12px', color: '#7c5e10', marginBottom: '14px' },
+      }, '你的主因：' + mainName));
+      const payBtn = el('a', {
+        href: '../pay.html',
+        className: 'pay-btn',
+        style: {
+          display: 'inline-block',
+          padding: '12px 32px',
+          background: 'linear-gradient(135deg, #b8654a, #d4845e)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          fontSize: '15px',
+          fontWeight: '600',
+          textDecoration: 'none',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+          boxShadow: '0 2px 8px rgba(184,101,74,0.3)',
+        },
+      }, '解锁第三层 · ¥299');
+      card.appendChild(payBtn);
+      payCard.appendChild(card);
+      app.appendChild(payCard);
+
+      // 副标题
+      app.appendChild(el('div', { className: 'entry-header' }, [
+        el('div', { className: 'entry-subtitle' },
+          '点击上方按钮完成支付后自动解锁第三层'),
+      ]));
     } else {
-      // 情况 B：未检测到 v1.2 payload — 引导用户去完成第二层
+      // 🔒 情况 C：未读 v1.2 → 引导去完成第二层
       const emptyCard = el('div', { className: 'entry-section' });
       const card = el('div', {
         className: 'empty-card',
@@ -823,6 +937,8 @@
   // ============================================================
 
   function render() {
+    // 处理 pay.html 跳转过来的 ?paid=1
+    checkUrlPaidFlag();
     const route = parseRoute();
     let page;
     if (route.name === 'entry') page = renderEntry();
