@@ -293,19 +293,32 @@
     async function checkStatus() {
       const overlay = document.getElementById('loadingOverlay');
       overlay.classList.remove('hidden');
+      console.log('[pay.html] checkStatus 开始, resultId=' + resultId);
       try {
+        if (!window.laaSupabase) {
+          console.error('[pay.html] window.laaSupabase 未定义！检查 supabase-client.js 是否加载');
+          renderError('Supabase 客户端未加载，请检查网络');
+          return;
+        }
+        if (typeof window.laaSupabase.getAssessment !== 'function') {
+          console.error('[pay.html] getAssessment 方法不存在');
+          renderError('Supabase 客户端 API 不完整');
+          return;
+        }
         const res = await window.laaSupabase.getAssessment(resultId);
+        console.log('[pay.html] getAssessment 返回:', res);
         if (!res.ok) {
           renderError('查询失败：' + res.error);
           return;
         }
         if (!res.data) {
-          renderError('评估记录未找到（可能 v1.2 没走完）。请重做第二层评估。');
+          renderError('评估记录未找到（resultId=' + resultId + '）。请重做第二层评估。');
           return;
         }
         renderStatus(res.data);
       } catch (e) {
-        renderError('网络错误：' + e.message);
+        console.error('[pay.html] checkStatus 异常:', e);
+        renderError('网络错误：' + (e.message || String(e)));
       } finally {
         overlay.classList.add('hidden');
       }
