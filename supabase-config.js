@@ -30,6 +30,10 @@ const STATUS_PENDING = 'pending';
 const STATUS_OPENED  = 'opened';
 const STATUS_CLOSED  = 'closed';
 
+// 魔法链接跳转地址（用户点邮件链接后回到这里）
+// ⚠️ 必须和实际部署域名一致，否则链接会跳到 localhost
+const EMAIL_REDIRECT_TO = 'https://jakayshawer-dev.github.io/LinnAesthetic/teacher.html';
+
 // 暴露到 window
 if (typeof window !== 'undefined') {
   window.SUPABASE_URL = SUPABASE_URL;
@@ -40,4 +44,5 @@ if (typeof window !== 'undefined') {
   window.STATUS_PENDING = STATUS_PENDING;
   window.STATUS_OPENED = STATUS_OPENED;
   window.STATUS_CLOSED = STATUS_CLOSED;
+  window.EMAIL_REDIRECT_TO = EMAIL_REDIRECT_TO;
 }

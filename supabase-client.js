@@ -182,7 +182,10 @@
     try {
       const { error } = await client.auth.signInWithOtp({
         email,
-        options: { shouldCreateUser: true },
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: window.EMAIL_REDIRECT_TO || (window.location.origin + '/teacher.html'),
+        },
       });
       if (error) {
         return { ok: false, error: error.message };
