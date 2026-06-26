@@ -11,22 +11,23 @@
  *
  * localStorage key: laa_layer3_v01_preview（与 v1.2 命名空间完全隔离）
  *
- * v0.1.3：增加"自动从第二层 v1.2 读参数"模式
- *   - 入口页检测 laa_second_layer_payload_v12
- *   - 找到则显示"基于第二层结果生成"按钮（一键填 4 个参数）
- *   - 找不到则隐藏该按钮，只显示手动选择
+ * v0.1.4：纯 v1.2 对接模式
+ *   - 删除手动选择 4 个参数入口
+ *   - 入口只从 v1.2 payload 读参数
+ *   - 无 v1.2 payload 时显示引导：去第二层完成评估
  *
  * 修复记录：
  *   v0.1.1: 记录卡照片位 <div> → <button>，避免点击后焦点跳动
  *   v0.1.2: 改用 <label> 包裹 file input（解决 iOS Safari 文件选择器无法触发）
  *   v0.1.3: 接入第二层 v1.2（双模式入口）
+ *   v0.1.4: 删手动选择 4 个参数入口，纯 v1.2 对接模式
  */
 
 (function () {
   'use strict';
 
   const STORAGE_KEY = 'laa_layer3_v01_preview';
-  const STORAGE_VERSION = 'v0.1.3';
+  const STORAGE_VERSION = 'v0.1.4';
 
   // v1.2 第二层输出 key（写入页：questions，结果页：result）
   const V12_PAYLOAD_KEY = 'laa_second_layer_payload_v12';
@@ -219,13 +220,14 @@
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.1.3'),
+      el('div', { className: 'topbar-tag' }, 'v0.1.4'),
     ]));
 
     // v1.2 接入：检测是否有第二层结果
     const v12 = readV12Params();
+
     if (v12) {
-      // 显示"基于第二层结果生成"卡片
+      // 情况 A：检测到 v1.2 payload
       const autoCard = el('div', { className: 'entry-section' });
       const card = el('div', {
         className: 'auto-card',
@@ -233,7 +235,7 @@
           background: 'linear-gradient(135deg, #e8f0ed 0%, #d4e4dc 100%)',
           border: '1.5px solid #4a7d70',
           borderRadius: '10px',
-          padding: '16px 20px',
+          padding: '20px',
           marginBottom: '16px',
         },
       });
@@ -242,30 +244,31 @@
           fontSize: '12px',
           color: '#2d5b4f',
           fontWeight: '600',
-          marginBottom: '8px',
+          marginBottom: '10px',
           letterSpacing: '0.5px',
         },
-      }, '✨ 检测到你的第二层结果'));
+      }, '✨ 已读取你的第二层评估结果'));
       const mainName = window.MAIN_TYPE_NAMES[v12.mainType] || v12.mainType;
       const secName = v12.secondaryType
         ? (window.MAIN_TYPE_NAMES[v12.secondaryType] || v12.secondaryType)
-        : '无';
-      card.appendChild(el('div', { style: { fontSize: '13px', color: '#1a1a1a', lineHeight: '1.7', marginBottom: '12px' } }, [
-        '主因：' + mainName + '  ·  次因：' + secName,
-        el('br'),
-        '侧别：' + v12.sideHint + '  ·  复杂度：' + (v12.complexityHint || '—'),
+        : '暂未发现明显次因';
+      card.appendChild(el('div', { style: { fontSize: '13px', color: '#1a1a1a', lineHeight: '1.8', marginBottom: '14px' } }, [
+        el('div', {}, '主因：' + mainName),
+        el('div', {}, '次因：' + secName),
+        el('div', { style: { color: '#6b6b6b', fontSize: '12px', marginTop: '4px' } },
+          '侧别：' + v12.sideHint + '  ·  复杂度：' + (v12.complexityHint || '—')),
       ]));
       const autoBtn = el('button', {
         className: 'auto-btn',
         type: 'button',
         style: {
           width: '100%',
-          padding: '12px',
+          padding: '14px',
           background: '#2d5b4f',
           color: 'white',
           border: 'none',
           borderRadius: '6px',
-          fontSize: '14px',
+          fontSize: '15px',
           fontWeight: '600',
           cursor: 'pointer',
           fontFamily: 'inherit',
@@ -276,79 +279,81 @@
           setState({ plan });
           go('#/intro');
         },
-      }, '基于第二层结果生成 14 天计划');
+      }, '生成我的 14 天跟练计划');
       card.appendChild(autoBtn);
       autoCard.appendChild(card);
       app.appendChild(autoCard);
+
+      // 副标题
+      app.appendChild(el('div', { className: 'entry-header' }, [
+        el('div', { className: 'entry-subtitle' },
+          '点击上方按钮，将根据你的第二层结果自动生成 14 天计划'),
+      ]));
+    } else {
+      // 情况 B：未检测到 v1.2 payload — 引导用户去完成第二层
+      const emptyCard = el('div', { className: 'entry-section' });
+      const card = el('div', {
+        className: 'empty-card',
+        style: {
+          background: '#fff8e6',
+          border: '1.5px solid #e8b75a',
+          borderRadius: '10px',
+          padding: '24px 20px',
+          marginBottom: '16px',
+          textAlign: 'center',
+        },
+      });
+      card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '🔒'));
+      card.appendChild(el('div', {
+        style: {
+          fontSize: '15px',
+          color: '#1a1a1a',
+          fontWeight: '600',
+          marginBottom: '8px',
+        },
+      }, '需要先完成第二层评估'));
+      card.appendChild(el('div', {
+        style: {
+          fontSize: '13px',
+          color: '#6b6b6b',
+          lineHeight: '1.7',
+          marginBottom: '16px',
+        },
+      }, '第三层 14 天跟练计划是基于你的第二层评估结果生成的。请先到第二层完成 16 题评估，然后回到这里。'));
+      const backBtn = el('a', {
+        href: '../advanced-result.html',
+        className: 'back-btn',
+        style: {
+          display: 'inline-block',
+          padding: '12px 24px',
+          background: '#2d5b4f',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          fontSize: '14px',
+          fontWeight: '600',
+          textDecoration: 'none',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+        },
+      }, '回到第二层结果页');
+      card.appendChild(backBtn);
+      emptyCard.appendChild(card);
+      app.appendChild(emptyCard);
+
+      // 副标题
+      app.appendChild(el('div', { className: 'entry-header' }, [
+        el('div', { className: 'entry-subtitle' },
+          '第三层 v0.1 独立预览 · 需先完成第二层评估'),
+      ]));
     }
-
-    app.appendChild(el('div', { className: 'entry-header' }, [
-      el('div', { className: 'entry-title' }, v12 ? '或手动选择参数' : '生成 14 天跟练计划'),
-      el('div', { className: 'entry-subtitle' }, v12
-        ? '独立调试用，与上方自动结果互不影响'
-        : '手动选择第二层评估结果用于测试，不接入正式数据'),
-    ]));
-
-    app.appendChild(renderOptionSection('主类型 mainType', 'mainType', selected.mainType, false));
-    app.appendChild(renderOptionSection('次类型 secondaryType', 'secondaryType', selected.secondaryType, true));
-    app.appendChild(renderOptionSection('sideHint', 'sideHint', selected.sideHint, false));
-    app.appendChild(renderOptionSection('complexityHint', 'complexityHint', selected.complexityHint, true));
-
-    const btn = el('button', {
-      className: 'entry-generate',
-      type: 'button',
-      onClick: () => {
-        const cur = loadState();
-        if (!cur.params || !cur.params.mainType) {
-          alert('请至少选择主类型');
-          return;
-        }
-        const plan = window.generatePlan(cur.params);
-        setState({ plan });
-        go('#/intro');
-      },
-    }, v12 ? '用手动选择生成' : '生成 14 天计划');
-    btn.disabled = !selected.mainType;
-    app.appendChild(btn);
 
     return app;
   }
 
-  function renderOptionSection(title, key, selectedValue, hasNull) {
-    const section = el('div', { className: 'entry-section' });
-    section.appendChild(el('div', { className: 'entry-section-title' }, title));
-    const grid = el('div', { className: 'option-grid' });
-
-    const opts = OPTIONS[key];
-    Object.keys(opts).forEach(optKey => {
-      const value = optKey === '__null' ? null : optKey;
-      const isActive = (selectedValue === value) || (selectedValue == null && value == null);
-      const label = value == null ? '暂未发现' : value;
-      const sub = opts[optKey].sub;
-      const btn = el('button', {
-        className: 'option-btn' + (isActive ? ' active' : ''),
-        type: 'button',
-        onClick: () => {
-          const cur = loadState();
-          const newParams = { ...(cur.params || {}), [key]: value };
-          if (!cur.params) {
-            newParams.mainType = newParams.mainType || 'T1';
-            newParams.secondaryType = newParams.secondaryType === undefined ? null : newParams.secondaryType;
-            newParams.sideHint = newParams.sideHint || 'unclear';
-            newParams.complexityHint = newParams.complexityHint === undefined ? null : newParams.complexityHint;
-          }
-          setState({ params: newParams });
-          render();
-        },
-      });
-      btn.appendChild(document.createTextNode(label));
-      btn.appendChild(el('span', { className: 'option-btn-sub' }, sub));
-      grid.appendChild(btn);
-    });
-
-    section.appendChild(grid);
-    return section;
-  }
+  // 删掉 renderOptionSection（手动模式已废弃，保留函数定义但内部不再调用）
+  // 未来如果想恢复手动模式，把这段还原即可
+  function renderOptionSection() { return el('div'); }
 
   // ============================================================
   // 总体训练计划说明页

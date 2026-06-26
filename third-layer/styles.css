@@ -101,9 +101,9 @@ html, body {
   letter-spacing: 0.5px;
 }
 
-/* ===== 入口选择页 ===== */
+/* ===== 入口选择页（v0.1.4 简化版：仅 v1.2 对接 + 空状态引导）===== */
 .entry-header {
-  padding: 40px 24px 24px;
+  padding: 24px 24px 8px;
   text-align: center;
 }
 
@@ -120,75 +120,7 @@ html, body {
 }
 
 .entry-section {
-  padding: 0 20px;
-  margin-bottom: 8px;
-}
-
-.entry-section-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  margin-bottom: 10px;
-  padding-left: 4px;
-}
-
-.option-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-
-.option-grid-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.option-btn {
-  background: var(--color-card);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 12px 8px;
-  font-size: 13px;
-  color: var(--color-text);
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-
-.option-btn:hover { border-color: var(--color-primary-light); }
-.option-btn.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-}
-
-.option-btn-sub {
-  display: block;
-  font-size: 11px;
-  color: var(--color-text-light);
-  margin-top: 2px;
-}
-
-.option-btn.active .option-btn-sub { color: rgba(255,255,255,0.8); }
-
-.entry-generate {
-  margin: 24px 20px;
-  width: calc(100% - 40px);
-  padding: 14px;
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.entry-generate:disabled {
-  background: var(--color-border);
-  color: var(--color-text-light);
-  cursor: not-allowed;
+  padding: 16px 20px 0;
 }
 
 /* ===== 总体训练计划说明页 ===== */
