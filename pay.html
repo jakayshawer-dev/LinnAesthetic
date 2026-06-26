@@ -14,67 +14,125 @@
       padding: 20px;
       font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", sans-serif;
     }
-    .pay-card {
-      background: white;
-      border-radius: 16px;
-      padding: 32px 24px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      margin-top: 20px;
-    }
-    .pay-title {
+    .page-title {
       font-size: 22px;
       font-weight: 700;
       color: #1a1a1a;
       text-align: center;
+      margin: 20px 0 8px;
+    }
+    .result-id-card {
+      background: #fff;
+      border: 1.5px solid #4a7d70;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 16px 0;
+      box-shadow: 0 2px 8px rgba(74,125,112,0.08);
+    }
+    .result-id-label {
+      font-size: 12px;
+      color: #2d5b4f;
+      font-weight: 600;
       margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .result-id-value {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 14px;
+      color: #1a1a1a;
+      background: #f5f5f0;
+      padding: 8px 10px;
+      border-radius: 6px;
+      user-select: all;
+      word-break: break-all;
+      margin-bottom: 6px;
+    }
+    .result-id-hint {
+      font-size: 11px;
+      color: #6b6b6b;
+      line-height: 1.5;
+    }
+    .summary-card {
+      background: #fff;
+      border: 1px solid #e8e8e0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 13px;
+      border-bottom: 1px solid #f0f0e8;
+    }
+    .summary-line:last-child { border-bottom: none; }
+    .summary-label { color: #6b6b6b; }
+    .summary-value { color: #1a1a1a; font-weight: 500; }
+    .pay-card {
+      background: linear-gradient(135deg, #fff8e6 0%, #ffefc7 100%);
+      border: 1.5px solid #e8b75a;
+      border-radius: 12px;
+      padding: 24px 20px;
+      margin: 16px 0;
+      text-align: center;
     }
     .pay-price {
       font-size: 48px;
       font-weight: 800;
       color: #b8654a;
-      text-align: center;
-      margin: 16px 0;
+      margin: 12px 0 4px;
+      line-height: 1;
     }
     .pay-price .yuan {
       font-size: 24px;
       font-weight: 600;
       margin-right: 4px;
     }
-    .pay-desc {
-      text-align: center;
-      color: #6b6b6b;
-      font-size: 14px;
-      line-height: 1.7;
-      margin-bottom: 24px;
+    .pay-price-label {
+      font-size: 12px;
+      color: #7c5e10;
+      margin-bottom: 16px;
     }
     .qr-placeholder {
       width: 200px;
       height: 200px;
-      margin: 0 auto 16px;
-      background: #f5f5f0;
-      border: 2px dashed #c4c4b8;
+      margin: 0 auto 12px;
+      background: #fff;
+      border: 2px dashed #c4a878;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #999;
+      color: #b8654a;
       font-size: 13px;
       text-align: center;
       line-height: 1.5;
+      font-weight: 500;
     }
     .qr-tip {
-      text-align: center;
-      color: #b8654a;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 24px;
+      font-size: 12px;
+      color: #7c5e10;
+      margin-bottom: 16px;
     }
-    .confirm-btn {
+    .status-card {
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .status-card.unpaid { background: #fff8e6; border: 1.5px solid #e8b75a; }
+    .status-card.pending { background: #e8f0ed; border: 1.5px solid #4a7d70; }
+    .status-card.opened { background: #d4edda; border: 1.5px solid #5a8a6f; }
+    .status-card.closed { background: #f5f5f5; border: 1.5px solid #999; }
+    .status-card.error { background: #fde2e2; border: 1.5px solid #c47a3a; }
+    .status-icon { font-size: 32px; margin-bottom: 8px; }
+    .status-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: #1a1a1a; }
+    .status-desc { font-size: 13px; color: #4a4a4a; line-height: 1.6; }
+    .action-btn {
       display: block;
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #2d5b4f, #4a7d70);
-      color: white;
       border: none;
       border-radius: 10px;
       font-size: 15px;
@@ -83,7 +141,30 @@
       text-align: center;
       text-decoration: none;
       font-family: inherit;
+      margin: 8px 0;
     }
+    .action-btn.primary {
+      background: linear-gradient(135deg, #2d5b4f, #4a7d70);
+      color: white;
+    }
+    .action-btn.secondary {
+      background: #fff;
+      color: #2d5b4f;
+      border: 1.5px solid #4a7d70;
+    }
+    .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      color: white;
+      font-size: 14px;
+    }
+    .hidden { display: none !important; }
     .back-link {
       display: block;
       text-align: center;
@@ -92,35 +173,217 @@
       margin-top: 16px;
       text-decoration: none;
     }
-    .pending-banner {
-      background: linear-gradient(135deg, #fff8e6 0%, #ffefc7 100%);
-      border: 1.5px solid #e8b75a;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 12px;
-      color: #7c5e10;
-      text-align: center;
-      margin-bottom: 20px;
-    }
   </style>
 </head>
 <body>
-  <h1 class="pay-title">解锁第三层</h1>
-  <div class="pending-banner">
-    ⚠️ 支付页面占位中 · 收款码尚未配置
+  <h1 class="page-title">解锁第三层 14 天跟练</h1>
+
+  <!-- 评估编号卡 -->
+  <div class="result-id-card">
+    <div class="result-id-label">📋 你的评估编号（付款时告诉老师）</div>
+    <div class="result-id-value" id="resultIdValue">加载中...</div>
+    <div class="result-id-hint">点击上方编号可全选复制</div>
   </div>
-  <div class="pay-card">
-    <div class="pay-desc">
-      完成第二层评估后，可解锁<br>14 天个人居家跟练计划
+
+  <!-- 第二层结果摘要 -->
+  <div class="summary-card" id="summaryCard">
+    <div class="summary-line">
+      <span class="summary-label">主因</span>
+      <span class="summary-value" id="mainTypeLabel">—</span>
     </div>
+    <div class="summary-line">
+      <span class="summary-label">次因</span>
+      <span class="summary-value" id="secondaryTypeLabel">—</span>
+    </div>
+    <div class="summary-line">
+      <span class="summary-label">侧别</span>
+      <span class="summary-value" id="sideHintLabel">—</span>
+    </div>
+    <div class="summary-line">
+      <span class="summary-label">复杂度</span>
+      <span class="summary-value" id="complexityHintLabel">—</span>
+    </div>
+  </div>
+
+  <!-- 状态卡（动态切换） -->
+  <div class="status-card unpaid" id="statusCard">
+    <div class="status-icon" id="statusIcon">⏳</div>
+    <div class="status-title" id="statusTitle">检查开通状态中...</div>
+    <div class="status-desc" id="statusDesc">请稍候</div>
+  </div>
+
+  <!-- 支付卡（未开通时显示） -->
+  <div class="pay-card" id="payCard">
     <div class="pay-price"><span class="yuan">¥</span>299</div>
+    <div class="pay-price-label">第三层 14 天居家跟练计划</div>
     <div class="qr-placeholder">
       [ 收款码占位 ]<br>
-      待上传微信/支付宝<br>收款二维码
+      微信 / 支付宝<br>
+      二维码待上传
     </div>
-    <div class="qr-tip">扫码支付后，请点击下方按钮确认</div>
-    <a class="confirm-btn" href="third-layer/?paid=1">我已付款，进入第三层</a>
-    <a class="back-link" href="advanced-result.html">‹ 返回第二层结果</a>
+    <div class="qr-tip">扫码付款 ¥299 后，把订单号 + 评估编号发给老师</div>
   </div>
+
+  <!-- 操作按钮 -->
+  <button class="action-btn primary" id="checkStatusBtn">🔄 我已付款，检查开通状态</button>
+  <button class="action-btn secondary hidden" id="enterBtn">📱 进入第三层 14 天跟练</button>
+  <a class="back-link" href="advanced-result.html">‹ 返回第二层结果</a>
+
+  <!-- 加载层 -->
+  <div class="loading-overlay hidden" id="loadingOverlay">
+    <span>检查中...</span>
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-client.js"></script>
+
+  <script>
+  (async function main() {
+    // 1) 取 resultId（从 localStorage）
+    const resultId = localStorage.getItem('laa_second_layer_result_id');
+    if (!resultId) {
+      // 没有 resultId → 引导用户回到 v1.2
+      document.getElementById('statusCard').className = 'status-card error';
+      document.getElementById('statusIcon').textContent = '⚠️';
+      document.getElementById('statusTitle').textContent = '未找到评估编号';
+      document.getElementById('statusDesc').textContent = '请先完成第二层评估。';
+      document.getElementById('resultIdValue').textContent = '—';
+      document.getElementById('checkStatusBtn').disabled = true;
+      return;
+    }
+
+    // 2) 渲染 resultId + 第二层结果摘要
+    document.getElementById('resultIdValue').textContent = resultId;
+    const resultRaw = localStorage.getItem('laa_second_layer_result_v12');
+    if (resultRaw) {
+      try {
+        const r = JSON.parse(resultRaw);
+        const NAMES = {
+          T1: 'T1｜口角启动型', T2: 'T2｜下颌偏移型', T3: 'T3｜面中支撑弱型',
+          T4: 'T4｜下颌缘松垮型', T5: 'T5｜头颈牵拉型',
+        };
+        document.getElementById('mainTypeLabel').textContent = NAMES[r.mainType] || r.mainType || '—';
+        document.getElementById('secondaryTypeLabel').textContent =
+          r.secondaryType ? (NAMES[r.secondaryType] || r.secondaryType) : '暂未发现明显次因';
+        document.getElementById('sideHintLabel').textContent = r.sideHint || '—';
+        document.getElementById('complexityHintLabel').textContent = r.complexityHint || '—';
+      } catch (e) { /* ignore */ }
+    }
+
+    // 3) 实时订阅：老师后台开通后页面自动更新
+    if (window.laaSupabase && window.laaSupabase.subscribeAssessment) {
+      window.laaSupabase.subscribeAssessment(resultId, payload => {
+        console.log('[pay.html] 收到实时更新:', payload);
+        if (payload.eventType === 'UPDATE' && payload.new) {
+          renderStatus(payload.new);
+        }
+      });
+    }
+
+    // 4) 初次检查状态
+    await checkStatus();
+
+    // 5) "我已付款"按钮 → 重新查状态
+    document.getElementById('checkStatusBtn').addEventListener('click', async () => {
+      await checkStatus();
+    });
+
+    async function checkStatus() {
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.remove('hidden');
+      try {
+        const res = await window.laaSupabase.getAssessment(resultId);
+        if (!res.ok) {
+          renderError('查询失败：' + res.error);
+          return;
+        }
+        if (!res.data) {
+          renderError('评估记录未找到（可能 v1.2 没走完）。请重做第二层评估。');
+          return;
+        }
+        renderStatus(res.data);
+      } catch (e) {
+        renderError('网络错误：' + e.message);
+      } finally {
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function renderStatus(record) {
+      const status = record.thirdLayerStatus || window.STATUS_UNPAID;
+      const card = document.getElementById('statusCard');
+      const icon = document.getElementById('statusIcon');
+      const title = document.getElementById('statusTitle');
+      const desc = document.getElementById('statusDesc');
+      const payCard = document.getElementById('payCard');
+      const checkBtn = document.getElementById('checkStatusBtn');
+      const enterBtn = document.getElementById('enterBtn');
+
+      // 移除所有状态类
+      card.className = 'status-card';
+
+      if (status === window.STATUS_OPENED) {
+        // ✅ 已开通
+        card.classList.add('opened');
+        icon.textContent = '🎉';
+        title.textContent = '已开通！';
+        const openedAt = record.openedAt ? new Date(record.openedAt).toLocaleString('zh-CN') : '';
+        desc.innerHTML = `你的第三层 14 天跟练已开通${openedAt ? '<br>开通时间：' + openedAt : ''}<br><span style="color:#1a1a1a;font-weight:500;">点击下方按钮开始训练</span>`;
+        payCard.classList.add('hidden');
+        checkBtn.classList.add('hidden');
+        enterBtn.classList.remove('hidden');
+        // 跳到第三层入口
+        enterBtn.onclick = () => {
+          // 缓存状态 + 跳
+          localStorage.setItem('laa_layer3_v01_paid', JSON.stringify({
+            paid: true,
+            paidAt: record.openedAt || new Date().toISOString(),
+            source: 'supabase',
+            resultId: resultId,
+          }));
+          window.location.href = 'third-layer/?paid=1';
+        };
+      } else if (status === window.STATUS_PENDING) {
+        // 🟡 待确认
+        card.classList.add('pending');
+        icon.textContent = '⏳';
+        title.textContent = '老师确认中...';
+        desc.innerHTML = `已收到你的订单，等待老师确认开通<br>老师确认后页面会自动更新，无需刷新`;
+        payCard.classList.add('hidden');
+        checkBtn.textContent = '🔄 刷新状态';
+        enterBtn.classList.add('hidden');
+      } else if (status === window.STATUS_CLOSED) {
+        // ⚫ 已关闭
+        card.classList.add('closed');
+        icon.textContent = '🚫';
+        title.textContent = '评估编号已关闭';
+        desc.innerHTML = '如有疑问请联系老师';
+        payCard.classList.add('hidden');
+        checkBtn.classList.add('hidden');
+        enterBtn.classList.add('hidden');
+      } else {
+        // 🟡 未付款（默认）
+        card.classList.add('unpaid');
+        icon.textContent = '💳';
+        title.textContent = '等待开通';
+        desc.innerHTML = `完成下面 ¥299 付款后，把<strong>订单号</strong> + <strong>评估编号</strong>发给老师，老师开通后此页面会自动更新`;
+        payCard.classList.remove('hidden');
+        checkBtn.textContent = '🔄 我已付款，检查开通状态';
+        enterBtn.classList.add('hidden');
+      }
+    }
+
+    function renderError(msg) {
+      const card = document.getElementById('statusCard');
+      card.className = 'status-card error';
+      document.getElementById('statusIcon').textContent = '⚠️';
+      document.getElementById('statusTitle').textContent = '查询失败';
+      document.getElementById('statusDesc').textContent = msg;
+      document.getElementById('checkStatusBtn').disabled = true;
+    }
+  })();
+  </script>
 </body>
 </html>

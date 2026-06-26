@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>LAA · 第三层 v0.1 独立预览</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // 默认路由到入口
     if (!location.hash) location.hash = '#/entry';
@@ -18,8 +19,10 @@
   </div>
 
   <!-- 数据 + 引擎（v0.1 独立命名空间，不读 v1.2 数据） -->
-  <script src="actions.js?v=0.1.6"></script>
-  <script src="plan-generator.js?v=0.1.6"></script>
-  <script src="app.js?v=0.1.6"></script>
+  <script src="actions.js?v=0.2.0"></script>
+  <script src="plan-generator.js?v=0.2.0"></script>
+  <script src="../supabase-config.js?v=0.2.0"></script>
+  <script src="../supabase-client.js?v=0.2.0"></script>
+  <script src="app.js?v=0.2.0"></script>
 </body>
 </html>

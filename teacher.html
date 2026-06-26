@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>LAA · 老师后台</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                   "Microsoft YaHei", sans-serif;
+      background: #f5f5f0;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    h1 { color: #2d5b4f; margin-bottom: 8px; font-size: 24px; }
+    .subtitle { color: #6b6b6b; font-size: 13px; margin-bottom: 24px; }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .sign-in-area { text-align: center; padding: 40px 20px; }
+    .sign-in-area .icon { font-size: 48px; margin-bottom: 12px; }
+    .sign-in-area h2 { margin-bottom: 12px; font-size: 18px; }
+    .sign-in-area p { color: #6b6b6b; font-size: 13px; margin-bottom: 16px; }
+
+    .input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #e0e0d8;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      margin-bottom: 12px;
+    }
+    .input:focus { outline: none; border-color: #2d5b4f; }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #2d5b4f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      margin-right: 8px;
+    }
+    .btn:hover { background: #1f4438; }
+    .btn.secondary { background: #e8e8e0; color: #1a1a1a; }
+    .btn.secondary:hover { background: #d8d8d0; }
+    .btn.danger { background: #b8654a; }
+    .btn.danger:hover { background: #9a4f38; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .toolbar select, .toolbar input { padding: 8px 10px; border: 1.5px solid #e0e0d8; border-radius: 6px; font-size: 13px; font-family: inherit; }
+    .toolbar input { flex: 1; min-width: 200px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0e8;
+    }
+    th {
+      background: #fafaf5;
+      font-weight: 600;
+      color: #6b6b6b;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tr:hover { background: #fafaf5; cursor: pointer; }
+    tr.selected { background: #e8f0ed; }
+    .result-id-cell { font-family: monospace; font-size: 11px; color: #6b6b6b; }
+
+    .status-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .status-tag.unpaid { background: #fff8e6; color: #7c5e10; }
+    .status-tag.pending { background: #e8f0ed; color: #2d5b4f; }
+    .status-tag.opened { background: #d4edda; color: #1a4d2e; }
+    .status-tag.closed { background: #f5f5f5; color: #6b6b6b; }
+
+    .detail { padding: 20px; }
+    .detail-row { display: flex; padding: 6px 0; border-bottom: 1px solid #f0f0e8; font-size: 14px; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: #6b6b6b; min-width: 100px; }
+    .detail-value { color: #1a1a1a; font-weight: 500; word-break: break-all; }
+    .detail-value.mono { font-family: monospace; font-size: 12px; }
+
+    .status-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .status-actions .btn { flex: 1; min-width: 140px; }
+
+    .empty { text-align: center; padding: 30px; color: #6b6b6b; font-size: 13px; }
+    .hidden { display: none !important; }
+
+    .loading { padding: 30px; text-align: center; color: #6b6b6b; }
+
+    .modal-bg {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; padding: 20px;
+    }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 100%;
+      padding: 24px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h3 { margin-bottom: 16px; color: #2d5b4f; }
+    .modal .form-row { margin-bottom: 12px; }
+    .modal label { display: block; font-size: 12px; color: #6b6b6b; margin-bottom: 4px; }
+    .modal textarea { width: 100%; padding: 8px 10px; border: 1.5px solid #e0e0d8; border-radius: 6px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 60px; }
+
+    .error-banner {
+      background: #fde2e2;
+      border: 1.5px solid #c47a3a;
+      color: #7a3a1a;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .success-banner {
+      background: #d4edda;
+      border: 1.5px solid #5a8a6f;
+      color: #1a4d2e;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .user-info {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 14px;
+      background: #e8f0ed;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 LAA 老师后台</h1>
+    <div class="subtitle">搜索评估编号 / 修改状态 / 开通第三层权限</div>
+
+    <!-- 登入区 -->
+    <div class="card sign-in-area" id="signInCard">
+      <div class="icon">🔐</div>
+      <h2>老师登入</h2>
+      <p>请输入登入邮箱（首次会发魔法链接到邮箱）</p>
+      <input type="email" class="input" id="emailInput" placeholder="linlinchang313@gmail.com" />
+      <button class="btn" id="signInBtn">发送登入链接</button>
+      <div id="signInMsg" class="hidden" style="margin-top:12px;font-size:13px;"></div>
+    </div>
+
+    <!-- 主后台区（登入后显示） -->
+    <div id="mainArea" class="hidden">
+      <div class="user-info">
+        <span>👤 <span id="userEmail">—</span></span>
+        <button class="btn secondary" id="signOutBtn">登出</button>
+      </div>
+
+      <div id="msgBanner"></div>
+
+      <!-- 搜索 / 过滤 -->
+      <div class="card">
+        <div class="toolbar">
+          <input type="text" id="searchInput" placeholder="搜索评估编号（前 8 位即可）" />
+          <select id="statusFilter">
+            <option value="">所有状态</option>
+            <option value="unpaid">未付款</option>
+            <option value="pending">待确认</option>
+            <option value="opened">已开通</option>
+            <option value="closed">已关闭</option>
+          </select>
+          <button class="btn" id="refreshBtn">🔄 刷新</button>
+        </div>
+        <div id="listArea"><div class="loading">加载中...</div></div>
+      </div>
+
+      <!-- 详情 + 操作 -->
+      <div class="card detail hidden" id="detailCard">
+        <h3 style="margin-bottom:16px;color:#2d5b4f;">📝 评估详情</h3>
+        <div class="detail-row"><div class="detail-label">评估编号</div><div class="detail-value mono" id="dResultId">—</div></div>
+        <div class="detail-row"><div class="detail-label">主因</div><div class="detail-value" id="dMainType">—</div></div>
+        <div class="detail-row"><div class="detail-label">次因</div><div class="detail-value" id="dSecondaryType">—</div></div>
+        <div class="detail-row"><div class="detail-label">侧别</div><div class="detail-value" id="dSideHint">—</div></div>
+        <div class="detail-row"><div class="detail-label">复杂度</div><div class="detail-value" id="dComplexityHint">—</div></div>
+        <div class="detail-row"><div class="detail-label">训练重点</div><div class="detail-value" id="dTrainingPriority">—</div></div>
+        <div class="detail-row"><div class="detail-label">状态</div><div class="detail-value" id="dStatus">—</div></div>
+        <div class="detail-row"><div class="detail-label">订单号</div><div class="detail-value" id="dOrderNo">—</div></div>
+        <div class="detail-row"><div class="detail-label">付款平台</div><div class="detail-value" id="dPayPlatform">—</div></div>
+        <div class="detail-row"><div class="detail-label">付款金额</div><div class="detail-value" id="dPaidAmount">—</div></div>
+        <div class="detail-row"><div class="detail-label">开通时间</div><div class="detail-value" id="dOpenedAt">—</div></div>
+        <div class="detail-row"><div class="detail-label">评估时间</div><div class="detail-value" id="dCreatedAt">—</div></div>
+        <div class="detail-row"><div class="detail-label">备注</div><div class="detail-value" id="dRemark">—</div></div>
+
+        <div class="status-actions">
+          <button class="btn" id="btnOpen">✅ 开通（opened）</button>
+          <button class="btn secondary" id="btnPending">⏳ 待确认（pending）</button>
+          <button class="btn secondary" id="btnClose">🚫 关闭（closed）</button>
+          <button class="btn danger" id="btnReset">↩ 重置为未付款</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-client.js"></script>
+
+  <script>
+  const NAMES = {
+    T1: 'T1｜口角启动型', T2: 'T2｜下颌偏移型', T3: 'T3｜面中支撑弱型',
+    T4: 'T4｜下颌缘松垮型', T5: 'T5｜头颈牵拉型',
+  };
+
+  let currentUser = null;
+  let currentList = [];
+  let selectedRecord = null;
+
+  // ============================================================
+  // 登入
+  // ============================================================
+  document.getElementById('signInBtn').addEventListener('click', async () => {
+    const email = document.getElementById('emailInput').value.trim();
+    if (!email) { showSignInMsg('请输入邮箱', true); return; }
+    showSignInMsg('发送中...', false);
+    const res = await window.laaSupabase.teacherSignIn(email);
+    if (res.ok) {
+      showSignInMsg('✅ 魔法链接已发送到 ' + email + '，请到邮箱点链接登入。链接用过后会自动回到此页面。', false);
+    } else {
+      showSignInMsg('发送失败：' + res.error, true);
+    }
+  });
+
+  function showSignInMsg(text, isError) {
+    const el = document.getElementById('signInMsg');
+    el.textContent = text;
+    el.classList.remove('hidden');
+    el.style.color = isError ? '#b8654a' : '#2d5b4f';
+  }
+
+  document.getElementById('signOutBtn').addEventListener('click', async () => {
+    await window.laaSupabase.teacherSignOut();
+    currentUser = null;
+    location.reload();
+  });
+
+  // ============================================================
+  // 检查当前登入状态
+  // ============================================================
+  async function init() {
+    currentUser = await window.laaSupabase.getCurrentTeacher();
+    if (currentUser) {
+      showMainArea(currentUser);
+    } else {
+      showSignInArea();
+    }
+  }
+
+  function showSignInArea() {
+    document.getElementById('signInCard').classList.remove('hidden');
+    document.getElementById('mainArea').classList.add('hidden');
+  }
+
+  function showMainArea(user) {
+    document.getElementById('signInCard').classList.add('hidden');
+    document.getElementById('mainArea').classList.remove('hidden');
+    document.getElementById('userEmail').textContent = user.email;
+    refreshList();
+
+    // 监听 auth 状态变化（魔法链接登入后会触发）
+    window.laaSupabase.client.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session && session.user) {
+        currentUser = session.user;
+        showMainArea(session.user);
+      }
+    });
+  }
+
+  // ============================================================
+  // 列表 + 搜索
+  // ============================================================
+  document.getElementById('refreshBtn').addEventListener('click', refreshList);
+  document.getElementById('searchInput').addEventListener('input', renderList);
+  document.getElementById('statusFilter').addEventListener('change', renderList);
+
+  async function refreshList() {
+    const listArea = document.getElementById('listArea');
+    listArea.innerHTML = '<div class="loading">加载中...</div>';
+    const res = await window.laaSupabase.listAssessments({ limit: 200 });
+    if (!res.ok) {
+      listArea.innerHTML = '<div class="error-banner">加载失败：' + res.error + '</div>';
+      return;
+    }
+    currentList = res.data;
+    renderList();
+  }
+
+  function renderList() {
+    const search = document.getElementById('searchInput').value.trim().toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+    const filtered = currentList.filter(r => {
+      if (search && !r.resultid.toLowerCase().includes(search)) return false;
+      if (status && r.thirdlayerstatus !== status) return false;
+      return true;
+    });
+
+    const listArea = document.getElementById('listArea');
+    if (filtered.length === 0) {
+      listArea.innerHTML = '<div class="empty">没有匹配的评估记录</div>';
+      return;
+    }
+
+    let html = '<table><thead><tr>';
+    html += '<th>评估编号</th><th>主因</th><th>状态</th><th>订单号</th><th>创建时间</th>';
+    html += '</tr></thead><tbody>';
+    filtered.forEach(r => {
+      const mainName = NAMES[r.maintype] || r.maintype || '—';
+      const isSelected = selectedRecord && selectedRecord.resultid === r.resultid;
+      html += '<tr data-resultid="' + r.resultid + '" class="' + (isSelected ? 'selected' : '') + '">';
+      html += '<td class="result-id-cell">' + r.resultid.substring(0, 8) + '...</td>';
+      html += '<td>' + mainName + '</td>';
+      html += '<td><span class="status-tag ' + (r.thirdlayerstatus || 'unpaid') + '">' + (r.thirdlayerstatus || 'unpaid') + '</span></td>';
+      html += '<td>' + (r.orderno || '—') + '</td>';
+      html += '<td>' + new Date(r.createdat).toLocaleString('zh-CN') + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    listArea.innerHTML = html;
+
+    // 绑定点击
+    listArea.querySelectorAll('tbody tr').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const id = tr.dataset.resultid;
+        selectRecord(currentList.find(r => r.resultid === id));
+      });
+    });
+  }
+
+  // ============================================================
+  // 详情 + 状态操作
+  // ============================================================
+  function selectRecord(record) {
+    selectedRecord = record;
+    renderDetail();
+    renderList();  // 刷新选中态
+  }
+
+  function renderDetail() {
+    const r = selectedRecord;
+    if (!r) {
+      document.getElementById('detailCard').classList.add('hidden');
+      return;
+    }
+    document.getElementById('detailCard').classList.remove('hidden');
+    document.getElementById('dResultId').textContent = r.resultid;
+    document.getElementById('dMainType').textContent = NAMES[r.maintype] || r.maintype || '—';
+    document.getElementById('dSecondaryType').textContent = r.secondarytype ? (NAMES[r.secondarytype] || r.secondarytype) : '—';
+    document.getElementById('dSideHint').textContent = r.sidehint || '—';
+    document.getElementById('dComplexityHint').textContent = r.complexityhint || '—';
+    document.getElementById('dTrainingPriority').textContent = r.trainingprioritytext || '—';
+    document.getElementById('dStatus').innerHTML = '<span class="status-tag ' + (r.thirdlayerstatus || 'unpaid') + '">' + (r.thirdlayerstatus || 'unpaid') + '</span>';
+    document.getElementById('dOrderNo').textContent = r.orderno || '—';
+    document.getElementById('dPayPlatform').textContent = r.payplatform || '—';
+    document.getElementById('dPaidAmount').textContent = r.paidamount ? '¥' + r.paidamount : '—';
+    document.getElementById('dOpenedAt').textContent = r.openedat ? new Date(r.openedat).toLocaleString('zh-CN') : '—';
+    document.getElementById('dCreatedAt').textContent = r.createdat ? new Date(r.createdat).toLocaleString('zh-CN') : '—';
+    document.getElementById('dRemark').textContent = r.remark || '—';
+  }
+
+  document.getElementById('btnOpen').addEventListener('click', () => updateStatus('opened', { openedAt: new Date().toISOString() }));
+  document.getElementById('btnPending').addEventListener('click', () => updateStatus('pending'));
+  document.getElementById('btnClose').addEventListener('click', () => updateStatus('closed'));
+  document.getElementById('btnReset').addEventListener('click', () => updateStatus('unpaid', { openedAt: null }));
+
+  async function updateStatus(status, extra = {}) {
+    if (!selectedRecord) return;
+    const resultId = selectedRecord.resultid;
+
+    // 如果是 opened，弹窗让老师填订单号 + 备注
+    let orderNo = selectedRecord.orderno;
+    let payPlatform = selectedRecord.payplatform;
+    let remark = selectedRecord.remark;
+
+    if (status === 'opened') {
+      const input = await openOpenedDialog(selectedRecord);
+      if (input === null) return;  // 用户取消
+      orderNo = input.orderNo || orderNo;
+      payPlatform = input.payPlatform || payPlatform;
+      remark = input.remark || remark;
+    }
+
+    const patch = { thirdLayerStatus: status, ...extra };
+    if (status === 'opened') {
+      if (orderNo) patch.orderNo = orderNo;
+      if (payPlatform) patch.payPlatform = payPlatform;
+      if (remark) patch.remark = remark;
+    }
+
+    showMsg('更新中...', false);
+    const res = await window.laaSupabase.updateAssessment(resultId, patch);
+    if (res.ok) {
+      selectedRecord = res.data;
+      renderDetail();
+      refreshList();
+      showMsg('✅ 已更新状态为 ' + status, false);
+    } else {
+      showMsg('更新失败：' + res.error, true);
+    }
+  }
+
+  function openOpenedDialog(record) {
+    return new Promise(resolve => {
+      const bg = document.createElement('div');
+      bg.className = 'modal-bg';
+      bg.innerHTML = `
+        <div class="modal">
+          <h3>✅ 开通第三层</h3>
+          <p style="color:#6b6b6b;font-size:13px;margin-bottom:16px;">评估编号：<code style="font-family:monospace;background:#f5f5f0;padding:2px 6px;border-radius:3px;">${record.resultid}</code></p>
+          <div class="form-row">
+            <label>订单号（用户在微信/小红书/淘宝填的订单号，可选）</label>
+            <input type="text" id="dlgOrderNo" value="${record.orderno || ''}" class="input" placeholder="例如：202606261234" />
+          </div>
+          <div class="form-row">
+            <label>付款平台</label>
+            <select id="dlgPayPlatform" class="input">
+              <option value="">— 选择 —</option>
+              <option value="wechat" ${record.payplatform === 'wechat' ? 'selected' : ''}>微信</option>
+              <option value="alipay" ${record.payplatform === 'alipay' ? 'selected' : ''}>支付宝</option>
+              <option value="xiaohongshu" ${record.payplatform === 'xiaohongshu' ? 'selected' : ''}>小红书</option>
+              <option value="taobao" ${record.payplatform === 'taobao' ? 'selected' : ''}>淘宝</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>备注（可选）</label>
+            <textarea id="dlgRemark" placeholder="例如：朋友介绍 / 客户 / 测试">${record.remark || ''}</textarea>
+          </div>
+          <div style="text-align:right;margin-top:16px;">
+            <button class="btn secondary" id="dlgCancel">取消</button>
+            <button class="btn" id="dlgConfirm">确认开通</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(bg);
+      document.getElementById('dlgCancel').onclick = () => { document.body.removeChild(bg); resolve(null); };
+      document.getElementById('dlgConfirm').onclick = () => {
+        const result = {
+          orderNo: document.getElementById('dlgOrderNo').value.trim(),
+          payPlatform: document.getElementById('dlgPayPlatform').value,
+          remark: document.getElementById('dlgRemark').value.trim(),
+        };
+        document.body.removeChild(bg);
+        resolve(result);
+      };
+    });
+  }
+
+  function showMsg(text, isError) {
+    const el = document.getElementById('msgBanner');
+    el.className = isError ? 'error-banner' : 'success-banner';
+    el.textContent = text;
+    setTimeout(() => { el.textContent = ''; el.className = ''; }, 3000);
+  }
+
+  // 启动
+  init();
+  </script>
+</body>
+</html>

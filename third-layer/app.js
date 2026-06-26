@@ -9,25 +9,36 @@
  *
  * 记录卡（嵌入 Day 1 / Day 7 / Day 14 内）
  *
+ * v0.2.0 接入 Supabase：
+ *   - 从 localStorage 'laa_second_layer_result_id' 拿 resultId
+ *   - 查 Supabase assessments 表的 thirdLayerStatus
+ *   - 入口 4 个分支：
+ *     a) 没 resultId → 引导回 v1.2
+ *     b) resultId + unpaid → 引导去 pay.html
+ *     c) resultId + pending → 等待老师确认
+ *     d) resultId + opened → 显示绿色自动卡
+ *   - 访问拦截：非 entry 页都需检查 status === opened
+ *
  * localStorage keys:
- *   laa_layer3_v01_preview       第三层自己的状态（与 v1.2 隔离）
- *   laa_layer3_v01_paid          支付标记（pay.html "我已付款" 写入）
+ *   laa_second_layer_result_id    第二层 resultId（由 advanced-result.html 写入）
+ *   laa_layer3_v01_preview       第三层自己的状态（训练进度/打卡/记录卡）
  *
  * 修复记录：
  *   v0.1.1: 记录卡照片位 <div> → <button>，避免点击后焦点跳动
  *   v0.1.2: 改用 <label> 包裹 file input（解决 iOS Safari 文件选择器无法触发）
  *   v0.1.3: 接入第二层 v1.2（双模式入口）
  *   v0.1.4: 删手动选择 4 个参数入口，纯 v1.2 对接模式
- *   v0.1.5: 同时读 result_v12 和 payload_v12（修复 localStorage 找不到 mainType 的 bug）
- *   v0.1.6: 支持 ?paid=1 标记（pay.html 跳转后写入支付凭证）；没支付凭证时显示引导
+ *   v0.1.5: 同时读 result_v12 和 payload_v12
+ *   v0.1.6: 支持 ?paid=1 标记
+ *   v0.2.0: 接入 Supabase 评估编号 + 后台开通模式
  */
 
 (function () {
   'use strict';
 
   const STORAGE_KEY = 'laa_layer3_v01_preview';
-  const STORAGE_VERSION = 'v0.1.6';
-  const PAID_KEY = 'laa_layer3_v01_paid';
+  const STORAGE_VERSION = 'v0.2.0';
+  const RESULT_ID_KEY = 'laa_second_layer_result_id';
 
   // v1.2 第二层输出 keys
   // payload_v12: 题目答案（questions 页写，result 页读）
@@ -76,54 +87,73 @@
   }
 
   // ============================================================
-  // 支付凭证
+  // v0.2.0: Supabase 状态查询 + 访问拦截
   // ============================================================
 
   /**
-   * 检查是否已支付
-   * v0.1: 静态检测 localStorage 标记（pay.html "我已付款" 写入）
-   * 未来: 可对接微信/支付宝回调
-   * @returns {boolean}
+   * 取 resultId（从 localStorage）
+   * @returns {string|null}
    */
-  function isPaid() {
+  function getResultId() {
     try {
-      const raw = localStorage.getItem(PAID_KEY);
-      if (!raw) return false;
-      const p = JSON.parse(raw);
-      return !!(p && p.paid);
+      return localStorage.getItem(RESULT_ID_KEY);
     } catch (e) {
-      return false;
+      return null;
     }
   }
 
   /**
-   * 写入支付凭证（pay.html 跳转 ?paid=1 时调用）
+   * 缓存 Supabase 查询到的评估记录（避免每次重新查）
    */
-  function markPaid() {
-    try {
-      localStorage.setItem(PAID_KEY, JSON.stringify({
-        paid: true,
-        paidAt: new Date().toISOString(),
-        source: 'manual_confirm',  // 未来可换 'wechat' / 'alipay' / 'wechat_h5'
-      }));
-    } catch (e) { /* ignore */ }
+  let _cachedRecord = null;
+  let _cachedRecordAt = 0;
+  const CACHE_TTL_MS = 5000;  // 5 秒内不重复查
+
+  /**
+   * 从 Supabase 取评估记录（带缓存）
+   * @returns {Promise<object|null>}
+   */
+  async function fetchRecord(resultId, forceRefresh = false) {
+    if (!window.laaSupabase) return null;
+    const now = Date.now();
+    if (!forceRefresh && _cachedRecord && _cachedRecord.resultId === resultId && (now - _cachedRecordAt) < CACHE_TTL_MS) {
+      return _cachedRecord;
+    }
+    const res = await window.laaSupabase.getAssessment(resultId);
+    if (res.ok && res.data) {
+      _cachedRecord = res.data;
+      _cachedRecordAt = now;
+    }
+    return res.ok ? res.data : null;
   }
 
   /**
-   * 检测 URL 是否带 ?paid=1（pay.html 跳转后），如果是则写入凭证
-   * 处理完移除 URL 参数，避免刷新重复触发
+   * 取当前评估状态
+   * @returns {Promise<{status: string, record: object|null, error: string|null}>}
    */
-  function checkUrlPaidFlag() {
-    try {
-      const params = new URLSearchParams(location.search);
-      if (params.get('paid') === '1') {
-        markPaid();
-        // 移除 URL 参数（不刷新页面）
-        const url = new URL(location.href);
-        url.searchParams.delete('paid');
-        history.replaceState(null, '', url.toString());
-      }
-    } catch (e) { /* ignore */ }
+  async function getCurrentStatus() {
+    const resultId = getResultId();
+    if (!resultId) {
+      return { status: 'no_result_id', record: null, error: null };
+    }
+    const record = await fetchRecord(resultId);
+    if (!record) {
+      return { status: 'not_found', record: null, error: '评估记录未找到' };
+    }
+    return { status: record.thirdLayerStatus || 'unpaid', record, error: null };
+  }
+
+  /**
+   * 访问拦截：非 entry 页都需 status === opened
+   */
+  async function guardAccess() {
+    const { status, error } = await getCurrentStatus();
+    if (status !== 'opened') {
+      // 强制跳回 entry（让 entry 显示引导）
+      location.hash = '#/entry';
+      return false;
+    }
+    return true;
   }
 
   // ============================================================
@@ -131,20 +161,31 @@
   // ============================================================
 
   /**
-   * 尝试从 v1.2 读 4 个参数
-   *
-   * 优先读 laa_second_layer_result_v12（引擎输出，已计算好 mainType 等）
-   * 兜底读 laa_second_layer_payload_v12（题目答案，但不一定有 mainType）
-   *
-   * @returns {object|null} 4 个参数的对象；解析失败返回 null
+   * v0.2.0: 从 Supabase record 解析 4 个参数
+   * 入口页 renderEntry 用：拿到 record 后提取 mainType/secondaryType/sideHint/complexityHint
+   * @param {object} record Supabase 返回的评估记录
+   * @returns {object|null} 4 个参数的对象；record 无效返回 null
+   */
+  function paramsFromRecord(record) {
+    if (!record || !record.maintype || !/T[1-5]/.test(record.maintype)) {
+      return null;
+    }
+    return {
+      mainType: record.maintype,
+      secondaryType: record.secondarytype || null,
+      sideHint: record.sidehint || 'unclear',
+      complexityHint: record.complexityhint || null,
+    };
+  }
+
+  /**
+   * 兼容老版本：从 localStorage 读 v1.2 result（v0.2.0 之后不再使用，保留兜底）
    */
   function readV12Params() {
     try {
-      // 1) 优先：result_v12（引擎输出，结构固定）
-      const resultRaw = localStorage.getItem(V12_RESULT_KEY);
+      const resultRaw = localStorage.getItem('laa_second_layer_result_v12');
       if (resultRaw) {
         const r = JSON.parse(resultRaw);
-        // 引擎输出字段（v1.2 spec）：mainType, secondaryType, sideHint, complexityHint
         if (r && r.mainType && /T[1-5]/.test(r.mainType)) {
           return {
             mainType: r.mainType,
@@ -154,27 +195,8 @@
           };
         }
       }
-      // 2) 兜底：payload_v12（题目答案，可能在嵌套字段里）
-      const payloadRaw = localStorage.getItem(V12_PAYLOAD_KEY);
-      if (payloadRaw) {
-        const p = JSON.parse(payloadRaw);
-        const candidates = [p, p.engineResult, p.result, p.payload, p.answers];
-        for (const c of candidates) {
-          if (!c) continue;
-          if (c.mainType && /T[1-5]/.test(c.mainType)) {
-            return {
-              mainType: c.mainType,
-              secondaryType: c.secondaryType || null,
-              sideHint: c.sideHint || 'unclear',
-              complexityHint: c.complexityHint || null,
-            };
-          }
-        }
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
+    } catch (e) { /* ignore */ }
+    return null;
   }
 
   // ============================================================
@@ -283,209 +305,244 @@
   };
 
   function renderEntry() {
-    const state = loadState();
-    const selected = state.params || {};
-
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.1.6'),
+      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
     ]));
 
-    // v1.2 接入：检测是否有第二层结果
-    const v12 = readV12Params();
-    const paid = isPaid();
-
-    if (v12 && paid) {
-      // ✅ 情况 A：已读 v1.2 + 已支付 → 显示绿色自动卡片
-      const autoCard = el('div', { className: 'entry-section' });
-      const card = el('div', {
-        className: 'auto-card',
-        style: {
-          background: 'linear-gradient(135deg, #e8f0ed 0%, #d4e4dc 100%)',
-          border: '1.5px solid #4a7d70',
-          borderRadius: '10px',
-          padding: '20px',
-          marginBottom: '16px',
-        },
-      });
-      card.appendChild(el('div', {
-        style: {
-          fontSize: '12px',
-          color: '#2d5b4f',
-          fontWeight: '600',
-          marginBottom: '10px',
-          letterSpacing: '0.5px',
-        },
-      }, '✨ 已读取你的第二层评估结果'));
-      const mainName = window.MAIN_TYPE_NAMES[v12.mainType] || v12.mainType;
-      const secName = v12.secondaryType
-        ? (window.MAIN_TYPE_NAMES[v12.secondaryType] || v12.secondaryType)
-        : '暂未发现明显次因';
-      card.appendChild(el('div', { style: { fontSize: '13px', color: '#1a1a1a', lineHeight: '1.8', marginBottom: '14px' } }, [
-        el('div', {}, '主因：' + mainName),
-        el('div', {}, '次因：' + secName),
-        el('div', { style: { color: '#6b6b6b', fontSize: '12px', marginTop: '4px' } },
-          '侧别：' + v12.sideHint + '  ·  复杂度：' + (v12.complexityHint || '—')),
-      ]));
-      const autoBtn = el('button', {
-        className: 'auto-btn',
-        type: 'button',
-        style: {
-          width: '100%',
-          padding: '14px',
-          background: '#2d5b4f',
-          color: 'white',
-          border: 'none',
-          borderRadius: '6px',
-          fontSize: '15px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          fontFamily: 'inherit',
-        },
-        onClick: () => {
-          setState({ params: v12 });
-          const plan = window.generatePlan(v12);
-          setState({ plan });
-          go('#/intro');
-        },
-      }, '生成我的 14 天跟练计划');
-      card.appendChild(autoBtn);
-      autoCard.appendChild(card);
-      app.appendChild(autoCard);
-
-      // 副标题
-      app.appendChild(el('div', { className: 'entry-header' }, [
-        el('div', { className: 'entry-subtitle' },
-          '点击上方按钮，将根据你的第二层结果自动生成 14 天计划'),
-      ]));
-    } else if (v12 && !paid) {
-      // 🟡 情况 B：已读 v1.2 但未支付 → 引导去支付
-      const payCard = el('div', { className: 'entry-section' });
-      const card = el('div', {
-        className: 'pay-card',
-        style: {
-          background: 'linear-gradient(135deg, #fff8e6 0%, #ffefc7 100%)',
-          border: '1.5px solid #e8b75a',
-          borderRadius: '10px',
-          padding: '24px 20px',
-          marginBottom: '16px',
-          textAlign: 'center',
-        },
-      });
-      card.appendChild(el('div', { style: { fontSize: '32px', marginBottom: '8px' } }, '🔓'));
-      card.appendChild(el('div', {
-        style: {
-          fontSize: '15px',
-          color: '#1a1a1a',
-          fontWeight: '600',
-          marginBottom: '6px',
-        },
-      }, '已读取第二层结果'));
-      card.appendChild(el('div', {
-        style: {
-          fontSize: '13px',
-          color: '#6b6b6b',
-          lineHeight: '1.7',
-          marginBottom: '14px',
-        },
-      }, '解锁第三层 14 天跟练计划后可继续'));
-      const mainName = window.MAIN_TYPE_NAMES[v12.mainType] || v12.mainType;
-      card.appendChild(el('div', {
-        style: { fontSize: '12px', color: '#7c5e10', marginBottom: '14px' },
-      }, '你的主因：' + mainName));
-      const payBtn = el('a', {
-        href: '../pay.html',
-        className: 'pay-btn',
-        style: {
-          display: 'inline-block',
-          padding: '12px 32px',
-          background: 'linear-gradient(135deg, #b8654a, #d4845e)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          fontSize: '15px',
-          fontWeight: '600',
-          textDecoration: 'none',
-          cursor: 'pointer',
-          fontFamily: 'inherit',
-          boxShadow: '0 2px 8px rgba(184,101,74,0.3)',
-        },
-      }, '解锁第三层 · ¥299');
-      card.appendChild(payBtn);
-      payCard.appendChild(card);
-      app.appendChild(payCard);
-
-      // 副标题
-      app.appendChild(el('div', { className: 'entry-header' }, [
-        el('div', { className: 'entry-subtitle' },
-          '点击上方按钮完成支付后自动解锁第三层'),
-      ]));
-    } else {
-      // 🔒 情况 C：未读 v1.2 → 引导去完成第二层
-      const emptyCard = el('div', { className: 'entry-section' });
-      const card = el('div', {
-        className: 'empty-card',
-        style: {
-          background: '#fff8e6',
-          border: '1.5px solid #e8b75a',
-          borderRadius: '10px',
-          padding: '24px 20px',
-          marginBottom: '16px',
-          textAlign: 'center',
-        },
-      });
-      card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '🔒'));
-      card.appendChild(el('div', {
-        style: {
-          fontSize: '15px',
-          color: '#1a1a1a',
-          fontWeight: '600',
-          marginBottom: '8px',
-        },
-      }, '需要先完成第二层评估'));
-      card.appendChild(el('div', {
-        style: {
-          fontSize: '13px',
-          color: '#6b6b6b',
-          lineHeight: '1.7',
-          marginBottom: '16px',
-        },
-      }, '第三层 14 天跟练计划是基于你的第二层评估结果生成的。请先到第二层完成 16 题评估，然后回到这里。'));
-      const backBtn = el('a', {
-        href: '../advanced-result.html',
-        className: 'back-btn',
-        style: {
-          display: 'inline-block',
-          padding: '12px 24px',
-          background: '#2d5b4f',
-          color: 'white',
-          border: 'none',
-          borderRadius: '6px',
-          fontSize: '14px',
-          fontWeight: '600',
-          textDecoration: 'none',
-          cursor: 'pointer',
-          fontFamily: 'inherit',
-        },
-      }, '回到第二层结果页');
-      card.appendChild(backBtn);
-      emptyCard.appendChild(card);
-      app.appendChild(emptyCard);
-
-      // 副标题
-      app.appendChild(el('div', { className: 'entry-header' }, [
-        el('div', { className: 'entry-subtitle' },
-          '第三层 v0.1 独立预览 · 需先完成第二层评估'),
-      ]));
-    }
+    // 默认占位：先显示 loading
+    app.appendChild(el('div', { className: 'entry-section' }, [
+      el('div', {
+        style: { padding: '40px 20px', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: '13px' },
+      }, '检查评估状态中...'),
+    ]));
 
     return app;
   }
 
   // 删掉 renderOptionSection（手动模式已废弃，保留函数定义但内部不再调用）
-  // 未来如果想恢复手动模式，把这段还原即可
   function renderOptionSection() { return el('div'); }
+
+  // ============================================================
+  // v0.2.0 异步入口（查 Supabase 后再决定显示哪个分支）
+  // ============================================================
+
+  async function renderEntryAsync() {
+    const resultId = getResultId();
+    if (!resultId) {
+      return renderEntryNoResultId();
+    }
+    const record = await fetchRecord(resultId, true);  // 强制刷新
+    if (!record) {
+      return renderEntryNotFound();
+    }
+    const params = paramsFromRecord(record);
+    if (!params) {
+      return renderEntryInvalidParams(record);
+    }
+    const status = record.thirdlayerstatus || window.STATUS_UNPAID;
+
+    if (status === window.STATUS_OPENED) {
+      return renderEntryOpened(record, params);
+    }
+    if (status === window.STATUS_PENDING) {
+      return renderEntryPending(record, params);
+    }
+    if (status === window.STATUS_CLOSED) {
+      return renderEntryClosed(record, params);
+    }
+    // 默认 unpaid
+    return renderEntryUnpaid(record, params);
+  }
+
+  function renderEntryNoResultId() {
+    const app = el('div', { className: 'app' });
+    app.appendChild(el('div', { className: 'topbar' }, [
+      el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
+      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+    ]));
+    const card = el('div', { className: 'empty-card', style: {
+      background: '#fff8e6', border: '1.5px solid #e8b75a', borderRadius: '10px',
+      padding: '24px 20px', margin: '16px 20px', textAlign: 'center',
+    }});
+    card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '🔒'));
+    card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '8px' } }, '需要先完成第二层评估'));
+    card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7', marginBottom: '16px' } }, '请先到第二层完成 16 题评估，然后回到这里。'));
+    card.appendChild(el('a', { href: '../advanced-result.html', className: 'back-btn', style: {
+      display: 'inline-block', padding: '12px 24px', background: '#2d5b4f', color: 'white',
+      borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none',
+    }}, '回到第二层结果页'));
+    app.appendChild(card);
+    return app;
+  }
+
+  function renderEntryNotFound() {
+    const app = el('div', { className: 'app' });
+    app.appendChild(el('div', { className: 'topbar' }, [
+      el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
+      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+    ]));
+    const card = el('div', { className: 'empty-card', style: {
+      background: '#fde2e2', border: '1.5px solid #c47a3a', borderRadius: '10px',
+      padding: '24px 20px', margin: '16px 20px', textAlign: 'center',
+    }});
+    card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '⚠️'));
+    card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '8px' } }, '评估记录未找到'));
+    card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7', marginBottom: '16px' } }, '请重做第二层评估（v1.2 会自动生成新的评估编号）。'));
+    card.appendChild(el('a', { href: '../advanced-questions.html', className: 'back-btn', style: {
+      display: 'inline-block', padding: '12px 24px', background: '#2d5b4f', color: 'white',
+      borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none',
+    }}, '重做第二层'));
+    app.appendChild(card);
+    return app;
+  }
+
+  function renderEntryInvalidParams(record) {
+    const app = el('div', { className: 'app' });
+    app.appendChild(el('div', { className: 'topbar' }, [
+      el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
+      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+    ]));
+    const card = el('div', { className: 'empty-card', style: {
+      background: '#fde2e2', border: '1.5px solid #c47a3a', borderRadius: '10px',
+      padding: '24px 20px', margin: '16px 20px', textAlign: 'center',
+    }});
+    card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '⚠️'));
+    card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '8px' } }, '评估记录异常'));
+    card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7', marginBottom: '16px' } }, '评估数据缺少主类型，请重做第二层评估。'));
+    card.appendChild(el('a', { href: '../advanced-questions.html', className: 'back-btn', style: {
+      display: 'inline-block', padding: '12px 24px', background: '#2d5b4f', color: 'white',
+      borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none',
+    }}, '重做第二层'));
+    app.appendChild(card);
+    return app;
+  }
+
+  function renderEntryOpened(record, params) {
+    // ✅ 已开通
+    const app = el('div', { className: 'app' });
+    app.appendChild(el('div', { className: 'topbar' }, [
+      el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
+      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+    ]));
+    const autoCard = el('div', { className: 'entry-section' });
+    const card = el('div', { className: 'auto-card', style: {
+      background: 'linear-gradient(135deg, #e8f0ed 0%, #d4e4dc 100%)',
+      border: '1.5px solid #4a7d70', borderRadius: '10px',
+      padding: '20px', marginBottom: '16px',
+    }});
+    card.appendChild(el('div', { style: { fontSize: '12px', color: '#2d5b4f', fontWeight: '600', marginBottom: '10px', letterSpacing: '0.5px' } }, '✨ 已读取你的第二层评估结果'));
+    const mainName = window.MAIN_TYPE_NAMES[params.mainType] || params.mainType;
+    const secName = params.secondaryType ? (window.MAIN_TYPE_NAMES[params.secondaryType] || params.secondaryType) : '暂未发现明显次因';
+    card.appendChild(el('div', { style: { fontSize: '13px', color: '#1a1a1a', lineHeight: '1.8', marginBottom: '14px' } }, [
+      el('div', {}, '主因：' + mainName),
+      el('div', {}, '次因：' + secName),
+      el('div', { style: { color: '#6b6b6b', fontSize: '12px', marginTop: '4px' } }, '侧别：' + params.sideHint + '  ·  复杂度：' + (params.complexityHint || '—')),
+    ]));
+    const btn = el('button', { className: 'auto-btn', type: 'button', style: {
+      width: '100%', padding: '14px', background: '#2d5b4f', color: 'white', border: 'none',
+      borderRadius: '6px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
+    }, onClick: () => {
+      setState({ params });
+      const plan = window.generatePlan(params);
+      setState({ plan });
+      go('#/intro');
+    }}, '生成我的 14 天跟练计划');
+    card.appendChild(btn);
+    autoCard.appendChild(card);
+    app.appendChild(autoCard);
+    app.appendChild(el('div', { className: 'entry-header' }, [
+      el('div', { className: 'entry-subtitle' }, '点击上方按钮，将根据你的第二层结果自动生成 14 天计划'),
+    ]));
+    return app;
+  }
+
+  function renderEntryPending(record, params) {
+    // 🟡 待确认
+    const app = el('div', { className: 'app' });
+    app.appendChild(el('div', { className: 'topbar' }, [
+      el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
+      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+    ]));
+    const card = el('div', { className: 'pending-card', style: {
+      background: 'linear-gradient(135deg, #e8f0ed 0%, #d4e4dc 100%)',
+      border: '1.5px solid #4a7d70', borderRadius: '10px',
+      padding: '24px 20px', margin: '16px 20px', textAlign: 'center',
+    }});
+    card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '⏳'));
+    card.appendChild(el('div', { style: { fontSize: '16px', fontWeight: '600', marginBottom: '8px' } }, '老师确认中...'));
+    const mainName = window.MAIN_TYPE_NAMES[params.mainType] || params.mainType;
+    card.appendChild(el('div', { style: { fontSize: '13px', color: '#1a1a1a', lineHeight: '1.7', marginBottom: '14px' } }, [
+      '已收到你的付款，老师正在确认开通',
+      el('br'),
+      '确认后此页面会自动更新，无需刷新',
+    ]));
+    card.appendChild(el('div', { style: { fontSize: '12px', color: '#6b6b6b', marginBottom: '14px' } }, '你的主因：' + mainName));
+    const refreshBtn = el('button', { type: 'button', style: {
+      display: 'inline-block', padding: '10px 24px', background: '#2d5b4f', color: 'white',
+      border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: '600',
+      cursor: 'pointer', fontFamily: 'inherit',
+    }, onClick: () => { _cachedRecordAt = 0; render(); }}, '🔄 刷新状态');
+    card.appendChild(refreshBtn);
+    app.appendChild(card);
+    return app;
+  }
+
+  function renderEntryClosed(record, params) {
+    const app = el('div', { className: 'app' });
+    app.appendChild(el('div', { className: 'topbar' }, [
+      el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
+      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+    ]));
+    const card = el('div', { className: 'closed-card', style: {
+      background: '#f5f5f5', border: '1.5px solid #999', borderRadius: '10px',
+      padding: '24px 20px', margin: '16px 20px', textAlign: 'center',
+    }});
+    card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '🚫'));
+    card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '8px' } }, '评估编号已关闭'));
+    card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7' } }, '如有疑问请联系老师'));
+    app.appendChild(card);
+    return app;
+  }
+
+  function renderEntryUnpaid(record, params) {
+    // 🟡 未付款
+    const app = el('div', { className: 'app' });
+    app.appendChild(el('div', { className: 'topbar' }, [
+      el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
+      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+    ]));
+    const payCard = el('div', { className: 'entry-section' });
+    const card = el('div', { className: 'pay-card', style: {
+      background: 'linear-gradient(135deg, #fff8e6 0%, #ffefc7 100%)',
+      border: '1.5px solid #e8b75a', borderRadius: '10px',
+      padding: '24px 20px', marginBottom: '16px', textAlign: 'center',
+    }});
+    card.appendChild(el('div', { style: { fontSize: '32px', marginBottom: '8px' } }, '🔓'));
+    card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '6px' } }, '已读取第二层结果'));
+    card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7', marginBottom: '14px' } }, '解锁第三层 14 天跟练计划后可继续'));
+    const mainName = window.MAIN_TYPE_NAMES[params.mainType] || params.mainType;
+    card.appendChild(el('div', { style: { fontSize: '12px', color: '#7c5e10', marginBottom: '14px' } }, '你的主因：' + mainName));
+    card.appendChild(el('a', {
+      href: '../pay.html',
+      className: 'pay-btn',
+      style: {
+        display: 'inline-block', padding: '12px 32px',
+        background: 'linear-gradient(135deg, #b8654a, #d4845e)',
+        color: 'white', border: 'none', borderRadius: '8px',
+        fontSize: '15px', fontWeight: '600', textDecoration: 'none',
+        cursor: 'pointer', fontFamily: 'inherit',
+        boxShadow: '0 2px 8px rgba(184,101,74,0.3)',
+      },
+    }, '解锁第三层 · ¥' + window.PAY_AMOUNT));
+    payCard.appendChild(card);
+    app.appendChild(payCard);
+    app.appendChild(el('div', { className: 'entry-header' }, [
+      el('div', { className: 'entry-subtitle' }, '点击上方按钮完成支付，老师开通后自动解锁第三层'),
+    ]));
+    return app;
+  }
 
   // ============================================================
   // 总体训练计划说明页
@@ -936,23 +993,31 @@
   // 入口 + 路由分发
   // ============================================================
 
-  function render() {
-    // 处理 pay.html 跳转过来的 ?paid=1
-    checkUrlPaidFlag();
+  async function render() {
     const route = parseRoute();
     let page;
-    if (route.name === 'entry') page = renderEntry();
-    else if (route.name === 'intro') page = renderIntro();
-    else if (route.name === 'overview') page = renderOverview();
-    else if (route.name === 'day') page = renderDay(route.day);
-    else page = renderEntry();
+
+    if (route.name === 'entry') {
+      // entry 页异步查 Supabase
+      page = await renderEntryAsync();
+    } else {
+      // 非 entry 页先做访问拦截
+      const { status } = await getCurrentStatus();
+      if (status !== 'opened') {
+        location.hash = '#/entry';
+        return;
+      }
+      if (route.name === 'intro') page = renderIntro();
+      else if (route.name === 'overview') page = renderOverview();
+      else if (route.name === 'day') page = renderDay(route.day);
+      else page = await renderEntryAsync();
+    }
 
     const root = document.getElementById('app-root');
     if (root) {
       root.innerHTML = '';
       root.appendChild(page);
     }
-    // 修复：不再 scrollTo(0, 0)
   }
 
   window.addEventListener('hashchange', render);

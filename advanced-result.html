@@ -48,6 +48,11 @@ body { min-height: 100vh; }
 .debug-toggle { text-align: center; margin-top: 12px; font-size: 11px; color: #9ca3af; cursor: pointer; user-select: none; }
 .debug-pre { background: #1f2937; color: #d1d5db; padding: 10px; border-radius: 8px; font-size: 11px; line-height: 1.5; overflow-x: auto; margin-top: 8px; display: none; }
 </style>
+
+<!-- Supabase（v0.2 接入评估编号 + 后台开通） -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="supabase-client.js"></script>
 </head>
 <body>
 
@@ -300,6 +305,35 @@ function showError(msg) {
     });
     renderResult(result);
     localStorage.setItem('laa_second_layer_result_v12', JSON.stringify(result));
+
+    // v0.2: 生成 resultId + 写 Supabase（v0.1.6 之上叠加，不影响已有流程）
+    const RESULT_ID_KEY = 'laa_second_layer_result_id';
+    let resultId = localStorage.getItem(RESULT_ID_KEY);
+    if (!resultId && window.laaSupabase) {
+      resultId = window.laaSupabase.generateResultId();
+      localStorage.setItem(RESULT_ID_KEY, resultId);
+    }
+    if (resultId && window.laaSupabase) {
+      window.laaSupabase.saveAssessment({
+        resultId: resultId,
+        mainType: result.mainType,
+        secondaryType: result.secondaryType || null,
+        sideHint: result.sideHint || null,
+        complexityHint: result.complexityHint || null,
+        trainingPriorityText: (result.trainingPriority && result.trainingPriority.text) || null,
+      }).then(res => {
+        if (res.ok) {
+          console.log('[v1.2] 评估记录已写入 Supabase, resultId=' + resultId);
+          // 在页面顶部显示 resultId 提示
+          const hint = document.createElement('div');
+          hint.style.cssText = 'max-width:480px;margin:12px auto;padding:10px 14px;background:#e8f0ed;border:1px solid #4a7d70;border-radius:8px;font-size:12px;color:#2d5b4f;text-align:center;line-height:1.6;';
+          hint.innerHTML = '✅ 评估编号已生成：<code style="user-select:all;background:#fff;padding:2px 6px;border-radius:3px;font-family:monospace;">' + resultId + '</code><br><span style="color:#6b6b6b;">付款时把此编号告诉老师</span>';
+          document.body.insertBefore(hint, document.body.firstChild);
+        } else {
+          console.warn('[v1.2] Supabase 写入失败:', res.error);
+        }
+      });
+    }
   } catch (e) {
     console.error('engine error', e);
     showError('引擎执行失败：' + (e.message || String(e)));
