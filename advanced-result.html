@@ -150,7 +150,7 @@ function describeType(t) {
 }
 
 function buildPrimaryText(result) {
-  const baseDesc = describeType(result.maintype);
+  const baseDesc = describeType(result.mainType);
   if (baseDesc) return baseDesc;
   if (result.resultSummary) {
     const firstSentence = result.resultSummary.split(/[。！？!?]/)[0];
@@ -191,11 +191,11 @@ const SECONDARY_IMPACT = {
 };
 
 function buildSecondaryText(result) {
-  if (!result.secondarytype) return null;
-  const key = result.maintype + '|' + result.secondarytype;
+  if (!result.secondaryType) return null;
+  const key = result.mainType + '|' + result.secondaryType;
   if (SECONDARY_IMPACT[key]) return SECONDARY_IMPACT[key];
   // 兜底（maintype 也为 null 等边缘情况）
-  const secDesc = describeType(result.secondarytype);
+  const secDesc = describeType(result.secondaryType);
   if (secDesc) {
     return secDesc + ' 它也会影响训练稳定性。';
   }
@@ -203,13 +203,13 @@ function buildSecondaryText(result) {
 }
 
 function buildSecondaryTitle(result) {
-  if (!result.secondarytype) return '暂未发现明显次因';
-  return result.secondarytype + '｜' + result.secondarytypeName;
+  if (!result.secondaryType) return '暂未发现明显次因';
+  return result.secondaryType + '｜' + result.secondaryTypeName;
 }
 
 function buildMainTitle(result) {
-  if (!result.maintype) return '未检出明确主类型';
-  return result.maintype + '｜' + result.maintypeName;
+  if (!result.mainType) return '未检出明确主类型';
+  return result.mainType + '｜' + result.mainTypeName;
 }
 
 function complexityText(hint) {
@@ -248,18 +248,18 @@ function renderResult(result) {
 
   // 3. 训练重点
   const priorityList = document.getElementById('conclusion-priority-list');
-  if (result.trainingprioritytext && result.trainingprioritytext.length > 0) {
-    priorityList.innerHTML = result.trainingprioritytext.map(t => '<li>' + t + '</li>').join('');
+  if (result.trainingPriorityText && result.trainingPriorityText.length > 0) {
+    priorityList.innerHTML = result.trainingPriorityText.map(t => '<li>' + t + '</li>').join('');
   } else {
     priorityList.innerHTML = '<li class="empty-state">无训练重点建议</li>';
   }
 
   // 复杂度提示（可选）
-  if (result.complexityhint) {
+  if (result.complexityHint) {
     document.getElementById('complexity-card').style.display = 'block';
-    const c = complexityText(result.complexityhint);
+    const c = complexityText(result.complexityHint);
     document.getElementById('complexity-body').innerHTML =
-      '<span class="complexity-tag ' + result.complexityhint + '">' + c.tag + '</span>' + c.text;
+      '<span class="complexity-tag ' + result.complexityHint + '">' + c.tag + '</span>' + c.text;
   }
 
   // 调试视图
@@ -316,10 +316,10 @@ function showError(msg) {
     if (resultid && window.laaSupabase) {
       window.laaSupabase.saveAssessment({
         resultid: resultid,
-        maintype: result.maintype,
-        secondarytype: result.secondarytype || null,
-        sidehint: result.sidehint || null,
-        complexityhint: result.complexityhint || null,
+        maintype: result.mainType,
+        secondarytype: result.secondaryType || null,
+        sidehint: result.sideHint || null,
+        complexityhint: result.complexityHint || null,
         trainingprioritytext: (result.trainingPriority && result.trainingPriority.text) || null,
       }).then(res => {
         if (res.ok) {
