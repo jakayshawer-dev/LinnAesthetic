@@ -91,11 +91,20 @@
   // ============================================================
 
   /**
-   * 取 resultid（从 localStorage）
+   * 取 resultid：优先 URL 参数（老师发给用户的链接），其次 localStorage
    * @returns {string|null}
    */
   function getResultId() {
     try {
+      // 1) URL 参数（老师发的链接 ?resultid=xxx）
+      const params = new URLSearchParams(location.search);
+      const fromUrl = params.get('resultid');
+      if (fromUrl) {
+        // 同步写入 localStorage，方便后续页面用
+        localStorage.setItem(RESULT_ID_KEY, fromUrl);
+        return fromUrl;
+      }
+      // 2) localStorage
       return localStorage.getItem(RESULT_ID_KEY);
     } catch (e) {
       return null;

@@ -231,6 +231,18 @@
           <button class="btn secondary" id="btnClose">🚫 关闭（closed）</button>
           <button class="btn danger" id="btnReset">↩ 重置为未付款</button>
         </div>
+
+        <div style="margin-top:20px;padding-top:20px;border-top:1px dashed #e0e0d8;">
+          <div style="font-size:13px;font-weight:600;color:#2d5b4f;margin-bottom:8px;">📤 发给用户的第三层链接</div>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="thirdLayerLink" readonly style="flex:1;padding:10px 12px;border:1.5px solid #e0e0d8;border-radius:6px;font-size:12px;font-family:monospace;background:#fafaf5;color:#1a1a1a;" />
+            <button class="btn" id="btnCopyLink">📋 复制</button>
+          </div>
+          <div style="font-size:11px;color:#6b6b6b;margin-top:6px;line-height:1.5;">
+            开通后，把这个链接发给用户即可进入第三层 14 天跟练。<br>
+            链接会自动读取评估编号并验证开通状态。
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -377,7 +389,33 @@
     selectedRecord = record;
     renderDetail();
     renderList();  // 刷新选中态
+    updateThirdLayerLink();
   }
+
+  function updateThirdLayerLink() {
+    const input = document.getElementById('thirdLayerLink');
+    if (!selectedRecord || !selectedRecord.resultid) {
+      input.value = '';
+      input.placeholder = '请先选中一条评估记录';
+      return;
+    }
+    const base = window.location.origin || 'https://jakayshawer-dev.github.io';
+    // GitHub Pages 路径 + resultid 查询参数（让第三层自动读取该评估）
+    input.value = base + '/LinnAesthetic/third-layer/?resultid=' + selectedRecord.resultid;
+  }
+
+  document.getElementById('btnCopyLink').addEventListener('click', () => {
+    const input = document.getElementById('thirdLayerLink');
+    if (!input.value) {
+      alert('请先选中一条评估记录');
+      return;
+    }
+    input.select();
+    document.execCommand('copy');
+    const orig = document.getElementById('btnCopyLink').textContent;
+    document.getElementById('btnCopyLink').textContent = '✅ 已复制';
+    setTimeout(() => { document.getElementById('btnCopyLink').textContent = orig; }, 1500);
+  });
 
   function renderDetail() {
     const r = selectedRecord;
