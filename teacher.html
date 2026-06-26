@@ -401,37 +401,37 @@
     document.getElementById('dRemark').textContent = r.remark || '—';
   }
 
-  document.getElementById('btnOpen').addEventListener('click', () => updateStatus('opened', { openedAt: new Date().toISOString() }));
+  document.getElementById('btnOpen').addEventListener('click', () => updateStatus('opened', { openedat: new Date().toISOString() }));
   document.getElementById('btnPending').addEventListener('click', () => updateStatus('pending'));
   document.getElementById('btnClose').addEventListener('click', () => updateStatus('closed'));
-  document.getElementById('btnReset').addEventListener('click', () => updateStatus('unpaid', { openedAt: null }));
+  document.getElementById('btnReset').addEventListener('click', () => updateStatus('unpaid', { openedat: null }));
 
   async function updateStatus(status, extra = {}) {
     if (!selectedRecord) return;
-    const resultId = selectedRecord.resultid;
+    const resultid = selectedRecord.resultid;
 
     // 如果是 opened，弹窗让老师填订单号 + 备注
-    let orderNo = selectedRecord.orderno;
-    let payPlatform = selectedRecord.payplatform;
+    let orderno = selectedRecord.orderno;
+    let payplatform = selectedRecord.payplatform;
     let remark = selectedRecord.remark;
 
     if (status === 'opened') {
       const input = await openOpenedDialog(selectedRecord);
       if (input === null) return;  // 用户取消
-      orderNo = input.orderNo || orderNo;
-      payPlatform = input.payPlatform || payPlatform;
+      orderno = input.orderno || orderno;
+      payplatform = input.payplatform || payplatform;
       remark = input.remark || remark;
     }
 
-    const patch = { thirdLayerStatus: status, ...extra };
+    const patch = { thirdlayerstatus: status, ...extra };
     if (status === 'opened') {
-      if (orderNo) patch.orderNo = orderNo;
-      if (payPlatform) patch.payPlatform = payPlatform;
+      if (orderno) patch.orderno = orderno;
+      if (payplatform) patch.payplatform = payplatform;
       if (remark) patch.remark = remark;
     }
 
     showMsg('更新中...', false);
-    const res = await window.laaSupabase.updateAssessment(resultId, patch);
+    const res = await window.laaSupabase.updateAssessment(resultid, patch);
     if (res.ok) {
       selectedRecord = res.data;
       renderDetail();
@@ -478,8 +478,8 @@
       document.getElementById('dlgCancel').onclick = () => { document.body.removeChild(bg); resolve(null); };
       document.getElementById('dlgConfirm').onclick = () => {
         const result = {
-          orderNo: document.getElementById('dlgOrderNo').value.trim(),
-          payPlatform: document.getElementById('dlgPayPlatform').value,
+          orderno: document.getElementById('dlgOrderNo').value.trim(),
+          payplatform: document.getElementById('dlgPayPlatform').value,
           remark: document.getElementById('dlgRemark').value.trim(),
         };
         document.body.removeChild(bg);

@@ -181,7 +181,7 @@
   <!-- 评估编号卡 -->
   <div class="result-id-card">
     <div class="result-id-label">📋 你的评估编号（付款时告诉老师）</div>
-    <div class="result-id-value" id="resultIdValue">加载中...</div>
+    <div class="result-id-value" id="resultidValue">加载中...</div>
     <div class="result-id-hint">点击上方编号可全选复制</div>
   </div>
 
@@ -189,19 +189,19 @@
   <div class="summary-card" id="summaryCard">
     <div class="summary-line">
       <span class="summary-label">主因</span>
-      <span class="summary-value" id="mainTypeLabel">—</span>
+      <span class="summary-value" id="maintypeLabel">—</span>
     </div>
     <div class="summary-line">
       <span class="summary-label">次因</span>
-      <span class="summary-value" id="secondaryTypeLabel">—</span>
+      <span class="summary-value" id="secondarytypeLabel">—</span>
     </div>
     <div class="summary-line">
       <span class="summary-label">侧别</span>
-      <span class="summary-value" id="sideHintLabel">—</span>
+      <span class="summary-value" id="sidehintLabel">—</span>
     </div>
     <div class="summary-line">
       <span class="summary-label">复杂度</span>
-      <span class="summary-value" id="complexityHintLabel">—</span>
+      <span class="summary-value" id="complexityhintLabel">—</span>
     </div>
   </div>
 
@@ -241,21 +241,21 @@
 
   <script>
   (async function main() {
-    // 1) 取 resultId（从 localStorage）
-    const resultId = localStorage.getItem('laa_second_layer_result_id');
-    if (!resultId) {
-      // 没有 resultId → 引导用户回到 v1.2
+    // 1) 取 resultid（从 localStorage）
+    const resultid = localStorage.getItem('laa_second_layer_result_id');
+    if (!resultid) {
+      // 没有 resultid → 引导用户回到 v1.2
       document.getElementById('statusCard').className = 'status-card error';
       document.getElementById('statusIcon').textContent = '⚠️';
       document.getElementById('statusTitle').textContent = '未找到评估编号';
       document.getElementById('statusDesc').textContent = '请先完成第二层评估。';
-      document.getElementById('resultIdValue').textContent = '—';
+      document.getElementById('resultidValue').textContent = '—';
       document.getElementById('checkStatusBtn').disabled = true;
       return;
     }
 
-    // 2) 渲染 resultId + 第二层结果摘要
-    document.getElementById('resultIdValue').textContent = resultId;
+    // 2) 渲染 resultid + 第二层结果摘要
+    document.getElementById('resultidValue').textContent = resultid;
     const resultRaw = localStorage.getItem('laa_second_layer_result_v12');
     if (resultRaw) {
       try {
@@ -264,17 +264,17 @@
           T1: 'T1｜口角启动型', T2: 'T2｜下颌偏移型', T3: 'T3｜面中支撑弱型',
           T4: 'T4｜下颌缘松垮型', T5: 'T5｜头颈牵拉型',
         };
-        document.getElementById('mainTypeLabel').textContent = NAMES[r.mainType] || r.mainType || '—';
-        document.getElementById('secondaryTypeLabel').textContent =
-          r.secondaryType ? (NAMES[r.secondaryType] || r.secondaryType) : '暂未发现明显次因';
-        document.getElementById('sideHintLabel').textContent = r.sideHint || '—';
-        document.getElementById('complexityHintLabel').textContent = r.complexityHint || '—';
+        document.getElementById('maintypeLabel').textContent = NAMES[r.maintype] || r.maintype || '—';
+        document.getElementById('secondarytypeLabel').textContent =
+          r.secondarytype ? (NAMES[r.secondarytype] || r.secondarytype) : '暂未发现明显次因';
+        document.getElementById('sidehintLabel').textContent = r.sidehint || '—';
+        document.getElementById('complexityhintLabel').textContent = r.complexityhint || '—';
       } catch (e) { /* ignore */ }
     }
 
     // 3) 实时订阅：老师后台开通后页面自动更新
     if (window.laaSupabase && window.laaSupabase.subscribeAssessment) {
-      window.laaSupabase.subscribeAssessment(resultId, payload => {
+      window.laaSupabase.subscribeAssessment(resultid, payload => {
         console.log('[pay.html] 收到实时更新:', payload);
         if (payload.eventType === 'UPDATE' && payload.new) {
           renderStatus(payload.new);
@@ -293,7 +293,7 @@
     async function checkStatus() {
       const overlay = document.getElementById('loadingOverlay');
       overlay.classList.remove('hidden');
-      console.log('[pay.html] checkStatus 开始, resultId=' + resultId);
+      console.log('[pay.html] checkStatus 开始, resultid=' + resultid);
       try {
         if (!window.laaSupabase) {
           console.error('[pay.html] window.laaSupabase 未定义！检查 supabase-client.js 是否加载');
@@ -305,14 +305,14 @@
           renderError('Supabase 客户端 API 不完整');
           return;
         }
-        const res = await window.laaSupabase.getAssessment(resultId);
+        const res = await window.laaSupabase.getAssessment(resultid);
         console.log('[pay.html] getAssessment 返回:', res);
         if (!res.ok) {
           renderError('查询失败：' + res.error);
           return;
         }
         if (!res.data) {
-          renderError('评估记录未找到（resultId=' + resultId + '）。请重做第二层评估。');
+          renderError('评估记录未找到（resultid=' + resultid + '）。请重做第二层评估。');
           return;
         }
         renderStatus(res.data);
@@ -325,7 +325,7 @@
     }
 
     function renderStatus(record) {
-      const status = record.thirdLayerStatus || window.STATUS_UNPAID;
+      const status = record.thirdlayerstatus || window.STATUS_UNPAID;
       const card = document.getElementById('statusCard');
       const icon = document.getElementById('statusIcon');
       const title = document.getElementById('statusTitle');
@@ -342,8 +342,8 @@
         card.classList.add('opened');
         icon.textContent = '🎉';
         title.textContent = '已开通！';
-        const openedAt = record.openedAt ? new Date(record.openedAt).toLocaleString('zh-CN') : '';
-        desc.innerHTML = `你的第三层 14 天跟练已开通${openedAt ? '<br>开通时间：' + openedAt : ''}<br><span style="color:#1a1a1a;font-weight:500;">点击下方按钮开始训练</span>`;
+        const openedat = record.openedat ? new Date(record.openedat).toLocaleString('zh-CN') : '';
+        desc.innerHTML = `你的第三层 14 天跟练已开通${openedat ? '<br>开通时间：' + openedat : ''}<br><span style="color:#1a1a1a;font-weight:500;">点击下方按钮开始训练</span>`;
         payCard.classList.add('hidden');
         checkBtn.classList.add('hidden');
         enterBtn.classList.remove('hidden');
@@ -352,9 +352,9 @@
           // 缓存状态 + 跳
           localStorage.setItem('laa_layer3_v01_paid', JSON.stringify({
             paid: true,
-            paidAt: record.openedAt || new Date().toISOString(),
+            paidAt: record.openedat || new Date().toISOString(),
             source: 'supabase',
-            resultId: resultId,
+            resultid: resultid,
           }));
           window.location.href = 'third-layer/?paid=1';
         };

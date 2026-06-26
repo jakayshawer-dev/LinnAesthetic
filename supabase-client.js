@@ -10,7 +10,7 @@
  *   client                Supabase 客户端实例
  *   generateResultId()    生成 UUID（用 crypto.randomUUID）
  *   saveAssessment(r)     写一行评估到 Supabase
- *   getAssessment(id)     按 resultId 查一行
+ *   getAssessment(id)     按 resultid 查一行
  *   updateAssessment(id, patch)  老师后台用：改状态/订单号等
  *   listAssessments(filter)      老师后台用：列出评估
  *   subscribeAssessment(id, cb)  实时订阅一行变化
@@ -43,7 +43,7 @@
   // 工具
   // ============================================================
 
-  /** 生成 resultId（UUID v4） */
+  /** 生成 resultid（UUID v4） */
   function generateResultId() {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) {
       return crypto.randomUUID();
@@ -62,7 +62,7 @@
 
   /**
    * 写一行评估记录到 Supabase
-   * @param {object} record { resultId, mainType, secondaryType, sideHint, complexityHint, trainingPriorityText }
+   * @param {object} record { resultid, maintype, secondarytype, sidehint, complexityhint, trainingprioritytext }
    * @returns {Promise<{ok: boolean, error?: string, data?: object}>}
    */
   async function saveAssessment(record) {
@@ -84,16 +84,16 @@
   }
 
   /**
-   * 按 resultId 查一行
-   * @param {string} resultId
+   * 按 resultid 查一行
+   * @param {string} resultid
    * @returns {Promise<{ok: boolean, data?: object, error?: string}>}
    */
-  async function getAssessment(resultId) {
+  async function getAssessment(resultid) {
     try {
       const { data, error } = await client
         .from('assessments')
         .select('*')
-        .eq('resultId', resultId)
+        .eq('resultid', resultid)
         .maybeSingle();
       if (error) {
         console.error('[getAssessment] error:', error);
@@ -109,16 +109,16 @@
   /**
    * 老师后台：更新评估状态/订单号等
    * 注意：当前用户必须是 linlinchang313@gmail.com（RLS 限制）
-   * @param {string} resultId
-   * @param {object} patch { thirdLayerStatus, paidAmount, payPlatform, orderNo, remark, openedAt? }
+   * @param {string} resultid
+   * @param {object} patch { thirdlayerstatus, paidamount, payplatform, orderno, remark, openedat? }
    * @returns {Promise<{ok: boolean, data?: object, error?: string}>}
    */
-  async function updateAssessment(resultId, patch) {
+  async function updateAssessment(resultid, patch) {
     try {
       const { data, error } = await client
         .from('assessments')
         .update(patch)
-        .eq('resultId', resultId)
+        .eq('resultid', resultid)
         .select()
         .single();
       if (error) {
@@ -134,14 +134,14 @@
 
   /**
    * 老师后台：列出评估（可选过滤）
-   * @param {object} filter { status?: 'unpaid'|'pending'|'opened'|'closed', limit?: number, orderBy?: 'createdAt' }
+   * @param {object} filter { status?: 'unpaid'|'pending'|'opened'|'closed', limit?: number, orderBy?: 'createdat' }
    * @returns {Promise<{ok: boolean, data?: object[], error?: string}>}
    */
   async function listAssessments(filter = {}) {
     try {
       let query = client.from('assessments').select('*');
-      if (filter.status) query = query.eq('thirdLayerStatus', filter.status);
-      query = query.order(filter.orderBy || 'createdAt', { ascending: false });
+      if (filter.status) query = query.eq('thirdlayerstatus', filter.status);
+      query = query.order(filter.orderBy || 'createdat', { ascending: false });
       if (filter.limit) query = query.limit(filter.limit);
       const { data, error } = await query;
       if (error) {
@@ -158,16 +158,16 @@
   /**
    * 实时订阅一行评估的变化
    * 用户在前端 pay.html "我已付款"按钮 → 老师后台改状态 → 用户页面自动刷新
-   * @param {string} resultId
+   * @param {string} resultid
    * @param {function} callback (payload) => void
    * @returns {object} subscription { unsubscribe() }
    */
-  function subscribeAssessment(resultId, callback) {
+  function subscribeAssessment(resultid, callback) {
     return client
-      .channel('assessment-' + resultId)
+      .channel('assessment-' + resultid)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'assessments', filter: 'resultId=eq.' + resultId },
+        { event: '*', schema: 'public', table: 'assessments', filter: 'resultid=eq.' + resultid },
         callback
       )
       .subscribe();

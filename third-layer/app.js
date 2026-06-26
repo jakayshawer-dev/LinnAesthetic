@@ -10,17 +10,17 @@
  * 记录卡（嵌入 Day 1 / Day 7 / Day 14 内）
  *
  * v0.2.0 接入 Supabase：
- *   - 从 localStorage 'laa_second_layer_result_id' 拿 resultId
- *   - 查 Supabase assessments 表的 thirdLayerStatus
+ *   - 从 localStorage 'laa_second_layer_result_id' 拿 resultid
+ *   - 查 Supabase assessments 表的 thirdlayerstatus
  *   - 入口 4 个分支：
- *     a) 没 resultId → 引导回 v1.2
- *     b) resultId + unpaid → 引导去 pay.html
- *     c) resultId + pending → 等待老师确认
- *     d) resultId + opened → 显示绿色自动卡
+ *     a) 没 resultid → 引导回 v1.2
+ *     b) resultid + unpaid → 引导去 pay.html
+ *     c) resultid + pending → 等待老师确认
+ *     d) resultid + opened → 显示绿色自动卡
  *   - 访问拦截：非 entry 页都需检查 status === opened
  *
  * localStorage keys:
- *   laa_second_layer_result_id    第二层 resultId（由 advanced-result.html 写入）
+ *   laa_second_layer_result_id    第二层 resultid（由 advanced-result.html 写入）
  *   laa_layer3_v01_preview       第三层自己的状态（训练进度/打卡/记录卡）
  *
  * 修复记录：
@@ -42,7 +42,7 @@
 
   // v1.2 第二层输出 keys
   // payload_v12: 题目答案（questions 页写，result 页读）
-  // result_v12:  引擎输出（result 页写，含 mainType/secondaryType/sideHint/complexityHint）
+  // result_v12:  引擎输出（result 页写，含 maintype/secondarytype/sidehint/complexityhint）
   const V12_PAYLOAD_KEY = 'laa_second_layer_payload_v12';
   const V12_RESULT_KEY  = 'laa_second_layer_result_v12';
 
@@ -91,7 +91,7 @@
   // ============================================================
 
   /**
-   * 取 resultId（从 localStorage）
+   * 取 resultid（从 localStorage）
    * @returns {string|null}
    */
   function getResultId() {
@@ -113,13 +113,13 @@
    * 从 Supabase 取评估记录（带缓存）
    * @returns {Promise<object|null>}
    */
-  async function fetchRecord(resultId, forceRefresh = false) {
+  async function fetchRecord(resultid, forceRefresh = false) {
     if (!window.laaSupabase) return null;
     const now = Date.now();
-    if (!forceRefresh && _cachedRecord && _cachedRecord.resultId === resultId && (now - _cachedRecordAt) < CACHE_TTL_MS) {
+    if (!forceRefresh && _cachedRecord && _cachedRecord.resultid === resultid && (now - _cachedRecordAt) < CACHE_TTL_MS) {
       return _cachedRecord;
     }
-    const res = await window.laaSupabase.getAssessment(resultId);
+    const res = await window.laaSupabase.getAssessment(resultid);
     if (res.ok && res.data) {
       _cachedRecord = res.data;
       _cachedRecordAt = now;
@@ -132,15 +132,15 @@
    * @returns {Promise<{status: string, record: object|null, error: string|null}>}
    */
   async function getCurrentStatus() {
-    const resultId = getResultId();
-    if (!resultId) {
+    const resultid = getResultId();
+    if (!resultid) {
       return { status: 'no_result_id', record: null, error: null };
     }
-    const record = await fetchRecord(resultId);
+    const record = await fetchRecord(resultid);
     if (!record) {
       return { status: 'not_found', record: null, error: '评估记录未找到' };
     }
-    return { status: record.thirdLayerStatus || 'unpaid', record, error: null };
+    return { status: record.thirdlayerstatus || 'unpaid', record, error: null };
   }
 
   /**
@@ -162,7 +162,7 @@
 
   /**
    * v0.2.0: 从 Supabase record 解析 4 个参数
-   * 入口页 renderEntry 用：拿到 record 后提取 mainType/secondaryType/sideHint/complexityHint
+   * 入口页 renderEntry 用：拿到 record 后提取 maintype/secondarytype/sidehint/complexityhint
    * @param {object} record Supabase 返回的评估记录
    * @returns {object|null} 4 个参数的对象；record 无效返回 null
    */
@@ -171,10 +171,10 @@
       return null;
     }
     return {
-      mainType: record.maintype,
-      secondaryType: record.secondarytype || null,
-      sideHint: record.sidehint || 'unclear',
-      complexityHint: record.complexityhint || null,
+      maintype: record.maintype,
+      secondarytype: record.secondarytype || null,
+      sidehint: record.sidehint || 'unclear',
+      complexityhint: record.complexityhint || null,
     };
   }
 
@@ -186,12 +186,12 @@
       const resultRaw = localStorage.getItem('laa_second_layer_result_v12');
       if (resultRaw) {
         const r = JSON.parse(resultRaw);
-        if (r && r.mainType && /T[1-5]/.test(r.mainType)) {
+        if (r && r.maintype && /T[1-5]/.test(r.maintype)) {
           return {
-            mainType: r.mainType,
-            secondaryType: r.secondaryType || null,
-            sideHint: r.sideHint || 'unclear',
-            complexityHint: r.complexityHint || null,
+            maintype: r.maintype,
+            secondarytype: r.secondarytype || null,
+            sidehint: r.sidehint || 'unclear',
+            complexityhint: r.complexityhint || null,
           };
         }
       }
@@ -272,14 +272,14 @@
   // ============================================================
 
   const OPTIONS = {
-    mainType: {
+    maintype: {
       T1: { sub: '口角启动型' },
       T2: { sub: '下颌偏移型' },
       T3: { sub: '面中支撑弱型' },
       T4: { sub: '下颌缘松垮型' },
       T5: { sub: '头颈牵拉型' },
     },
-    secondaryType: {
+    secondarytype: {
       __null: { sub: '暂未发现' },
       T1: { sub: '口角启动型' },
       T2: { sub: '下颌偏移型' },
@@ -287,7 +287,7 @@
       T4: { sub: '下颌缘松垮型' },
       T5: { sub: '头颈牵拉型' },
     },
-    sideHint: {
+    sidehint: {
       left_weak: { sub: '左侧弱' },
       right_weak: { sub: '右侧弱' },
       left_tension: { sub: '左侧紧' },
@@ -295,7 +295,7 @@
       bilateral: { sub: '双侧' },
       unclear: { sub: '不明确' },
     },
-    complexityHint: {
+    complexityhint: {
       __null: { sub: '暂未发现' },
       low_evidence: { sub: '证据较单一' },
       mixed_evidence: { sub: '证据混合' },
@@ -329,11 +329,11 @@
   // ============================================================
 
   async function renderEntryAsync() {
-    const resultId = getResultId();
-    if (!resultId) {
+    const resultid = getResultId();
+    if (!resultid) {
       return renderEntryNoResultId();
     }
-    const record = await fetchRecord(resultId, true);  // 强制刷新
+    const record = await fetchRecord(resultid, true);  // 强制刷新
     if (!record) {
       return renderEntryNotFound();
     }
@@ -433,12 +433,12 @@
       padding: '20px', marginBottom: '16px',
     }});
     card.appendChild(el('div', { style: { fontSize: '12px', color: '#2d5b4f', fontWeight: '600', marginBottom: '10px', letterSpacing: '0.5px' } }, '✨ 已读取你的第二层评估结果'));
-    const mainName = window.MAIN_TYPE_NAMES[params.mainType] || params.mainType;
-    const secName = params.secondaryType ? (window.MAIN_TYPE_NAMES[params.secondaryType] || params.secondaryType) : '暂未发现明显次因';
+    const mainName = window.MAIN_TYPE_NAMES[params.maintype] || params.maintype;
+    const secName = params.secondarytype ? (window.MAIN_TYPE_NAMES[params.secondarytype] || params.secondarytype) : '暂未发现明显次因';
     card.appendChild(el('div', { style: { fontSize: '13px', color: '#1a1a1a', lineHeight: '1.8', marginBottom: '14px' } }, [
       el('div', {}, '主因：' + mainName),
       el('div', {}, '次因：' + secName),
-      el('div', { style: { color: '#6b6b6b', fontSize: '12px', marginTop: '4px' } }, '侧别：' + params.sideHint + '  ·  复杂度：' + (params.complexityHint || '—')),
+      el('div', { style: { color: '#6b6b6b', fontSize: '12px', marginTop: '4px' } }, '侧别：' + params.sidehint + '  ·  复杂度：' + (params.complexityhint || '—')),
     ]));
     const btn = el('button', { className: 'auto-btn', type: 'button', style: {
       width: '100%', padding: '14px', background: '#2d5b4f', color: 'white', border: 'none',
@@ -472,7 +472,7 @@
     }});
     card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '⏳'));
     card.appendChild(el('div', { style: { fontSize: '16px', fontWeight: '600', marginBottom: '8px' } }, '老师确认中...'));
-    const mainName = window.MAIN_TYPE_NAMES[params.mainType] || params.mainType;
+    const mainName = window.MAIN_TYPE_NAMES[params.maintype] || params.maintype;
     card.appendChild(el('div', { style: { fontSize: '13px', color: '#1a1a1a', lineHeight: '1.7', marginBottom: '14px' } }, [
       '已收到你的付款，老师正在确认开通',
       el('br'),
@@ -522,7 +522,7 @@
     card.appendChild(el('div', { style: { fontSize: '32px', marginBottom: '8px' } }, '🔓'));
     card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '6px' } }, '已读取第二层结果'));
     card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7', marginBottom: '14px' } }, '解锁第三层 14 天跟练计划后可继续'));
-    const mainName = window.MAIN_TYPE_NAMES[params.mainType] || params.mainType;
+    const mainName = window.MAIN_TYPE_NAMES[params.maintype] || params.maintype;
     card.appendChild(el('div', { style: { fontSize: '12px', color: '#7c5e10', marginBottom: '14px' } }, '你的主因：' + mainName));
     card.appendChild(el('a', {
       href: '../pay.html',
@@ -552,11 +552,11 @@
     const state = loadState();
     if (!state.plan) { go('#/entry'); return renderEntry(); }
     const { params, plan } = state;
-    const mainName = window.MAIN_TYPE_NAMES[params.mainType];
-    const secName = params.secondaryType
-      ? window.MAIN_TYPE_NAMES[params.secondaryType]
+    const mainName = window.MAIN_TYPE_NAMES[params.maintype];
+    const secName = params.secondarytype
+      ? window.MAIN_TYPE_NAMES[params.secondarytype]
       : '暂未发现明显次因';
-    const mainAction = findAction(window.MAIN_TYPE_TO_ACTION[params.mainType]);
+    const mainAction = findAction(window.MAIN_TYPE_TO_ACTION[params.maintype]);
     const trainingFocus = mainAction ? mainAction.purpose : '';
 
     const app = el('div', { className: 'app' });
