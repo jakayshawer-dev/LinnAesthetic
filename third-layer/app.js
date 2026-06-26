@@ -27,10 +27,13 @@
   'use strict';
 
   const STORAGE_KEY = 'laa_layer3_v01_preview';
-  const STORAGE_VERSION = 'v0.1.4';
+  const STORAGE_VERSION = 'v0.1.5';
 
-  // v1.2 第二层输出 key（写入页：questions，结果页：result）
+  // v1.2 第二层输出 keys
+  // payload_v12: 题目答案（questions 页写，result 页读）
+  // result_v12:  引擎输出（result 页写，含 mainType/secondaryType/sideHint/complexityHint）
   const V12_PAYLOAD_KEY = 'laa_second_layer_payload_v12';
+  const V12_RESULT_KEY  = 'laa_second_layer_result_v12';
 
   // ============================================================
   // 状态管理
@@ -77,29 +80,44 @@
   // ============================================================
 
   /**
-   * 尝试从 v1.2 payload 解析 4 个参数
-   * v1.2 payload 结构（猜测，需要实际验证）：
-   *   { mainType, secondaryType, sideHint, complexityHint, ... }
+   * 尝试从 v1.2 读 4 个参数
+   *
+   * 优先读 laa_second_layer_result_v12（引擎输出，已计算好 mainType 等）
+   * 兜底读 laa_second_layer_payload_v12（题目答案，但不一定有 mainType）
+   *
    * @returns {object|null} 4 个参数的对象；解析失败返回 null
    */
   function readV12Params() {
     try {
-      const raw = localStorage.getItem(V12_PAYLOAD_KEY);
-      if (!raw) return null;
-      const p = JSON.parse(raw);
-      // 尝试多种可能的位置（payload 可能是 engine 输出，也可能是 questions 写入的输入）
-      // engine 输出一般在 p.engineResult 或 p.result
-      const candidates = [p, p.engineResult, p.result, p.payload, p.answers];
-      for (const c of candidates) {
-        if (!c) continue;
-        // 必须至少有 mainType
-        if (c.mainType && /T[1-5]/.test(c.mainType)) {
+      // 1) 优先：result_v12（引擎输出，结构固定）
+      const resultRaw = localStorage.getItem(V12_RESULT_KEY);
+      if (resultRaw) {
+        const r = JSON.parse(resultRaw);
+        // 引擎输出字段（v1.2 spec）：mainType, secondaryType, sideHint, complexityHint
+        if (r && r.mainType && /T[1-5]/.test(r.mainType)) {
           return {
-            mainType: c.mainType,
-            secondaryType: c.secondaryType || null,
-            sideHint: c.sideHint || 'unclear',
-            complexityHint: c.complexityHint || null,
+            mainType: r.mainType,
+            secondaryType: r.secondaryType || null,
+            sideHint: r.sideHint || 'unclear',
+            complexityHint: r.complexityHint || null,
           };
+        }
+      }
+      // 2) 兜底：payload_v12（题目答案，可能在嵌套字段里）
+      const payloadRaw = localStorage.getItem(V12_PAYLOAD_KEY);
+      if (payloadRaw) {
+        const p = JSON.parse(payloadRaw);
+        const candidates = [p, p.engineResult, p.result, p.payload, p.answers];
+        for (const c of candidates) {
+          if (!c) continue;
+          if (c.mainType && /T[1-5]/.test(c.mainType)) {
+            return {
+              mainType: c.mainType,
+              secondaryType: c.secondaryType || null,
+              sideHint: c.sideHint || 'unclear',
+              complexityHint: c.complexityHint || null,
+            };
+          }
         }
       }
       return null;
@@ -220,7 +238,7 @@
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.1.4'),
+      el('div', { className: 'topbar-tag' }, 'v0.1.5'),
     ]));
 
     // v1.2 接入：检测是否有第二层结果
