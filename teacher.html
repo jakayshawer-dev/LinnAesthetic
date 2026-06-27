@@ -177,10 +177,32 @@
     <div class="card sign-in-area" id="signInCard">
       <div class="icon">🔐</div>
       <h2>老师登入</h2>
-      <p>请输入登入邮箱（首次会发魔法链接到邮箱）</p>
-      <input type="email" class="input" id="emailInput" placeholder="linlinchang313@gmail.com" />
-      <button class="btn" id="signInBtn">发送登入链接</button>
-      <div id="signInMsg" class="hidden" style="margin-top:12px;font-size:13px;"></div>
+
+      <!-- 密码登录（默认显示） -->
+      <div style="background:#fafaf5;border-radius:8px;padding:16px;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:600;color:#2d5b4f;margin-bottom:10px;">🔑 密码登录</div>
+        <input type="email" class="input" id="emailInput" placeholder="邮箱" autocomplete="email" />
+        <input type="password" class="input" id="passwordInput" placeholder="密码" autocomplete="current-password" />
+        <button class="btn" id="signInBtn">登入</button>
+        <div id="signInMsg" class="hidden" style="margin-top:12px;font-size:13px;"></div>
+      </div>
+
+      <!-- 分割线 -->
+      <div style="display:flex;align-items:center;gap:10px;margin:16px 0;color:#999;font-size:12px;">
+        <div style="flex:1;height:1px;background:#e0e0d8;"></div>
+        <span>或</span>
+        <div style="flex:1;height:1px;background:#e0e0d8;"></div>
+      </div>
+
+      <!-- 魔法链接（折叠） -->
+      <details style="font-size:13px;color:#6b6b6b;">
+        <summary style="cursor:pointer;color:#2d5b4f;font-weight:500;padding:6px 0;">📧 用邮件链接登录</summary>
+        <div style="padding:12px 0 4px;">
+          <p style="margin-bottom:10px;font-size:12px;color:#6b6b6b;line-height:1.5;">首次会发魔法链接到邮箱</p>
+          <button class="btn secondary" id="magicLinkBtn" style="width:100%;">发送登入链接</button>
+          <div id="magicLinkMsg" class="hidden" style="margin-top:10px;font-size:12px;"></div>
+        </div>
+      </details>
     </div>
 
     <!-- 主后台区（登入后显示） -->
@@ -265,16 +287,50 @@
   // ============================================================
   // 登入
   // ============================================================
+  // 密码登录
   document.getElementById('signInBtn').addEventListener('click', async () => {
     const email = document.getElementById('emailInput').value.trim();
+    const password = document.getElementById('passwordInput').value;
     if (!email) { showSignInMsg('请输入邮箱', true); return; }
-    showSignInMsg('发送中...', false);
-    const res = await window.laaSupabase.teacherSignIn(email);
-    if (res.ok) {
-      showSignInMsg('✅ 魔法链接已发送到 ' + email + '，请到邮箱点链接登入。链接用过后会自动回到此页面。', false);
-    } else {
-      showSignInMsg('发送失败：' + res.error, true);
+    if (!password) { showSignInMsg('请输入密码', true); return; }
+    showSignInMsg('登入中...', false);
+    const { data, error } = await window.laaSupabase.client.auth.signInWithPassword({ email, password });
+    if (error) {
+      showSignInMsg('登入失败：' + error.message, true);
+      return;
     }
+    if (data && data.user) {
+      currentUser = data.user;
+      showSignInMsg('✅ 登入成功，正在进入后台...', false);
+      showMainArea(data.user);
+    }
+  });
+
+  // 魔法链接（兜底）
+  document.getElementById('magicLinkBtn').addEventListener('click', async () => {
+    const email = document.getElementById('emailInput').value.trim();
+    if (!email) {
+      const msgEl = document.getElementById('magicLinkMsg');
+      msgEl.textContent = '请先在邮箱输入框填写邮箱';
+      msgEl.classList.remove('hidden');
+      msgEl.style.color = '#b8654a';
+      return;
+    }
+    const res = await window.laaSupabase.teacherSignIn(email);
+    const msgEl = document.getElementById('magicLinkMsg');
+    msgEl.classList.remove('hidden');
+    if (res.ok) {
+      msgEl.textContent = '✅ 魔法链接已发送到 ' + email + '，请到邮箱点链接登入。';
+      msgEl.style.color = '#2d5b4f';
+    } else {
+      msgEl.textContent = '发送失败：' + res.error;
+      msgEl.style.color = '#b8654a';
+    }
+  });
+
+  // 回车提交（密码框按回车 = 登入）
+  document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('signInBtn').click();
   });
 
   function showSignInMsg(text, isError) {
