@@ -504,35 +504,31 @@
     if (!selectedRecord) return;
     const resultid = selectedRecord.resultid;
 
-    // 如果是 opened，弹窗让老师填订单号 + 备注
-    let orderno = selectedRecord.orderno;
     let payplatform = selectedRecord.payplatform;
-    let remark = selectedRecord.remark;
-
     if (status === 'opened') {
       const input = await openOpenedDialog(selectedRecord);
       if (input === null) return;  // 用户取消
-      orderno = input.orderno || orderno;
       payplatform = input.payplatform || payplatform;
-      remark = input.remark || remark;
     }
 
     const patch = { thirdlayerstatus: status, ...extra };
-    if (status === 'opened') {
-      if (orderno) patch.orderno = orderno;
-      if (payplatform) patch.payplatform = payplatform;
-      if (remark) patch.remark = remark;
+    if (status === 'opened' && payplatform) {
+      patch.payplatform = payplatform;
     }
 
     showMsg('更新中...', false);
-    const res = await window.laaSupabase.updateAssessment(resultid, patch);
-    if (res.ok) {
-      selectedRecord = res.data;
-      renderDetail();
-      refreshList();
-      showMsg('✅ 已更新状态为 ' + status, false);
-    } else {
-      showMsg('更新失败：' + res.error, true);
+    try {
+      const res = await window.laaSupabase.updateAssessment(resultid, patch);
+      if (res.ok) {
+        selectedRecord = res.data;
+        renderDetail();
+        refreshList();
+        showMsg('✅ 已更新状态为 ' + status, false);
+      } else {
+        showMsg('更新失败：' + res.error, true);
+      }
+    } catch (e) {
+      showMsg('异常：' + e.message, true);
     }
   }
 
@@ -545,22 +541,15 @@
           <h3>✅ 开通第三层</h3>
           <p style="color:#6b6b6b;font-size:13px;margin-bottom:16px;">评估编号：<code style="font-family:monospace;background:#f5f5f0;padding:2px 6px;border-radius:3px;">${record.resultid}</code></p>
           <div class="form-row">
-            <label>订单号（用户在微信/小红书/淘宝填的订单号，可选）</label>
-            <input type="text" id="dlgOrderNo" value="${record.orderno || ''}" class="input" placeholder="例如：202606261234" />
-          </div>
-          <div class="form-row">
-            <label>付款平台</label>
+            <label>支付渠道</label>
             <select id="dlgPayPlatform" class="input">
               <option value="">— 选择 —</option>
-              <option value="wechat" ${record.payplatform === 'wechat' ? 'selected' : ''}>微信</option>
-              <option value="alipay" ${record.payplatform === 'alipay' ? 'selected' : ''}>支付宝</option>
-              <option value="xiaohongshu" ${record.payplatform === 'xiaohongshu' ? 'selected' : ''}>小红书</option>
-              <option value="taobao" ${record.payplatform === 'taobao' ? 'selected' : ''}>淘宝</option>
+              <option value="wechat">微信</option>
+              <option value="alipay">支付宝</option>
+              <option value="xiaohongshu">小红书</option>
+              <option value="taobao">淘宝</option>
+              <option value="other">其他</option>
             </select>
-          </div>
-          <div class="form-row">
-            <label>备注（可选）</label>
-            <textarea id="dlgRemark" placeholder="例如：朋友介绍 / 客户 / 测试">${record.remark || ''}</textarea>
           </div>
           <div style="text-align:right;margin-top:16px;">
             <button class="btn secondary" id="dlgCancel">取消</button>
@@ -571,13 +560,9 @@
       document.body.appendChild(bg);
       document.getElementById('dlgCancel').onclick = () => { document.body.removeChild(bg); resolve(null); };
       document.getElementById('dlgConfirm').onclick = () => {
-        const result = {
-          orderno: document.getElementById('dlgOrderNo').value.trim(),
-          payplatform: document.getElementById('dlgPayPlatform').value,
-          remark: document.getElementById('dlgRemark').value.trim(),
-        };
+        const payplatform = document.getElementById('dlgPayPlatform').value;
         document.body.removeChild(bg);
-        resolve(result);
+        resolve({ payplatform });
       };
     });
   }
