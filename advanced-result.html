@@ -103,19 +103,7 @@ body { min-height: 100vh; }
   </div>
 </div>
 
-<!-- 评估完成提示（不再自动跳转第三层） -->
-<div id="layer3-card" class="card">
-  <div style="background:#e8f0ed;border:1.5px solid #4a7d70;border-radius:12px;padding:16px 20px;text-align:center;">
-    <div style="font-size:14px;color:#2d5b4f;font-weight:600;margin-bottom:6px;">✅ 评估已完成</div>
-    <div style="font-size:13px;color:#1a1a1a;line-height:1.7;">请将上方评估编号发送给老师<br>老师确认开通后，会给你对应的 14 天跟练链接</div>
-  </div>
-</div>
-
-<!-- 页脚说明（流程说明：两段独立链接） -->
-<div class="footer-note" id="footer-note">
-  评估完成后请将<strong>评估编号</strong>发送给老师。<br>
-  老师确认开通后，会单独发送<strong>第三层 14 天跟练链接</strong>。
-</div>
+<!-- #1 顶部 resultid 提示框是唯一入口；#2 和 #3 都已删除 -->
 
 <!-- 调试视图（开发用） -->
 <div class="debug-toggle" id="debug-toggle">[ 开发者视图：显示引擎输出 ]</div>
@@ -328,7 +316,7 @@ function showError(msg) {
           // 在页面顶部显示 resultid 提示
           const hint = document.createElement('div');
           hint.style.cssText = 'max-width:480px;margin:12px auto;padding:10px 14px;background:#e8f0ed;border:1px solid #4a7d70;border-radius:8px;font-size:12px;color:#2d5b4f;text-align:center;line-height:1.6;';
-          hint.innerHTML = '✅ 评估编号已生成：<code style="user-select:all;background:#fff;padding:2px 6px;border-radius:3px;font-family:monospace;">' + resultid + '</code><br><span style="color:#6b6b6b;">付款时把此编号告诉老师</span>';
+          hint.innerHTML = '✅ 评估已完成<br>评估编号：<code style="user-select:all;background:#fff;padding:2px 6px;border-radius:3px;font-family:monospace;">' + resultid + '</code><br><span style="color:#6b6b6b;">请将此编号发给老师，老师开通后会单独发送第三层跟练链接</span>';
           document.body.insertBefore(hint, document.body.firstChild);
         } else {
           console.warn('[v1.2] Supabase 写入失败:', res.error);
