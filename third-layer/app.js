@@ -453,6 +453,8 @@
       width: '100%', padding: '14px', background: '#2d5b4f', color: 'white', border: 'none',
       borderRadius: '6px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit',
     }, onClick: () => {
+      // 清掉旧 state（含 v0.1 早期残废 plan: 只有 A1+A3+A4），避免老 localStorage 数据污染
+      localStorage.removeItem(STORAGE_KEY);
       setState({ params });
       const plan = window.generatePlan(params);
       setState({ plan });
