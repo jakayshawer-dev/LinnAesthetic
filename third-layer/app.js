@@ -739,8 +739,23 @@
       videoRow.appendChild(el('div', { className: 'action-card-row' }, [
         el('span', { className: 'action-card-row-label' }, '视频：'),
       ]));
-      videoRow.appendChild(el('div', { className: 'action-card-video empty' },
-        a.videoUrl ? '观看视频' : '视频待上传'));
+      if (a.videoUrl) {
+        const wrap = el('div', { className: 'action-card-video-wrap' });
+        const video = el('video', {
+          src: a.videoUrl,
+          controls: true,
+          preload: 'none',
+          playsinline: true,
+          // 移动端 inline 播放，不强制全屏
+          'webkit-playsinline': 'true',
+          'x5-video-player-type': 'h5-page',
+        });
+        video.poster = '';
+        wrap.appendChild(video);
+        videoRow.appendChild(wrap);
+      } else {
+        videoRow.appendChild(el('div', { className: 'action-card-video-empty' }, '视频待上传'));
+      }
       card.appendChild(videoRow);
       actionsSection.appendChild(card);
     });
