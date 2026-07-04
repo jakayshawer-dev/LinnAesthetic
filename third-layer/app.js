@@ -456,7 +456,13 @@
       // 清掉旧 state（含 v0.1 早期残废 plan: 只有 A1+A3+A4），避免老 localStorage 数据污染
       localStorage.removeItem(STORAGE_KEY);
       setState({ params });
-      const plan = window.generatePlan(params);
+      // Supabase 字段全小写 (maintype/secondarytype/...)；plan-generator 期望小驼峰 (mainType/...)，在消费方转一次
+      const plan = window.generatePlan({
+        mainType: params.maintype,
+        secondaryType: params.secondarytype,
+        sideHint: params.sidehint,
+        complexityHint: params.complexityhint,
+      });
       setState({ plan });
       go('#/intro');
     }}, '生成我的 14 天跟练计划');
