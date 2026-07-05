@@ -19,6 +19,17 @@
  *   Day 14    复测对比（记录卡）
  */
 
+// T 类型 → 重点动作 ID 映射（v0.3 起内联到这里，不再依赖 actions.js 加载顺序）
+// 这样即便 actions.js 还没加载完、MAIN_TYPE_TO_ACTION 还没挂到 window，
+// buildDayActions 也能正常工作，杜绝"14 天每天 A1+A3+A4" 的加载顺序 bug
+const TYPE_TO_ACTION = {
+  T1: 'A5',
+  T2: 'A6',
+  T3: 'A7',
+  T4: 'A8',
+  T5: 'A9',
+};
+
 const PLAN_PHASES = {
   1:  { name: '基础放松期',   desc: '先让头颈、下巴和口周没那么紧。' },
   2:  { name: '基础放松期',   desc: '先让头颈、下巴和口周没那么紧。' },
@@ -57,7 +68,12 @@ function buildDayActions(day, mainType, secondaryType) {
   }
 
   // 3. mainType 对应重点动作
-  const mainActionId = window.MAIN_TYPE_TO_ACTION[mainType];
+  //    优先用本文件内联的 TYPE_TO_ACTION；fallback 才用 window.MAIN_TYPE_TO_ACTION
+  //    这样 actions.js 加载时序错误不会让 plan 退化到只剩 A1+A3+A4
+  let mainActionId = TYPE_TO_ACTION[mainType];
+  if (!mainActionId && typeof window !== 'undefined' && window.MAIN_TYPE_TO_ACTION) {
+    mainActionId = window.MAIN_TYPE_TO_ACTION[mainType];
+  }
   if (mainActionId && !ids.includes(mainActionId)) {
     ids.push(mainActionId);
   }
@@ -66,7 +82,10 @@ function buildDayActions(day, mainType, secondaryType) {
   //    规则：仅在主因+次因整合期（Day 8-11）和生活稳定期（Day 12-13）出现
   //    早期（Day 1-6）只做基础+主因，让用户先适应
   if (secondaryType && secondaryType !== mainType) {
-    const secActionId = window.SECONDARY_TYPE_TO_ACTION[secondaryType];
+    let secActionId = TYPE_TO_ACTION[secondaryType];
+    if (!secActionId && typeof window !== 'undefined' && window.SECONDARY_TYPE_TO_ACTION) {
+      secActionId = window.SECONDARY_TYPE_TO_ACTION[secondaryType];
+    }
     const isIntegrationPhase = day >= 8 && day <= 11;
     const isStablePhase = day === 12 || day === 13;
     if (secActionId && (isIntegrationPhase || isStablePhase)) {
