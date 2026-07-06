@@ -409,24 +409,19 @@ function ensureResultIdAndShowCard() {
     renderResult(result);
     localStorage.setItem('laa_second_layer_result_v12', JSON.stringify(result));
 
-    // v0.2.4 直接内联 saveAssessment：避免 supabase-client.js 缓存的旧 .upsert() 触发 RLS 拒绝
-    //   流程：先尝试 INSERT；爆 unique conflict → fallback 到 UPDATE
-    //   这样不依赖 supabase-client.js 的版本（用户浏览器可能拿到旧 CDN 缓存）
+    // v0.2.5 用 fetch() 直连 Supabase REST，绕过 supabase-js 客户端的额外 header
+    //   这些 header (x-client-info 等) 会触发 RLS USING 拒绝
+    //   流程：先尝试 POST /rest/v1/assessments（INSERT）；爆 unique 冲突 → fallback 到 PATCH
     function syncToSupabase() {
-      if (!window.supabase || !window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+      const resultid = localStorage.getItem('laa_second_layer_result_id');
+      if (!resultid) return;
+      if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
         showSyncStatus('warn', '⚠️', '当前浏览器未能加载后台同步模块，但你的评估编号已生成，可直接复制发给老师。');
         return;
       }
-      const resultid = localStorage.getItem('laa_second_layer_result_id');
-      if (!resultid) return;
       showSyncStatus('loading', '⏳', '正在同步到老师后台...');
 
-      // 8 秒超时
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('同步超时（8 秒）')), 8000);
-      });
-
-      // 只发 6 个用户字段，绝不覆盖老师字段（thirdlayerstatus / paidamount / openedat 等）
+      // 只发 6 个用户字段，绝不覆盖老师字段
       const safeRecord = {
         resultid: resultid,
         maintype: result.mainType,
@@ -436,56 +431,69 @@ function ensureResultIdAndShowCard() {
         trainingprioritytext: (result.trainingPriority && result.trainingPriority.text) || null,
       };
 
-      // 自己起一个 supabase client（绕开 window.laaSupabase 缓存）
-      const directClient = window.supabase.createClient(
-        window.SUPABASE_URL,
-        window.SUPABASE_ANON_KEY,
-        { auth: { persistSession: true, autoRefreshToken: true } }
-      );
+      // 8 秒超时
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('同步超时（8 秒）')), 8000);
+      });
 
-      // 策略 1：先尝试 INSERT（正常路径，RLS 通过）
-      const insertPromise = directClient
-        .from('assessments')
-        .insert(safeRecord)
-        .select()
-        .single();
+      const supabaseUrl = window.SUPABASE_URL;
+      const apikey = window.SUPABASE_ANON_KEY;
 
-      Promise.race([insertPromise, timeoutPromise])
+      function doInsert() {
+        return fetch(supabaseUrl + '/rest/v1/assessments', {
+          method: 'POST',
+          headers: {
+            'apikey': apikey,
+            'Authorization': 'Bearer ' + apikey,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify(safeRecord),
+        });
+      }
+
+      function doPatch() {
+        return fetch(supabaseUrl + '/rest/v1/assessments?resultid=eq.' + encodeURIComponent(resultid), {
+          method: 'PATCH',
+          headers: {
+            'apikey': apikey,
+            'Authorization': 'Bearer ' + apikey,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify(safeRecord),
+        });
+      }
+
+      Promise.race([doInsert(), timeoutPromise])
         .then(res => {
-          if (res && !res.error && res.data) {
-            console.log('[v1.2-sync] INSERT 成功, resultid=' + resultid);
-            showSyncStatus('ok', '✅', '评估记录已同步到老师后台');
-            return;
+          if (res && res.ok) {
+            return res.json().then(data => {
+              console.log('[v1.2-sync] INSERT 成功, resultid=' + resultid);
+              showSyncStatus('ok', '✅', '评估记录已同步到老师后台');
+            });
           }
-          // 爆 unique 冲突 → fallback 到 UPDATE（同一 resultid 的记录已存在，更新用户字段）
-          if (res && res.error && (
-              res.error.code === '23505' ||
-              (res.error.message && /duplicate key|already exists/i.test(res.error.message))
-          )) {
-            console.log('[v1.2-sync] INSERT 冲突，fallback 到 UPDATE');
-            return Promise.race([
-              directClient
-                .from('assessments')
-                .update(safeRecord)
-                .eq('resultid', resultid)
-                .select()
-                .single(),
-              timeoutPromise
-            ]).then(updRes => {
-              if (updRes && !updRes.error) {
-                showSyncStatus('ok', '✅', '评估记录已同步到老师后台');
+          // 409 unique conflict → fallback 到 PATCH
+          if (res && res.status === 409) {
+            console.log('[v1.2-sync] INSERT 冲突 (409)，fallback 到 PATCH');
+            return Promise.race([doPatch(), timeoutPromise]).then(updRes => {
+              if (updRes && updRes.ok) {
+                showSyncStatus('ok', '✅', '评估记录已更新到老师后台');
               } else {
-                showSyncStatus('fail', '❌', '同步失败：' + (updRes && updRes.error ? updRes.error.message : '未知错误') + '。可手动重试或直接复制编号发给老师。');
+                showSyncStatus('fail', '❌', '同步失败（PATCH）：' + (updRes ? updRes.status : 'timeout') + '。可手动重试或直接复制编号发给老师。');
               }
             });
           }
-          // 其他 RLS / 网络错误 → 友好提示
-          const msg = res && res.error ? res.error.message : '未知错误';
-          if (/row-level security|RLS/i.test(msg)) {
-            showSyncStatus('warn', '⚠️', '评估编号已生成，但老师后台写入暂未开通（不影响你复制编号发给老师）');
-          } else {
-            showSyncStatus('fail', '❌', '同步失败：' + msg + '。可手动重试或直接复制编号发给老师。');
-          }
+          // 其他错误
+          const status = res ? res.status : 'timeout';
+          return res.text().then(text => {
+            console.warn('[v1.2-sync] 失败 HTTP ' + status, text);
+            if (/row-level security|RLS|policy/i.test(text)) {
+              showSyncStatus('warn', '⚠️', '评估编号已生成，但老师后台写入暂未开通（不影响你复制编号发给老师）');
+            } else {
+              showSyncStatus('fail', '❌', '同步失败（HTTP ' + status + '）。可手动重试或直接复制编号发给老师。');
+            }
+          });
         })
         .catch(err => {
           console.warn('[v1.2-sync] 同步异常:', err && err.message);
