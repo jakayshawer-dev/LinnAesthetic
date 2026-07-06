@@ -316,7 +316,36 @@ function showError(msg) {
           // 在页面顶部显示 resultid 提示
           const hint = document.createElement('div');
           hint.style.cssText = 'max-width:480px;margin:12px auto;padding:10px 14px;background:#e8f0ed;border:1px solid #4a7d70;border-radius:8px;font-size:12px;color:#2d5b4f;text-align:center;line-height:1.6;';
-          hint.innerHTML = '✅ 评估已完成<br>评估编号：<code style="user-select:all;background:#fff;padding:2px 6px;border-radius:3px;font-family:monospace;">' + resultid + '</code><br><span style="color:#6b6b6b;">请将此编号发给老师，老师开通后会单独发送第三层跟练链接</span>';
+          hint.innerHTML = '✅ 评估已完成<br>评估编号：<code style="user-select:all;background:#fff;padding:2px 6px;border-radius:3px;font-family:monospace;">' + resultid + '</code>'
+            + '<br><button id="copyShareLink" style="margin-top:10px;padding:8px 16px;background:#2d5b4f;color:white;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">📤 复制评估结果链接（发给老师）</button>'
+            + '<span id="copyShareLinkHint" style="margin-left:8px;font-size:12px;color:#2d5b4f;display:none;">✓ 已复制到剪贴板</span>'
+            + '<br><span style="color:#6b6b6b;font-size:11px;">或直接长按上方评估编号复制</span>';
+          // 点击按钮 → 复制 `${origin}/pay.html?resultid=xxx` 到剪贴板
+          setTimeout(function() {
+            var btn = document.getElementById('copyShareLink');
+            var hint = document.getElementById('copyShareLinkHint');
+            if (btn) {
+              btn.addEventListener('click', function() {
+                var shareUrl = location.origin + location.pathname.replace(/advanced-result\.html.*$/, '') + 'pay.html?resultid=' + resultid;
+                // Clipboard API 优先；不支持就 fallback 到 textarea
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  navigator.clipboard.writeText(shareUrl).then(function() {
+                    if (hint) hint.style.display = 'inline';
+                    setTimeout(function(){ if (hint) hint.style.display = 'none'; }, 2000);
+                  });
+                } else {
+                  var ta = document.createElement('textarea');
+                  ta.value = shareUrl;
+                  ta.style.cssText = 'position:fixed;top:-9999px;';
+                  document.body.appendChild(ta);
+                  ta.select();
+                  try { document.execCommand('copy'); if (hint) hint.style.display = 'inline'; } catch (e) {}
+                  document.body.removeChild(ta);
+                  setTimeout(function(){ if (hint) hint.style.display = 'none'; }, 2000);
+                }
+              });
+            }
+          }, 0);
           document.body.insertBefore(hint, document.body.firstChild);
         } else {
           console.warn('[v1.2] Supabase 写入失败:', res.error);

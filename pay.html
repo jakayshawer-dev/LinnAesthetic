@@ -136,7 +136,16 @@
 
   <script>
   (async function main() {
-    const resultid = localStorage.getItem('laa_second_layer_result_id');
+    // v0.2.2 跨设备 resultid 支持：
+    //   1. 优先 URL 参数 ?resultid=xxx（别人发给你 / 老师后台分享 / 扫码）
+    //   2. 兜底 localStorage（同设备第二次回访）
+    //   3. URL 参数会回写 localStorage，下次不用带也能看
+    const urlParams = new URLSearchParams(location.search);
+    const urlResultid = urlParams.get('resultid');
+    let resultid = urlResultid || localStorage.getItem('laa_second_layer_result_id');
+    if (urlResultid) {
+      localStorage.setItem('laa_second_layer_result_id', urlResultid);
+    }
     const content = document.getElementById('content');
 
     if (!resultid) {
@@ -158,37 +167,55 @@
       </div>
     `;
 
-    // 摘要卡（从 localStorage 读 v1.2 结果）
+    // 摘要卡（v0.2.2：跨设备 resultid 也要展示主因次因）
+    //   1. 优先 localStorage（同设备）
+    //   2. 兜底 Supabase getAssessment（别人手机打开 URL 也能看）
+    let resultForSummary = null;
     const resultRaw = localStorage.getItem('laa_second_layer_result_v12');
-    let summaryHtml = '';
     if (resultRaw) {
-      try {
-        const r = JSON.parse(resultRaw);
-        const NAMES = {
-          T1: 'T1｜口角启动型', T2: 'T2｜下颌偏移型', T3: 'T3｜面中支撑弱型',
-          T4: 'T4｜下颌缘松垮型', T5: 'T5｜头颈牵拉型',
+      try { resultForSummary = JSON.parse(resultRaw); } catch (e) { /* ignore */ }
+    }
+    if (!resultForSummary && resultid && window.laaSupabase) {
+      // 异步拉一次（用户可能等几百毫秒才看到摘要卡）
+      const resp = await window.laaSupabase.getAssessment(resultid);
+      if (resp.ok && resp.data) {
+        resultForSummary = {
+          mainType: resp.data.maintype,
+          secondaryType: resp.data.secondarytype,
+          sideHint: resp.data.sidehint,
+          complexityHint: resp.data.complexityhint,
         };
-        summaryHtml = `
-          <div class="summary-card">
-            <div class="summary-line">
-              <span class="summary-label">主因</span>
-              <span class="summary-value">${NAMES[r.mainType] || r.mainType || '—'}</span>
-            </div>
-            <div class="summary-line">
-              <span class="summary-label">次因</span>
-              <span class="summary-value">${r.secondaryType ? (NAMES[r.secondaryType] || r.secondaryType) : '暂未发现明显次因'}</span>
-            </div>
-            <div class="summary-line">
-              <span class="summary-label">侧别</span>
-              <span class="summary-value">${r.sideHint || '—'}</span>
-            </div>
-            <div class="summary-line">
-              <span class="summary-label">复杂度</span>
-              <span class="summary-value">${r.complexityHint || '—'}</span>
-            </div>
+        // 顺手写回 localStorage，下次不用再拉
+        try { localStorage.setItem('laa_second_layer_result_v12', JSON.stringify(resultForSummary)); } catch (e) {}
+      }
+    }
+
+    let summaryHtml = '';
+    if (resultForSummary) {
+      const NAMES = {
+        T1: 'T1｜口角启动型', T2: 'T2｜下颌偏移型', T3: 'T3｜面中支撑弱型',
+        T4: 'T4｜下颌缘松垮型', T5: 'T5｜头颈牵拉型',
+      };
+      summaryHtml = `
+        <div class="summary-card">
+          <div class="summary-line">
+            <span class="summary-label">主因</span>
+            <span class="summary-value">${NAMES[resultForSummary.mainType] || resultForSummary.mainType || '—'}</span>
           </div>
-        `;
-      } catch (e) { /* ignore */ }
+          <div class="summary-line">
+            <span class="summary-label">次因</span>
+            <span class="summary-value">${resultForSummary.secondaryType ? (NAMES[resultForSummary.secondaryType] || resultForSummary.secondaryType) : '暂未发现明显次因'}</span>
+          </div>
+          <div class="summary-line">
+            <span class="summary-label">侧别</span>
+            <span class="summary-value">${resultForSummary.sideHint || '—'}</span>
+          </div>
+          <div class="summary-line">
+            <span class="summary-label">复杂度</span>
+            <span class="summary-value">${resultForSummary.complexityHint || '—'}</span>
+          </div>
+        </div>
+      `;
     }
 
     // 流程提示卡（核心信息）
