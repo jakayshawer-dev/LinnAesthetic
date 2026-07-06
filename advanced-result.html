@@ -103,6 +103,23 @@ body { min-height: 100vh; }
   </div>
 </div>
 
+<!-- v0.2.3 评估编号 + 分享卡（永远显示，不依赖 Supabase 写入） -->
+<div id="resultid-card" class="card" style="display:none">
+  <div class="section-title"><span class="num">📋</span>你的评估编号</div>
+  <div style="background:#f8fafc;border-radius:10px;padding:12px 14px;margin-bottom:12px;">
+    <code id="resultid-value" style="display:block;user-select:all;background:#fff;padding:10px 12px;border-radius:6px;font-family:ui-monospace,SFMono-Regular,monospace;font-size:14px;color:#1f2937;word-break:break-all;line-height:1.5;"></code>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <button id="copyShareLink" style="flex:1 1 auto;padding:10px 16px;background:#2d5b4f;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">📤 复制分享链接</button>
+    <button id="copyResultId" style="padding:10px 16px;background:#fff;color:#2d5b4f;border:1.5px solid #2d5b4f;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">📋 复制编号</button>
+  </div>
+  <span id="copyShareLinkHint" style="display:none;margin-top:8px;font-size:13px;color:#2d5b4f;">✓ 已复制到剪贴板</span>
+  <div style="margin-top:14px;text-align:center;">
+    <a id="goPayPage" href="#" style="display:inline-block;padding:10px 20px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:white;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;">👉 查看完整评估结果（含评估编号）</a>
+  </div>
+  <div class="tip" style="margin-top:14px;color:#6b7280;font-size:12px;line-height:1.6;">把上方编号或链接发给老师，老师确认后会给你单独的第三层跟练链接。</div>
+</div>
+
 <!-- #1 顶部 resultid 提示框是唯一入口；#2 和 #3 都已删除 -->
 
 <!-- 调试视图（开发用） -->
@@ -253,6 +270,9 @@ function renderResult(result) {
 
   // 调试视图
   document.getElementById('debug-pre').textContent = JSON.stringify(result, null, 2);
+
+  // v0.2.3 评估编号卡（永远显示，不依赖 Supabase 状态）
+  ensureResultIdAndShowCard();
 }
 
 function showError(msg) {
@@ -262,6 +282,89 @@ function showError(msg) {
     <div class="subtitle">${msg}</div>
     <div style="margin-top:14px"><a href="advanced-questions.html" class="layer3-btn" style="background:#6b7280">返回重新答题</a></div>
   `;
+}
+
+// v0.2.3 评估编号 + 分享卡：永远生成 / 永远显示 / 不依赖 Supabase 状态
+function ensureResultIdAndShowCard() {
+  const RESULT_ID_KEY = 'laa_second_layer_result_id';
+  let resultid = localStorage.getItem(RESULT_ID_KEY);
+
+  // 没 resultid 时：优先用 supabase 生成，兜底用 crypto.randomUUID，再兜底用 Math.random
+  if (!resultid) {
+    if (window.laaSupabase && typeof window.laaSupabase.generateResultId === 'function') {
+      resultid = window.laaSupabase.generateResultId();
+    } else if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      resultid = crypto.randomUUID();
+    } else {
+      resultid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0;
+        var v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+    localStorage.setItem(RESULT_ID_KEY, resultid);
+  }
+
+  // 渲染到 resultid-card
+  document.getElementById('resultid-value').textContent = resultid;
+  document.getElementById('resultid-card').style.display = 'block';
+
+  // 跳转 pay.html 的链接
+  var payLink = 'pay.html?resultid=' + encodeURIComponent(resultid);
+  document.getElementById('goPayPage').setAttribute('href', payLink);
+
+  // 复制链接按钮
+  var copyBtn = document.getElementById('copyShareLink');
+  var copyIdBtn = document.getElementById('copyResultId');
+  var copyHint = document.getElementById('copyShareLinkHint');
+
+  function doCopy(text, successMsg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        if (copyHint) {
+          copyHint.textContent = successMsg;
+          copyHint.style.display = 'inline';
+          setTimeout(function() { copyHint.style.display = 'none'; }, 2000);
+        }
+      }).catch(function() {
+        fallbackCopy(text, successMsg);
+      });
+    } else {
+      fallbackCopy(text, successMsg);
+    }
+  }
+
+  function fallbackCopy(text, successMsg) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      if (copyHint) {
+        copyHint.textContent = successMsg;
+        copyHint.style.display = 'inline';
+        setTimeout(function() { copyHint.style.display = 'none'; }, 2000);
+      }
+    } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function() {
+      var shareUrl = location.origin + location.pathname.replace(/advanced-result\.html.*$/, '') + 'pay.html?resultid=' + encodeURIComponent(resultid);
+      doCopy(shareUrl, '✓ 已复制分享链接');
+    });
+  }
+  if (copyIdBtn) {
+    copyIdBtn.addEventListener('click', function() {
+      doCopy(resultid, '✓ 已复制评估编号');
+    });
+  }
+
+  // 返回当前 resultid 给后续 Supabase 写入用（保持原逻辑）
+  return resultid;
 }
 
 // 启动
@@ -295,14 +398,11 @@ function showError(msg) {
     renderResult(result);
     localStorage.setItem('laa_second_layer_result_v12', JSON.stringify(result));
 
-    // v0.2: 生成 resultid + 写 Supabase（v0.1.6 之上叠加，不影响已有流程）
-    const RESULT_ID_KEY = 'laa_second_layer_result_id';
-    let resultid = localStorage.getItem(RESULT_ID_KEY);
-    if (!resultid && window.laaSupabase) {
-      resultid = window.laaSupabase.generateResultId();
-      localStorage.setItem(RESULT_ID_KEY, resultid);
-    }
-    if (resultid && window.laaSupabase) {
+    // v0.2: resultid 已经在 renderResult → ensureResultIdAndShowCard 里生成并写入 localStorage
+    // 这一段保留作为"补写"路径 —— 如果 laaSupabase 客户端可用，把评估数据写进 Supabase
+    // （不影响 resultid 卡显示；卡已经在 renderResult 时就显示了）
+    if (window.laaSupabase) {
+      const resultid = localStorage.getItem('laa_second_layer_result_id');
       window.laaSupabase.saveAssessment({
         resultid: resultid,
         maintype: result.mainType,
@@ -313,42 +413,8 @@ function showError(msg) {
       }).then(res => {
         if (res.ok) {
           console.log('[v1.2] 评估记录已写入 Supabase, resultid=' + resultid);
-          // 在页面顶部显示 resultid 提示
-          const hint = document.createElement('div');
-          hint.style.cssText = 'max-width:480px;margin:12px auto;padding:10px 14px;background:#e8f0ed;border:1px solid #4a7d70;border-radius:8px;font-size:12px;color:#2d5b4f;text-align:center;line-height:1.6;';
-          hint.innerHTML = '✅ 评估已完成<br>评估编号：<code style="user-select:all;background:#fff;padding:2px 6px;border-radius:3px;font-family:monospace;">' + resultid + '</code>'
-            + '<br><button id="copyShareLink" style="margin-top:10px;padding:8px 16px;background:#2d5b4f;color:white;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">📤 复制评估结果链接（发给老师）</button>'
-            + '<span id="copyShareLinkHint" style="margin-left:8px;font-size:12px;color:#2d5b4f;display:none;">✓ 已复制到剪贴板</span>'
-            + '<br><span style="color:#6b6b6b;font-size:11px;">或直接长按上方评估编号复制</span>';
-          // 点击按钮 → 复制 `${origin}/pay.html?resultid=xxx` 到剪贴板
-          setTimeout(function() {
-            var btn = document.getElementById('copyShareLink');
-            var hint = document.getElementById('copyShareLinkHint');
-            if (btn) {
-              btn.addEventListener('click', function() {
-                var shareUrl = location.origin + location.pathname.replace(/advanced-result\.html.*$/, '') + 'pay.html?resultid=' + resultid;
-                // Clipboard API 优先；不支持就 fallback 到 textarea
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                  navigator.clipboard.writeText(shareUrl).then(function() {
-                    if (hint) hint.style.display = 'inline';
-                    setTimeout(function(){ if (hint) hint.style.display = 'none'; }, 2000);
-                  });
-                } else {
-                  var ta = document.createElement('textarea');
-                  ta.value = shareUrl;
-                  ta.style.cssText = 'position:fixed;top:-9999px;';
-                  document.body.appendChild(ta);
-                  ta.select();
-                  try { document.execCommand('copy'); if (hint) hint.style.display = 'inline'; } catch (e) {}
-                  document.body.removeChild(ta);
-                  setTimeout(function(){ if (hint) hint.style.display = 'none'; }, 2000);
-                }
-              });
-            }
-          }, 0);
-          document.body.insertBefore(hint, document.body.firstChild);
         } else {
-          console.warn('[v1.2] Supabase 写入失败:', res.error);
+          console.warn('[v1.2] Supabase 写入失败（不影响 resultid 卡显示）:', res.error);
         }
       });
     }
