@@ -409,10 +409,11 @@ function ensureResultIdAndShowCard() {
     renderResult(result);
     localStorage.setItem('laa_second_layer_result_v12', JSON.stringify(result));
 
-    // v0.2: resultid 已经在 renderResult → ensureResultIdAndShowCard 里生成并写入 localStorage
-    // 这一段把评估数据写进 Supabase（带超时 + 同步状态指示）
+    // v0.2.4 直接内联 saveAssessment：避免 supabase-client.js 缓存的旧 .upsert() 触发 RLS 拒绝
+    //   流程：先尝试 INSERT；爆 unique conflict → fallback 到 UPDATE
+    //   这样不依赖 supabase-client.js 的版本（用户浏览器可能拿到旧 CDN 缓存）
     function syncToSupabase() {
-      if (!window.laaSupabase) {
+      if (!window.supabase || !window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
         showSyncStatus('warn', '⚠️', '当前浏览器未能加载后台同步模块，但你的评估编号已生成，可直接复制发给老师。');
         return;
       }
@@ -424,27 +425,70 @@ function ensureResultIdAndShowCard() {
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('同步超时（8 秒）')), 8000);
       });
-      const syncPromise = window.laaSupabase.saveAssessment({
+
+      // 只发 6 个用户字段，绝不覆盖老师字段（thirdlayerstatus / paidamount / openedat 等）
+      const safeRecord = {
         resultid: resultid,
         maintype: result.mainType,
         secondarytype: result.secondaryType || null,
         sidehint: result.sideHint || null,
         complexityhint: result.complexityHint || null,
         trainingprioritytext: (result.trainingPriority && result.trainingPriority.text) || null,
-      });
+      };
 
-      Promise.race([syncPromise, timeoutPromise])
+      // 自己起一个 supabase client（绕开 window.laaSupabase 缓存）
+      const directClient = window.supabase.createClient(
+        window.SUPABASE_URL,
+        window.SUPABASE_ANON_KEY,
+        { auth: { persistSession: true, autoRefreshToken: true } }
+      );
+
+      // 策略 1：先尝试 INSERT（正常路径，RLS 通过）
+      const insertPromise = directClient
+        .from('assessments')
+        .insert(safeRecord)
+        .select()
+        .single();
+
+      Promise.race([insertPromise, timeoutPromise])
         .then(res => {
-          if (res && res.ok) {
-            console.log('[v1.2] 评估记录已写入 Supabase, resultid=' + resultid);
+          if (res && !res.error && res.data) {
+            console.log('[v1.2-sync] INSERT 成功, resultid=' + resultid);
             showSyncStatus('ok', '✅', '评估记录已同步到老师后台');
+            return;
+          }
+          // 爆 unique 冲突 → fallback 到 UPDATE（同一 resultid 的记录已存在，更新用户字段）
+          if (res && res.error && (
+              res.error.code === '23505' ||
+              (res.error.message && /duplicate key|already exists/i.test(res.error.message))
+          )) {
+            console.log('[v1.2-sync] INSERT 冲突，fallback 到 UPDATE');
+            return Promise.race([
+              directClient
+                .from('assessments')
+                .update(safeRecord)
+                .eq('resultid', resultid)
+                .select()
+                .single(),
+              timeoutPromise
+            ]).then(updRes => {
+              if (updRes && !updRes.error) {
+                showSyncStatus('ok', '✅', '评估记录已同步到老师后台');
+              } else {
+                showSyncStatus('fail', '❌', '同步失败：' + (updRes && updRes.error ? updRes.error.message : '未知错误') + '。可手动重试或直接复制编号发给老师。');
+              }
+            });
+          }
+          // 其他 RLS / 网络错误 → 友好提示
+          const msg = res && res.error ? res.error.message : '未知错误';
+          if (/row-level security|RLS/i.test(msg)) {
+            showSyncStatus('warn', '⚠️', '评估编号已生成，但老师后台写入暂未开通（不影响你复制编号发给老师）');
           } else {
-            console.warn('[v1.2] Supabase 写入失败:', res && res.error);
-            showSyncStatus('fail', '❌', '同步失败：' + (res && res.error ? res.error : '未知错误') + '。可手动重试或直接复制编号发给老师。');
+            showSyncStatus('fail', '❌', '同步失败：' + msg + '。可手动重试或直接复制编号发给老师。');
           }
         })
         .catch(err => {
-          console.warn('[v1.2] 同步异常:', err && err.message);
+          console.warn('[v1.2-sync] 同步异常:', err && err.message);
           showSyncStatus('fail', '❌', '同步失败：' + (err && err.message ? err.message : String(err)) + '。可手动重试或直接复制编号发给老师。');
         });
     }
