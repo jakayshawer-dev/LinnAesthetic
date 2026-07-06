@@ -69,7 +69,7 @@
     try {
       const { data, error } = await client
         .from('assessments')
-        .insert(record)
+        .upsert(record, { onConflict: 'resultid' })
         .select()
         .single();
       if (error) {
