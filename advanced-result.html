@@ -109,11 +109,22 @@ body { min-height: 100vh; }
   <div style="background:#f8fafc;border-radius:10px;padding:12px 14px;margin-bottom:12px;">
     <code id="resultid-value" style="display:block;user-select:all;background:#fff;padding:10px 12px;border-radius:6px;font-family:ui-monospace,SFMono-Regular,monospace;font-size:14px;color:#1f2937;word-break:break-all;line-height:1.5;"></code>
   </div>
+
+  <!-- 同步状态指示 -->
+  <div id="sync-status" style="display:none;margin-bottom:10px;padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.5;">
+    <span id="sync-status-icon">⏳</span>
+    <span id="sync-status-text">正在同步到老师后台...</span>
+  </div>
+
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
     <button id="copyShareLink" style="flex:1 1 auto;padding:10px 16px;background:#2d5b4f;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">📤 复制分享链接</button>
     <button id="copyResultId" style="padding:10px 16px;background:#fff;color:#2d5b4f;border:1.5px solid #2d5b4f;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">📋 复制编号</button>
   </div>
   <span id="copyShareLinkHint" style="display:none;margin-top:8px;font-size:13px;color:#2d5b4f;">✓ 已复制到剪贴板</span>
+
+  <!-- 同步失败时的重试按钮 -->
+  <button id="retry-sync" style="display:none;margin-top:10px;width:100%;padding:10px 16px;background:#fff;color:#b8654a;border:1.5px solid #b8654a;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">🔄 同步给老师后台（失败重试）</button>
+
   <div style="margin-top:14px;text-align:center;">
     <a id="goPayPage" href="#" style="display:inline-block;padding:10px 20px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:white;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;">👉 查看完整评估结果（含评估编号）</a>
   </div>
@@ -399,23 +410,70 @@ function ensureResultIdAndShowCard() {
     localStorage.setItem('laa_second_layer_result_v12', JSON.stringify(result));
 
     // v0.2: resultid 已经在 renderResult → ensureResultIdAndShowCard 里生成并写入 localStorage
-    // 这一段保留作为"补写"路径 —— 如果 laaSupabase 客户端可用，把评估数据写进 Supabase
-    // （不影响 resultid 卡显示；卡已经在 renderResult 时就显示了）
-    if (window.laaSupabase) {
+    // 这一段把评估数据写进 Supabase（带超时 + 同步状态指示）
+    function syncToSupabase() {
+      if (!window.laaSupabase) {
+        showSyncStatus('warn', '⚠️', '当前浏览器未能加载后台同步模块，但你的评估编号已生成，可直接复制发给老师。');
+        return;
+      }
       const resultid = localStorage.getItem('laa_second_layer_result_id');
-      window.laaSupabase.saveAssessment({
+      if (!resultid) return;
+      showSyncStatus('loading', '⏳', '正在同步到老师后台...');
+
+      // 8 秒超时
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('同步超时（8 秒）')), 8000);
+      });
+      const syncPromise = window.laaSupabase.saveAssessment({
         resultid: resultid,
         maintype: result.mainType,
         secondarytype: result.secondaryType || null,
         sidehint: result.sideHint || null,
         complexityhint: result.complexityHint || null,
         trainingprioritytext: (result.trainingPriority && result.trainingPriority.text) || null,
-      }).then(res => {
-        if (res.ok) {
-          console.log('[v1.2] 评估记录已写入 Supabase, resultid=' + resultid);
-        } else {
-          console.warn('[v1.2] Supabase 写入失败（不影响 resultid 卡显示）:', res.error);
-        }
+      });
+
+      Promise.race([syncPromise, timeoutPromise])
+        .then(res => {
+          if (res && res.ok) {
+            console.log('[v1.2] 评估记录已写入 Supabase, resultid=' + resultid);
+            showSyncStatus('ok', '✅', '评估记录已同步到老师后台');
+          } else {
+            console.warn('[v1.2] Supabase 写入失败:', res && res.error);
+            showSyncStatus('fail', '❌', '同步失败：' + (res && res.error ? res.error : '未知错误') + '。可手动重试或直接复制编号发给老师。');
+          }
+        })
+        .catch(err => {
+          console.warn('[v1.2] 同步异常:', err && err.message);
+          showSyncStatus('fail', '❌', '同步失败：' + (err && err.message ? err.message : String(err)) + '。可手动重试或直接复制编号发给老师。');
+        });
+    }
+
+    function showSyncStatus(type, icon, text) {
+      const el = document.getElementById('sync-status');
+      const ic = document.getElementById('sync-status-icon');
+      const tx = document.getElementById('sync-status-text');
+      const retryBtn = document.getElementById('retry-sync');
+      if (!el) return;
+      el.style.display = 'block';
+      ic.textContent = icon;
+      tx.textContent = text;
+      // 颜色
+      el.style.background = type === 'ok' ? '#e8f0ed' : type === 'warn' ? '#fff8e6' : type === 'fail' ? '#fde2e2' : '#eef2ff';
+      el.style.color = type === 'ok' ? '#2d5b4f' : type === 'warn' ? '#7c5e10' : type === 'fail' ? '#991b1b' : '#3730a3';
+      el.style.border = '1px solid ' + (type === 'ok' ? '#4a7d70' : type === 'warn' ? '#e8b75a' : type === 'fail' ? '#c47a3a' : '#a5b4fc');
+      // 重试按钮
+      if (retryBtn) {
+        retryBtn.style.display = (type === 'fail' || type === 'warn') ? 'block' : 'none';
+      }
+    }
+
+    syncToSupabase();
+    // 重试按钮
+    var retryBtn = document.getElementById('retry-sync');
+    if (retryBtn) {
+      retryBtn.addEventListener('click', function() {
+        syncToSupabase();
       });
     }
   } catch (e) {
