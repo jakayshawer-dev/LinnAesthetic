@@ -15,7 +15,7 @@
  *   - 不区分大小写
  */
 
-const SUPABASE_URL = 'https://kcxijunkljhmckuazwms.supabase.co';
+const SUPABASE_URL = 'https://areakwzznuxjdmyyqujn.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_pdeZGUVk32I7rgRmG1ISBg_KnJ9e3NC';
 
 // 老师邮箱（用于 RLS：只有这个邮箱登的账号能改评估状态）
