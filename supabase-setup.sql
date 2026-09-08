@@ -3,6 +3,12 @@
 --
 -- 执行位置：Supabase Dashboard → SQL Editor → New query
 -- 全文复制粘贴 → 点 Run
+--
+-- 版本: 2026-09-08 fix trigger(updatedat 大小写)
+-- 修复历史:
+--   v2026-09-08: set_updated_at() 函数从 new."updatedAt" 改成 new.updatedat
+--                旧版本引用了不存在的字段(Supabase 把列名规范化成小写)
+--                导致任何 UPDATE 都失败:record "new" has no field "updatedAt"
 -- ============================================================
 
 -- 1. 建 assessments 表
@@ -34,7 +40,7 @@ create index if not exists idx_assessments_created on public.assessments(created
 create or replace function public.set_updated_at()
 returns trigger as $$
 begin
-  new."updatedAt" = now();
+  new.updatedat = now();  -- 修复:用小写无引号,匹配表实际列名(updatedat,Supabase 自动规范化)
   return new;
 end;
 $$ language plpgsql;
