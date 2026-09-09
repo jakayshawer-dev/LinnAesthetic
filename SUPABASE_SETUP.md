@@ -7,7 +7,7 @@
 **步骤**：
 
 1. 打开 https://supabase.com/dashboard
-2. 选项目 `laa-assessment`（或 `kcxijunkljhmckuazwms`）
+2. 选项目 `laa-assessment`（或 `areakwzznuxjdmyyqujn  (新项目 · 老项目 kcxijunkljhmckuazwms 已 NXDOMAIN 删除)`）
 3. 左侧菜单 → **Authentication** → **URL Configuration**
 4. 找到 **Redirect URLs** 字段
 5. 点 Add URL，添加以下 3 个：
