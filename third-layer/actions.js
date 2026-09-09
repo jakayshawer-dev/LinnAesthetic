@@ -19,7 +19,7 @@ const ACTIONS = [
     reason: '你的结果提示存在头颈牵拉、肩颈紧张或头部习惯偏向一侧。这个动作先帮助你降低颈侧和肩颈对脸的牵拉。',
     area: '颈侧筋膜、胸锁乳突肌、斜角肌、上斜方肌、肩胛提肌、锁骨上区。',
     purpose: '降低颈侧和肩颈牵拉，让头颈不再持续把脸往一侧带偏。',
-    videoUrl: null,  // 老 Supabase 已 NXDOMAIN,改 null(前端 app.js:750 检测 null 显示'视频待上传')
+    videoUrl: 'https://areakwzznuxjdmyyqujn.supabase.co/storage/v1/object/public/videos/A1.mp4',
   },
 
   // 2. 基础：头颈轴线延展与颏部微回收训练（T5 用户额外常用）
@@ -30,7 +30,7 @@ const ACTIONS = [
     reason: '如果你有头前伸、下巴前顶、拍照头歪的问题，这个动作可以帮助你重新找到头颈的稳定轴线。',
     area: '枕下肌群、深层颈屈肌、颈后筋膜、颏下区、舌骨上下肌群。',
     purpose: '改善头前伸、头歪、下巴前顶，让头颈回到更稳定的轴线上。',
-    videoUrl: null,  // 老 Supabase 已 NXDOMAIN,改 null(前端 app.js:750 检测 null 显示'视频待上传')
+    videoUrl: 'https://areakwzznuxjdmyyqujn.supabase.co/storage/v1/object/public/videos/A2.mp4',
   },
 
   // 3. 基础：口腔静息位与下颌减压定位
@@ -41,7 +41,7 @@ const ACTIONS = [
     reason: '如果你容易咬牙、抿嘴、下巴前顶或口周紧张，这个动作可以先让下颌和口周安静下来。',
     area: '口轮匝肌、咬肌、颞肌、舌肌群、舌骨上肌群、下颌关节周围软组织。',
     purpose: '减少咬牙、顶下巴、抿嘴和口周紧张，让下颌先回到更放松的位置。',
-    videoUrl: null,  // 老 Supabase 已 NXDOMAIN,改 null(前端 app.js:750 检测 null 显示'视频待上传')
+    videoUrl: 'https://areakwzznuxjdmyyqujn.supabase.co/storage/v1/object/public/videos/A3.mp4',
   },
 
   // 4. 基础（每天必有的收尾）：面部浅筋膜顺向整理与中线收尾
@@ -53,7 +53,7 @@ const ACTIONS = [
     reason: '每天训练结束后，需要一个收尾动作，把练完后的面部张力整理回来。',
     area: '面部浅筋膜、颊区、口周、下颌缘、颈阔肌上段。',
     purpose: '让脸部张力更顺，减轻练完后的局部紧绷感，让脸有轻一点、顺一点的感觉。',
-    videoUrl: null,  // 老 Supabase 已 NXDOMAIN,改 null(前端 app.js:750 检测 null 显示'视频待上传')
+    videoUrl: 'https://areakwzznuxjdmyyqujn.supabase.co/storage/v1/object/public/videos/A4.mp4',
   },
 
   // ===== 主因对应 5 个（5 选 1）=====
@@ -68,7 +68,7 @@ const ACTIONS = [
     reason: '你的问题更容易表现在笑起来嘴角不对称、一侧僵硬或一侧慢半拍。这个动作先放松口周，再进入自然微笑跟练。',
     area: '口轮匝肌、颧大肌、颧小肌、笑肌、降口角肌、提口角肌、鼻唇沟周围软组织。',
     purpose: '放松嘴角旁和上唇周围的紧张，让微笑更自然，减少一笑就僵、一笑就偏的感觉。',
-    videoUrl: null,  // 老 Supabase 已 NXDOMAIN,改 null(前端 app.js:750 检测 null 显示'视频待上传')
+    videoUrl: 'https://areakwzznuxjdmyyqujn.supabase.co/storage/v1/object/public/videos/A5.mp4',
   },
 
   // 6. T2｜下颌偏移型 → 咬肌筋膜减压与下颌慢张合训练
@@ -81,7 +81,7 @@ const ACTIONS = [
     reason: '你的问题更容易和咬肌紧、下巴偏、张嘴偏或单侧咀嚼有关。这个动作先降低咬肌紧张，再进入慢张合训练。',
     area: '咬肌、颞肌、翼内肌 / 翼外肌相关张力、下颌关节周围软组织。',
     purpose: '降低咬肌紧张，让下巴在张嘴和闭嘴时不要急着往一边跑。',
-    videoUrl: null,  // 老 Supabase 已 NXDOMAIN,改 null(前端 app.js:750 检测 null 显示'视频待上传')
+    videoUrl: 'https://areakwzznuxjdmyyqujn.supabase.co/storage/v1/object/public/videos/A6.mp4',
   },
 
   // 7. T3｜面中支撑弱型 → 鼻唇沟起点减压与面中轻托训练
@@ -94,7 +94,7 @@ const ACTIONS = [
     reason: '你的问题更容易表现在法令纹、鼻翼旁紧、面中一侧塌或显累。这个动作先减轻鼻翼旁紧张，再给面中一个轻托支撑。',
     area: '鼻翼旁软组织、提上唇鼻翼肌、提上唇肌、颧小肌、颧大肌、颊肌、面中浅筋膜。',
     purpose: '减轻鼻翼旁和法令纹起点紧张，让面中有一点被托住的感觉。',
-    videoUrl: null,  // 老 Supabase 已 NXDOMAIN,改 null(前端 app.js:750 检测 null 显示'视频待上传')
+    videoUrl: 'https://areakwzznuxjdmyyqujn.supabase.co/storage/v1/object/public/videos/A7.mp4',
   },
 
   // 8. T4｜下颌缘松垮型 → 下颌缘浅筋膜减压与颏下轻收训练
@@ -107,7 +107,7 @@ const ACTIONS = [
     reason: '你的问题更容易表现在下颌线不清楚、嘴角下方松、下半脸沉。这个动作先减轻下颌缘沉重感，再帮助下半脸轻轻收住。',
     area: '下颌缘浅筋膜、颈阔肌、降口角肌、降下唇肌、颏肌、颏下区、舌骨上肌群。',
     purpose: '减轻下颌缘沉重感，让下半脸有一点轻轻收住的感觉。',
-    videoUrl: null,  // 老 Supabase 已 NXDOMAIN,改 null(前端 app.js:750 检测 null 显示'视频待上传')
+    videoUrl: 'https://areakwzznuxjdmyyqujn.supabase.co/storage/v1/object/public/videos/A8.mp4',
   },
 
   // 9. T5｜头颈牵拉型 → 肩颈牵拉释放与头颈中立位整合
@@ -120,7 +120,7 @@ const ACTIONS = [
     reason: '你的问题更容易和头歪、肩高、脖子紧、脸被一侧牵拉有关。这个动作帮助你先释放肩颈牵拉，再把头颈放回中立位。',
     area: '上斜方肌、肩胛提肌、胸锁乳突肌、斜角肌、枕下肌群、颈胸交界筋膜。',
     purpose: '降低肩颈牵拉，让头更容易摆正，改善拍照时头歪、脸被一侧脖子带偏的感觉。',
-    videoUrl: null,  // 老 Supabase 已 NXDOMAIN,改 null(前端 app.js:750 检测 null 显示'视频待上传')
+    videoUrl: 'https://areakwzznuxjdmyyqujn.supabase.co/storage/v1/object/public/videos/A9.mp4',
   },
 ];
 
