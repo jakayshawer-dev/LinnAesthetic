@@ -130,6 +130,9 @@ function finishTest() {
     }));
   } catch(e) {}
 
+  // 同步评估结果到 Supabase（2026-09-24 修复：之前只写 localStorage，老师后台看不到）
+  insertToSupabase(currentResults, currentScores);
+
   // 获取详细描述
   const descriptions = getDetailedDescriptions(currentResults, currentScores);
 
@@ -148,6 +151,78 @@ function finishTest() {
 function restartTest() {
   showPage('home');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/**
+ * 把第一层评估结果插入 Supabase assessments 表
+ * 字段映射：
+ *   - resultid = uuid（crypto.randomUUID 浏览器原生支持）
+ *   - maintype = currentResults.direction（T1-T5）
+ *   - sidehint = currentResults.side
+ *   - complexityhint = currentResults.complexity
+ *   - trainingprioritytext = 自动生成的训练重点文字
+ *   - thirdlayerstatus = 'unpaid'（默认，等 mike 后台开通）
+ */
+async function insertToSupabase(results, scores) {
+  try {
+    if (!window.supabase || !window.supabase.createClient) {
+      console.warn('[laa] supabase-js 未加载，跳过云端同步（仅 localStorage）');
+      return;
+    }
+    if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+      console.warn('[laa] supabase-config 未加载，跳过云端同步');
+      return;
+    }
+
+    // 客户端（复用 window.laaSupabase，如果 teacher.html 之前已创建过）
+    const client = window.laaSupabase || window.supabase.createClient(
+      window.SUPABASE_URL,
+      window.SUPABASE_ANON_KEY
+    );
+    window.laaSupabase = client;
+
+    const resultid = crypto.randomUUID();
+
+    // 生成 trainingprioritytext
+    const trainingPriority = generateTrainingPriorityText(results);
+
+    const { data, error } = await client
+      .from('assessments')
+      .insert({
+        resultid: resultid,
+        maintype: results.direction,
+        sidehint: results.side,
+        complexityhint: results.complexity,
+        trainingprioritytext: trainingPriority,
+        thirdlayerstatus: window.STATUS_UNPAID || 'unpaid',
+      })
+      .select();
+
+    if (error) {
+      console.error('[laa] Supabase 插入失败：', error);
+    } else {
+      console.log('[laa] 评估已同步到云端，resultid：', resultid);
+      // 把 resultid 存到 localStorage，方便第二层关联
+      try {
+        localStorage.setItem('laa_result_id', resultid);
+      } catch(e) {}
+    }
+  } catch (e) {
+    console.error('[laa] insertToSupabase 异常：', e);
+  }
+}
+
+function generateTrainingPriorityText(results) {
+  const sideLabel = {
+    left_weak: '左侧偏弱',
+    right_weak: '右侧偏弱',
+    left_tension: '左侧偏紧',
+    right_tension: '右侧偏紧',
+    bilateral: '双侧均衡',
+    unclear: '暂不判断',
+  }[results.side] || results.side;
+
+  return `${results.tendency} · 主方向 ${results.direction} · ${sideLabel} · 复杂度 ${results.complexity}`;
 }
 
 function goToAdvanced() {
