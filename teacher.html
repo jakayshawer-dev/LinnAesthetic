@@ -455,9 +455,14 @@
       input.placeholder = '请先选中一条评估记录';
       return;
     }
-    const base = window.location.origin || 'https://jakayshawer-dev.github.io';
-    // GitHub Pages 路径 + resultid 查询参数（让第三层自动读取该评估）
-    input.value = base + '/LinnAesthetic/third-layer/?resultid=' + selectedRecord.resultid;
+    // 按当前域名决定 third-layer 链接：
+    //   - GitHub Pages 上 → origin + /LinnAesthetic/third-layer/（仓库根路径）
+    //   - CDN(linnaesthetic.cn) 上 → https://www.linnaesthetic.cn/third-layer/（不带 /LinnAesthetic/ 前缀）
+    // 之前用 window.location.origin + '/LinnAesthetic/...' 在 CDN 下会拼出 404 路径
+    const isGitHubPages = window.location.host.endsWith('github.io');
+    const base = isGitHubPages ? window.location.origin : 'https://www.linnaesthetic.cn';
+    const path = isGitHubPages ? '/LinnAesthetic/third-layer/' : '/third-layer/';
+    input.value = base + path + '?resultid=' + selectedRecord.resultid;
   }
 
   document.getElementById('btnCopyLink').addEventListener('click', () => {
