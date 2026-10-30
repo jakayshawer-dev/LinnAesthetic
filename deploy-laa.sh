@@ -106,9 +106,13 @@ deploy_cos() {
     return 0
   fi
 
-  # HTML 一律 no-cache + must-revalidate;JS/CSS 用版本戳 + 短 TTL
+  # 一律 no-cache + must-revalidate。
+  # ⚠️ 2026-10-30 血泪教训:JS 一旦给了 max-age,CDN 会把「带 ?v= 的旧变体」
+  #    连同旧字节一起缓存(实测 app.js?v=0.2.0 被缓存了 24.6 小时),
+  #    客户手机上的旧 index.html 指向旧 ?v=,CDN 就一直发旧 JS → 旧 bug 复现 → 「时好时坏」。
+  #    文件都很小,回源开销可忽略,换取「改完立刻对所有人生效」。
   local html_hdr='{"Cache-Control":"no-cache, must-revalidate"}'
-  local js_hdr='{"Cache-Control":"public, max-age=300, must-revalidate"}'
+  local js_hdr='{"Cache-Control":"no-cache, must-revalidate"}'
 
   for f in third-layer/index.html index.html LinnAesthetic/third-layer/index.html; do
     log "upload /$f"
@@ -146,20 +150,28 @@ deploy_gh() {
 purge_cdn() {
   if [ "$DRY" = "1" ]; then return 0; fi
   log "=== purge CDN ==="
-  local json
-  json='[\
-"https://'"$DOMAIN"'/third-layer/index.html",\
-"https://'"$DOMAIN"'/third-layer/app.js",\
-"https://'"$DOMAIN"'/third-layer/actions.js",\
-"https://'"$DOMAIN"'/third-layer/plan-generator.js",\
-"https://'"$DOMAIN"'/third-layer/styles.css",\
-"https://'"$DOMAIN"'/vendor/supabase.umd.v2.js",\
-"https://'"$DOMAIN"'/supabase-client.js",\
-"https://'"$DOMAIN"'/supabase-config.js",\
-"https://'"$DOMAIN"'/app.js",\
-"https://'"$DOMAIN"'/index.html",\
-"https://'"$DOMAIN"'/LinnAesthetic/third-layer/index.html"\
-]'
+  # ⚠️ 必须把「历史 ?v= 变体」也一起清(2026-10-30 血泪教训):
+  #    CDN 按完整 URL(含 query)缓存。客户手机里的旧 index.html 指向 app.js?v=0.2.0,
+  #    该变体在 CDN 里被缓存了 24.6 小时并一直发旧字节 → 旧 bug 复现 → 「时好时坏」。
+  #    只清当前版本号 = 老客户拿不到新代码。
+  # JSON 必须写成单行:多行会被 tccli 的参数解析吃掉引号/换行
+  local json="" v f
+  local files="third-layer/index.html third-layer/app.js third-layer/actions.js third-layer/plan-generator.js third-layer/styles.css vendor/supabase.umd.v2.js supabase-client.js supabase-config.js app.js index.html LinnAesthetic/third-layer/index.html"
+  # 当前版本
+  for f in $files; do
+    json="$json\"https://$DOMAIN/$f?v=$VERSION\","
+  done
+  # 历史版本号(所有 ?v= 变体)
+  for v in 0.1.0 0.1.1 0.2.0 0.2.1 0.2.2 0.2.3 0.2.4; do
+    for f in $files; do
+      json="$json\"https://$DOMAIN/$f?v=$v\","
+    done
+  done
+  # 不带 query 的裸路径
+  for f in $files; do
+    json="$json\"https://$DOMAIN/$f\","
+  done
+  json="${json%,}]"
   no_proxy='*' HTTP_PROXY= HTTPS_PROXY= tccli cdn PurgeUrlsCache --Urls "$json" || \
     log "⚠️ purge 失败,手动执行:tccli cdn PurgeUrlsCache --Urls '$json'"
 }
