@@ -40,6 +40,11 @@
   const STORAGE_VERSION = 'v0.2.0';
   const RESULT_ID_KEY = 'laa_second_layer_result_id';
 
+  // 显示用版本号(2026-10-30)。与 STORAGE_VERSION 分开:
+  // STORAGE_VERSION 变更会清空 localStorage 里客户已存的打卡进度,
+  // 所以应用版本只在这里升,数据 schema 不动。
+  const APP_VERSION = 'v0.3.0';
+
   // v1.2 第二层输出 keys
   // payload_v12: 题目答案（questions 页写，result 页读）
   // result_v12:  引擎输出（result 页写，含 maintype/secondarytype/sidehint/complexityhint）
@@ -115,6 +120,7 @@
    * 缓存 Supabase 查询到的评估记录（避免每次重新查）
    */
   let _cachedRecord = null;
+  let _fetchError = null;   // 最近一次取数失败原因(区分「没加载」/「真没有」)
   let _cachedRecordAt = 0;
   const CACHE_TTL_MS = 5000;  // 5 秒内不重复查
 
@@ -123,7 +129,11 @@
    * @returns {Promise<object|null>}
    */
   async function fetchRecord(resultid, forceRefresh = false) {
-    if (!window.laaSupabase) return null;
+    _fetchError = null;
+    if (!window.laaSupabase) {
+      _fetchError = 'SDK 未加载(网络慢或被拦截),请检查网络后重试';
+      return null;
+    }
     const now = Date.now();
     if (!forceRefresh && _cachedRecord && _cachedRecord.resultid === resultid && (now - _cachedRecordAt) < CACHE_TTL_MS) {
       return _cachedRecord;
@@ -132,6 +142,10 @@
     if (res.ok && res.data) {
       _cachedRecord = res.data;
       _cachedRecordAt = now;
+    }
+    if (!res.ok) {
+      _fetchError = res.error || '查询失败';
+      return null;
     }
     return res.ok ? res.data : null;
   }
@@ -317,7 +331,7 @@
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+      el('div', { className: 'topbar-tag' }, APP_VERSION),
     ]));
 
     // 默认占位：先显示 loading
@@ -342,8 +356,12 @@
     if (!resultid) {
       return renderEntryNoResultId();
     }
+    // 抗抖动(2026-10-30):先渲染加载态,再取数
+    // 国内直连 Supabase 2-4 秒,白屏会让客户以为打不开直接关页面
+    renderLoadingSkeleton();
     const record = await fetchRecord(resultid, true);  // 强制刷新
     if (!record) {
+      if (_fetchError) return renderEntryLoadError(_fetchError);
       return renderEntryNotFound();
     }
     const params = paramsFromRecord(record);
@@ -365,11 +383,36 @@
     return renderEntryUnpaid(record, params);
   }
 
+  /**
+   * 加载态骨架屏(2026-10-30)
+   * 取数期间显示明确反馈,避免白屏被当成「打不开」
+   */
+  function renderLoadingSkeleton() {
+    const root = document.getElementById('app-root');
+    if (!root) return;
+    const app = el('div', { className: 'app' });
+    app.appendChild(el('div', { className: 'topbar' }, [
+      el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
+      el('div', { className: 'topbar-tag' }, APP_VERSION),
+    ]));
+    const card = el('div', { className: 'empty-card', style: {
+      background: '#fff', border: '1.5px solid #e8e8e0', borderRadius: '10px',
+      padding: '32px 20px', margin: '16px 20px', textAlign: 'center',
+    }});
+    card.appendChild(el('div', { style: { fontSize: '32px', marginBottom: '12px' } }, '⏳'));
+    card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '8px' } }, '正在读取你的评估记录…'));
+    card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7' } },
+      '首次加载需要几秒,请不要关闭页面。'));
+    app.appendChild(card);
+    root.innerHTML = '';
+    root.appendChild(app);
+  }
+
   function renderEntryNoResultId() {
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+      el('div', { className: 'topbar-tag' }, APP_VERSION),
     ]));
     const card = el('div', { className: 'empty-card', style: {
       background: '#fff8e6', border: '1.5px solid #e8b75a', borderRadius: '10px',
@@ -378,7 +421,7 @@
     card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '🔒'));
     card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '8px' } }, '需要先完成第二层评估'));
     card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7', marginBottom: '16px' } }, '请先到第二层完成 16 题评估，然后回到这里。'));
-    card.appendChild(el('a', { href: '../advanced-result.html', className: 'back-btn', style: {
+    card.appendChild(el('a', { href: l2Url('advanced-result.html'), className: 'back-btn', style: {
       display: 'inline-block', padding: '12px 24px', background: '#2d5b4f', color: 'white',
       borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none',
     }}, '回到第二层结果页'));
@@ -386,11 +429,50 @@
     return app;
   }
 
+  function renderEntryLoadError(msg) {
+    const app = el('div', { className: 'app' });
+    app.appendChild(el('div', { className: 'topbar' }, [
+      el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
+      el('div', { className: 'topbar-tag' }, APP_VERSION),
+    ]));
+    const card = el('div', { className: 'empty-card', style: {
+      background: '#fff8e6', border: '1.5px solid #e8b75a', borderRadius: '10px',
+      padding: '24px 20px', margin: '16px 20px', textAlign: 'center',
+    }});
+    card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '📡'));
+    card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '8px' } }, '加载失败,不是记录丢失'));
+    card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7', marginBottom: '16px' } },
+      '无法连接到服务器读取你的评估记录(' + (msg || '网络异常') + ')。请检查网络后重试,你的评估记录仍然完好。'));
+    card.appendChild(el('button', {
+      className: 'back-btn',
+      onClick: () => location.reload(),
+      style: {
+        display: 'inline-block', padding: '12px 32px', background: '#2d5b4f', color: 'white',
+        border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: '600',
+        textDecoration: 'none', cursor: 'pointer', fontFamily: 'inherit',
+      },
+    }, '重新加载'));
+    app.appendChild(card);
+    return app;
+  }
+
+  // 第二层页面(advanced-*.html)只部署在 GitHub Pages,COS 同域没有 → 用绝对地址
+  function l2Url(page) {
+    return window.location.host.endsWith('github.io')
+      ? '../' + page
+      : 'https://jakayshawer-dev.github.io/LinnAesthetic/' + page;
+  }
+
+  // 解锁支付页:COS 上是 order-14day.html(¥299 / productId=14day),GH 上是 pay.html
+  function unlockUrl() {
+    return window.location.host.endsWith('github.io') ? '../pay.html' : '../order-14day.html';
+  }
+
   function renderEntryNotFound() {
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+      el('div', { className: 'topbar-tag' }, APP_VERSION),
     ]));
     const card = el('div', { className: 'empty-card', style: {
       background: '#fde2e2', border: '1.5px solid #c47a3a', borderRadius: '10px',
@@ -399,7 +481,7 @@
     card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '⚠️'));
     card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '8px' } }, '评估记录未找到'));
     card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7', marginBottom: '16px' } }, '请重做第二层评估（v1.2 会自动生成新的评估编号）。'));
-    card.appendChild(el('a', { href: '../advanced-questions.html', className: 'back-btn', style: {
+    card.appendChild(el('a', { href: l2Url('advanced-questions.html'), className: 'back-btn', style: {
       display: 'inline-block', padding: '12px 24px', background: '#2d5b4f', color: 'white',
       borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none',
     }}, '重做第二层'));
@@ -411,7 +493,7 @@
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+      el('div', { className: 'topbar-tag' }, APP_VERSION),
     ]));
     const card = el('div', { className: 'empty-card', style: {
       background: '#fde2e2', border: '1.5px solid #c47a3a', borderRadius: '10px',
@@ -420,7 +502,7 @@
     card.appendChild(el('div', { style: { fontSize: '36px', marginBottom: '12px' } }, '⚠️'));
     card.appendChild(el('div', { style: { fontSize: '15px', fontWeight: '600', marginBottom: '8px' } }, '评估记录异常'));
     card.appendChild(el('div', { style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.7', marginBottom: '16px' } }, '评估数据缺少主类型，请重做第二层评估。'));
-    card.appendChild(el('a', { href: '../advanced-questions.html', className: 'back-btn', style: {
+    card.appendChild(el('a', { href: l2Url('advanced-questions.html'), className: 'back-btn', style: {
       display: 'inline-block', padding: '12px 24px', background: '#2d5b4f', color: 'white',
       borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none',
     }}, '重做第二层'));
@@ -433,7 +515,7 @@
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+      el('div', { className: 'topbar-tag' }, APP_VERSION),
     ]));
     const autoCard = el('div', { className: 'entry-section' });
     const card = el('div', { className: 'auto-card', style: {
@@ -480,7 +562,7 @@
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+      el('div', { className: 'topbar-tag' }, APP_VERSION),
     ]));
     const card = el('div', { className: 'pending-card', style: {
       background: 'linear-gradient(135deg, #e8f0ed 0%, #d4e4dc 100%)',
@@ -510,7 +592,7 @@
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+      el('div', { className: 'topbar-tag' }, APP_VERSION),
     ]));
     const card = el('div', { className: 'closed-card', style: {
       background: '#f5f5f5', border: '1.5px solid #999', borderRadius: '10px',
@@ -528,7 +610,7 @@
     const app = el('div', { className: 'app' });
     app.appendChild(el('div', { className: 'topbar' }, [
       el('div', { className: 'topbar-title' }, '第三层 · 14 天跟练'),
-      el('div', { className: 'topbar-tag' }, 'v0.2.0'),
+      el('div', { className: 'topbar-tag' }, APP_VERSION),
     ]));
     const payCard = el('div', { className: 'entry-section' });
     const card = el('div', { className: 'pay-card', style: {
@@ -542,7 +624,7 @@
     const mainName = window.MAIN_TYPE_NAMES[params.maintype] || params.maintype;
     card.appendChild(el('div', { style: { fontSize: '12px', color: '#7c5e10', marginBottom: '14px' } }, '你的主因：' + mainName));
     card.appendChild(el('a', {
-      href: '../pay.html',
+      href: unlockUrl(),
       className: 'pay-btn',
       style: {
         display: 'inline-block', padding: '12px 32px',

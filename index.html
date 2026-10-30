@@ -135,7 +135,9 @@
     <script src="results.js"></script>
     <script src="js/answer-hash-generator.js"></script>
     <script src="js/test-id.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/[email protected]"></script>
+    <!-- Supabase SDK(自托管,国内 23 秒 -> 162ms) + 配置:缺这两行客户评估不入库 -->
+    <script src="vendor/supabase.umd.v2.js"></script>
+    <script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>')}</script>
     <script src="supabase-config.js"></script>
     <script src="app.js"></script>
 </body>

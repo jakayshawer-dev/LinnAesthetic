@@ -30,7 +30,7 @@ const detailBtn = document.getElementById('detail-btn');
 
 function initApp() {
   if (!window.questions || !Array.isArray(window.questions) || window.questions.length !== 12) {
-    alert('题库加载失败，请刷新页面重试。');
+    alert('题库加载失败,请刷新页面重试。');
     return;
   }
   userAnswers = new Array(window.questions.length).fill(null);
@@ -64,7 +64,7 @@ function startTest() {
 function renderQuestion() {
   const question = window.questions[currentQuestionIndex];
   if (!question || !Array.isArray(question.options) || question.options.length === 0) {
-    optionsContainer.innerHTML = '<div class="observation-box">题目选项加载失败，请检查 questions.js</div>';
+    optionsContainer.innerHTML = '<div class="observation-box">题目选项加载失败,请检查 questions.js</div>';
     return;
   }
 
@@ -116,27 +116,31 @@ function goNext() {
   finishTest();
 }
 
+/**
+ * 评估完成后:1) 写 localStorage(给后续 advanced 评估用) 2) INSERT Supabase assessments 表
+ * 2026-09-11 修复:之前 finishTest 只写 localStorage,老师后台看不到(根因诊断)
+ */
 function finishTest() {
   currentScores = calculateScores(userAnswers);
   currentResults = calculateResults(currentScores);
 
-  // 储存第一层结果，供第二层结果页读取
+  // 1. 储存第一层结果,供第二层结果页读取
   try {
     localStorage.setItem('laa_layer1_results', JSON.stringify({
       tendency: currentResults.tendency,
       direction: currentResults.direction,
       side: currentResults.side,
-      complexity: currentResults.complexity
+      complexity: currentResults.complexity,
     }));
   } catch(e) {}
 
-  // 同步评估结果到 Supabase（2026-09-24 修复：之前只写 localStorage，老师后台看不到）
+  // 2. INSERT Supabase assessments(RLS anyone can insert)
   insertToSupabase(currentResults, currentScores);
 
-  // 获取详细描述
+  // 3. 获取详细描述
   const descriptions = getDetailedDescriptions(currentResults, currentScores);
 
-  // 更新结果页
+  // 4. 更新结果页
   resultTendency.textContent = currentResults.tendency;
   resultTendencyDesc.textContent = descriptions.tendency;
   resultDirection.textContent = currentResults.direction;
@@ -148,33 +152,28 @@ function finishTest() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function restartTest() {
-  showPage('home');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
 /**
  * 把第一层评估结果插入 Supabase assessments 表
- * 字段映射：
- *   - resultid = uuid（crypto.randomUUID 浏览器原生支持）
- *   - maintype = currentResults.direction（T1-T5）
+ * 字段映射:
+ *   - resultid = uuid(用 crypto.randomUUID 浏览器原生支持)
+ *   - maintype = currentResults.direction (T1-T5)
  *   - sidehint = currentResults.side
  *   - complexityhint = currentResults.complexity
  *   - trainingprioritytext = 自动生成的训练重点文字
- *   - thirdlayerstatus = 'unpaid'（默认，等 mike 后台开通）
+ *   - thirdlayerstatus = 'unpaid'(默认,等 mike 后台开通)
  */
 async function insertToSupabase(results, scores) {
   try {
     if (!window.supabase || !window.supabase.createClient) {
-      console.warn('[laa] supabase-js 未加载，跳过云端同步（仅 localStorage）');
+      console.warn('[laa] supabase-js 未加载,跳过云端同步(只在 localStorage)');
       return;
     }
     if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
-      console.warn('[laa] supabase-config 未加载，跳过云端同步');
+      console.warn('[laa] supabase-config 未加载,跳过云端同步');
       return;
     }
 
-    // 客户端（复用 window.laaSupabase，如果 teacher.html 之前已创建过）
+    // 客户端(复用 window.laaSupabase,如果 teacher.html 之前已创建过)
     const client = window.laaSupabase || window.supabase.createClient(
       window.SUPABASE_URL,
       window.SUPABASE_ANON_KEY
@@ -190,25 +189,25 @@ async function insertToSupabase(results, scores) {
       .from('assessments')
       .insert({
         resultid: resultid,
-        maintype: results.direction,
-        sidehint: results.side,
-        complexityhint: results.complexity,
+        maintype: results.direction,         // T1-T5
+        sidehint: results.side,              // left_weak / right_weak / bilateral / ...
+        complexityhint: results.complexity,  // low / mixed / conflicting / high / side_unclear
         trainingprioritytext: trainingPriority,
         thirdlayerstatus: window.STATUS_UNPAID || 'unpaid',
       })
       .select();
 
     if (error) {
-      console.error('[laa] Supabase 插入失败：', error);
+      console.error('[laa] Supabase 插入失败:', error);
     } else {
-      console.log('[laa] 评估已同步到云端，resultid：', resultid);
-      // 把 resultid 存到 localStorage，方便第二层关联
+      console.log('[laa] 评估已同步到云端,resultid:', resultid);
+      // 把 resultid 存到 localStorage,方便第二层关联
       try {
         localStorage.setItem('laa_result_id', resultid);
       } catch(e) {}
     }
   } catch (e) {
-    console.error('[laa] insertToSupabase 异常：', e);
+    console.error('[laa] insertToSupabase 异常:', e);
   }
 }
 
@@ -223,6 +222,11 @@ function generateTrainingPriorityText(results) {
   }[results.side] || results.side;
 
   return `${results.tendency} · 主方向 ${results.direction} · ${sideLabel} · 复杂度 ${results.complexity}`;
+}
+
+function restartTest() {
+  showPage('home');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function goToAdvanced() {

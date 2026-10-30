@@ -4,8 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>LAA · 第三层 v0.1 独立预览</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="styles.css?v=0.3.0">
+  <!-- Supabase SDK 自托管(国内 23 秒 -> 162ms)。
+       v2 文件名 = 版本化缓存戳:CDN 对 JS 默认缓存一年,换文件名才能让改动生效。
+       jsdelivr 仅作兜底,SDK 加载失败时不会再误报「评估记录未找到」。 -->
+  <script src="../vendor/supabase.umd.v2.js"></script>
+  <script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>')}</script>
   <script>
     // 默认路由到入口
     if (!location.hash) location.hash = '#/entry';
@@ -14,15 +18,15 @@
 <body>
   <div id="app-root">
     <div class="app">
-      <div style="padding:40px 20px;text-align:center;color:var(--color-text-secondary);">加载中…</div>
+      <div style="padding:40px 20px;text-align:center;color:var(--color-text-secondary);">正在读取你的评估记录…</div>
     </div>
   </div>
 
   <!-- 数据 + 引擎（v0.1 独立命名空间，不读 v1.2 数据） -->
-  <script src="actions.js?v=0.2.2"></script>
-  <script src="plan-generator.js?v=0.2.2"></script>
-  <script src="../supabase-config.js?v=0.2.2"></script>
-  <script src="../supabase-client.js?v=0.2.2"></script>
-  <script src="app.js?v=0.2.2"></script>
+  <script src="actions.js?v=0.3.0"></script>
+  <script src="plan-generator.js?v=0.3.0"></script>
+  <script src="../supabase-config.js?v=0.3.0"></script>
+  <script src="../supabase-client.js?v=0.3.0"></script>
+  <script src="app.js?v=0.3.0"></script>
 </body>
 </html>

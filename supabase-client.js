@@ -85,10 +85,81 @@
 
   /**
    * 按 resultid 查一行
+   *
+   * 抗抖动设计(2026-10-30):
+   *   国内手机直连 Supabase 实测 2-4 秒,偶发 10 秒+,supabase-js 默认无超时
+   *   → 一次网络抖动就整页失败,客户看到「评估记录未找到」(假的)
+   *   修复三层:
+   *   1) REST 直连 fetch(不用 supabase-js 的 query builder,少一层不确定性)
+   *   2) 单次请求 8 秒超时(AbortController)
+   *   3) 失败重试 2 次,退避 0.8s / 2s
+   *   4) REST 直连也失败时,再回落到 supabase-js
+   *
    * @param {string} resultid
    * @returns {Promise<{ok: boolean, data?: object, error?: string}>}
    */
+  const FETCH_TIMEOUT_MS = 8000;
+  const FETCH_RETRIES = 2;
+
+  function sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  /**
+   * REST 直连兜底:不经过 supabase-js
+   * @returns {Promise<{ok: boolean, data?: object|null, error?: string}>}
+   */
+  async function getAssessmentViaRest(resultid) {
+    const base = window.SUPABASE_URL;
+    const key = window.SUPABASE_ANON_KEY;
+    if (!base || !key) {
+      return { ok: false, error: 'Supabase 配置缺失' };
+    }
+    const url = base.replace(/\/+$/, '') + '/rest/v1/assessments'
+      + '?resultid=eq.' + encodeURIComponent(resultid)
+      + '&select=*';
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'apikey': key,
+          'Authorization': 'Bearer ' + key,
+          'Accept': 'application/json',
+        },
+        signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      if (!resp.ok) {
+        return { ok: false, error: '查询失败(HTTP ' + resp.status + ')' };
+      }
+      const rows = await resp.json();
+      if (!Array.isArray(rows) || rows.length === 0) {
+        // 请求成功但没数据 = 记录真的不存在
+        return { ok: true, data: null };
+      }
+      return { ok: true, data: rows[0] };
+    } catch (e) {
+      const msg = (e && e.name === 'AbortError')
+        ? '网络超时(' + FETCH_TIMEOUT_MS + 'ms)'
+        : ('网络异常: ' + (e && e.message ? e.message : String(e)));
+      return { ok: false, error: msg };
+    }
+  }
+
   async function getAssessment(resultid) {
+    // 第一层:REST 直连 + 重试(最快的路径,且不依赖 SDK)
+    let lastErr = null;
+    for (let attempt = 0; attempt <= FETCH_RETRIES; attempt++) {
+      const res = await getAssessmentViaRest(resultid);
+      if (res.ok) return res;
+      lastErr = res.error;
+      if (attempt < FETCH_RETRIES) {
+        await sleep(attempt === 0 ? 800 : 2000);
+      }
+    }
+    // 第二层:回落 supabase-js
     try {
       const { data, error } = await client
         .from('assessments')
@@ -97,12 +168,12 @@
         .maybeSingle();
       if (error) {
         console.error('[getAssessment] error:', error);
-        return { ok: false, error: error.message };
+        return { ok: false, error: lastErr || error.message };
       }
       return { ok: true, data };
     } catch (e) {
       console.error('[getAssessment] exception:', e);
-      return { ok: false, error: e.message };
+      return { ok: false, error: lastErr || (e && e.message ? e.message : String(e)) };
     }
   }
 
