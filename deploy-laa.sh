@@ -155,7 +155,7 @@ purge_cdn() {
   #    该变体在 CDN 里被缓存了 24.6 小时并一直发旧字节 → 旧 bug 复现 → 「时好时坏」。
   #    只清当前版本号 = 老客户拿不到新代码。
   # JSON 必须写成单行:多行会被 tccli 的参数解析吃掉引号/换行
-  local json="" v f
+  local json="[" v f
   local files="third-layer/index.html third-layer/app.js third-layer/actions.js third-layer/plan-generator.js third-layer/styles.css vendor/supabase.umd.v2.js supabase-client.js supabase-config.js app.js index.html LinnAesthetic/third-layer/index.html"
   # 当前版本
   for f in $files; do
