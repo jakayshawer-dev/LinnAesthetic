@@ -834,14 +834,42 @@
         const video = el('video', {
           src: a.videoUrl,
           controls: true,
-          preload: 'none',
+          // ⚠️ 2026-10-31 修:不能用 'none'
+          //   微信/X5 内核下 preload=none 的 video 不会预取,点击后也不一定触发加载,
+          //   表现为「点了没反应 / 转圈播不出来」。metadata 只拉 moov(几 KB),足够拿到时长和首帧。
+          preload: 'metadata',
           playsinline: true,
           // 移动端 inline 播放，不强制全屏
           'webkit-playsinline': 'true',
           'x5-video-player-type': 'h5-page',
+          // ⚠️ 2026-10-31 注意:不要加 crossorigin="anonymous"
+          //   COS 默认不返回 Access-Control-Allow-Origin(实测源站确实没有),
+          //   加了它浏览器会因缺 CORS 头直接拒绕视频 → 完全播不了。
+          //   普通 <video src> 跨域播放不需要 CORS,不加即可。
         });
-        video.poster = '';
+        // ⚠️ 2026-10-31 修:不要写 video.poster = ''
+        //   空字符串会被浏览器当成相对 URL,解析成「当前页面地址」,
+        //   导致 video 元素加载一张 HTML 当封面图,渲染异常且点击区域不对。
+        //   需要封面图就放真实 URL;不需要就别设这个属性。
         wrap.appendChild(video);
+        videoRow.appendChild(wrap);
+        // ⚠️ 2026-10-31 加:播放失败兜底
+        //   微信/弱网下 video 可能加载失败。给一个「用外部浏览器打开」的链接,
+        //   至少客户能看到内容,而不是对着一个死掉的播放器。
+        video.addEventListener('error', function () {
+          var hint = el('div', { className: 'action-card-video-empty', style: {
+            marginTop: '6px', color: '#b45309', fontSize: '13px',
+          }});
+          hint.appendChild(el('span', {}, '视频加载失败，'));
+          var fallback = el('a', {
+            href: a.videoUrl,
+            target: '_blank',
+            rel: 'noopener',
+            style: { color: '#2d5b4f', fontWeight: '600' },
+          }, '点此用浏览器打开');
+          hint.appendChild(fallback);
+          wrap.appendChild(hint);
+        });
         videoRow.appendChild(wrap);
       } else {
         videoRow.appendChild(el('div', { className: 'action-card-video-empty' }, '视频待上传'));
