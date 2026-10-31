@@ -832,11 +832,11 @@
       if (a.videoUrl) {
         const wrap = el('div', { className: 'action-card-video-wrap' });
         const video = el('video', {
-          src: a.videoUrl,
           controls: true,
           // ⚠️ 2026-10-31 修:不能用 'none'
           //   微信/X5 内核下 preload=none 的 video 不会预取,点击后也不一定触发加载,
-          //   表现为「点了没反应 / 转圈播不出来」。metadata 只拉 moov(几 KB),足够拿到时长和首帧。
+          //   表现为「点了没反应 / 转圈播不出来」。
+          //   这里用 'metadata' 只拉 moov(几 KB),足够拿到时长和首帧。
           preload: 'metadata',
           playsinline: true,
           // 移动端 inline 播放，不强制全屏
@@ -847,6 +847,29 @@
           //   加了它浏览器会因缺 CORS 头直接拒绕视频 → 完全播不了。
           //   普通 <video src> 跨域播放不需要 CORS,不加即可。
         });
+        // ⚠️ 2026-10-31 改:src 不在标签上直接写
+        //   改为 IntersectionObserver 首次进入视口时才赋 src。
+        //   原因:一天的动作卡有多个视频,直接写 src 会一次性对每个视频发请求,
+        //   移动端弱网下互相抢带宽 → 每个都转圈。改成“滑到才加载”。
+        let srcAssigned = false;
+        function assignSrc() {
+          if (srcAssigned) return;
+          srcAssigned = true;
+          video.src = a.videoUrl;
+          video.load();
+        }
+        if (typeof IntersectionObserver !== 'undefined') {
+          const io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) { assignSrc(); io.disconnect(); }
+            });
+          }, { rootMargin: '300px' });
+          io.observe(wrap);
+          // 兜底:若观察器未触发(老内核/无障碍模式),3 秒后也加载
+          setTimeout(assignSrc, 3000);
+        } else {
+          assignSrc();
+        }
         // ⚠️ 2026-10-31 修:不要写 video.poster = ''
         //   空字符串会被浏览器当成相对 URL,解析成「当前页面地址」,
         //   导致 video 元素加载一张 HTML 当封面图,渲染异常且点击区域不对。
